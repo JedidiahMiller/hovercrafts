@@ -1,0 +1,14 @@
+{
+  "name": "cs488",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --open",
+    "build": "tsc && vite build",
+    "sandbox": "tsc && node build/lib/sandbox.js"
+  },
+  "dependencies": {
+    "typescript": "^5.9.2",
+    "vite": "^7.1.3",
+    "vite-plugin-checker": "^0.10.2"
+  }
+}
