@@ -42,7 +42,7 @@ export class Matrix4 {
   }
 
   static rotateZ(degrees: number) {
-    const radians = degrees * Math.PI / 180;
+    const radians = (degrees * Math.PI) / 180;
     const m = Matrix4.identity();
     m.set(0, 0, Math.cos(radians));
     m.set(0, 1, -Math.sin(radians));
@@ -52,7 +52,7 @@ export class Matrix4 {
   }
 
   static rotateX(degrees: number) {
-    const radians = degrees * Math.PI / 180;
+    const radians = (degrees * Math.PI) / 180;
     const m = Matrix4.identity();
     m.set(1, 1, Math.cos(radians));
     m.set(1, 2, -Math.sin(radians));
@@ -62,7 +62,7 @@ export class Matrix4 {
   }
 
   static rotateY(degrees: number) {
-    const radians = degrees * Math.PI / 180;
+    const radians = (degrees * Math.PI) / 180;
     const m = Matrix4.identity();
     m.set(0, 0, Math.cos(radians));
     m.set(0, 2, -Math.sin(radians));
@@ -76,7 +76,7 @@ export class Matrix4 {
 
     for (let r = 0; r < 4; ++r) {
       for (let c = 0; c < 4; ++c) {
-        const dot = 
+        const dot =
           this.get(r, 0) * that.get(0, c) +
           this.get(r, 1) * that.get(1, c) +
           this.get(r, 2) * that.get(2, c) +
@@ -87,9 +87,14 @@ export class Matrix4 {
     return m;
   }
 
-  static ortho(left: number, right: number,
-             bottom: number, top: number,
-             near: number, far: number) {
+  static ortho(
+    left: number,
+    right: number,
+    bottom: number,
+    top: number,
+    near: number,
+    far: number,
+  ) {
     const m = Matrix4.identity();
     const width = right - left;
     const height = top - bottom;
@@ -103,10 +108,14 @@ export class Matrix4 {
     return m;
   }
 
-  static perspective(fovY: number, aspectRatio: number,
-                   near: number, far: number) {
+  static perspective(
+    fovY: number,
+    aspectRatio: number,
+    near: number,
+    far: number,
+  ) {
     const m = Matrix4.identity();
-    const radians = fovY * Math.PI / 180 * 0.5;
+    const radians = ((fovY * Math.PI) / 180) * 0.5;
     const top = Math.tan(radians) * near;
     const right = aspectRatio * top;
     m.set(0, 0, near / right);
@@ -145,7 +154,7 @@ export class Matrix4 {
   static rotateAround(axis: Vector3, degrees: number) {
     const m = Matrix4.identity();
 
-    const radians = degrees * Math.PI / 180;
+    const radians = (degrees * Math.PI) / 180;
     const s = Math.sin(radians);
     const c = Math.cos(radians);
     const d = 1 - c;
@@ -166,20 +175,43 @@ export class Matrix4 {
   }
 
   multiplyPosition(v: Vector3) {
-    const x = this.get(0, 0) * v.x + this.get(0, 1) * v.y + this.get(0, 2) * v.z + this.get(0, 3);
-    const y = this.get(1, 0) * v.x + this.get(1, 1) * v.y + this.get(1, 2) * v.z + this.get(1, 3);
-    const z = this.get(2, 0) * v.x + this.get(2, 1) * v.y + this.get(2, 2) * v.z + this.get(2, 3);
+    const x =
+      this.get(0, 0) * v.x +
+      this.get(0, 1) * v.y +
+      this.get(0, 2) * v.z +
+      this.get(0, 3);
+    const y =
+      this.get(1, 0) * v.x +
+      this.get(1, 1) * v.y +
+      this.get(1, 2) * v.z +
+      this.get(1, 3);
+    const z =
+      this.get(2, 0) * v.x +
+      this.get(2, 1) * v.y +
+      this.get(2, 2) * v.z +
+      this.get(2, 3);
 
     return new Vector3(x, y, z);
   }
 
-
   multiplyVector4(v: Vector4) {
     return new Vector4(
-      this.get(0, 0) * v.x + this.get(0, 1) * v.y + this.get(0, 2) * v.z + this.get(0, 3) * v.w,
-      this.get(1, 0) * v.x + this.get(1, 1) * v.y + this.get(1,2) * v.z + this.get(1,3) * v.w,
-      this.get(2, 0) * v.x + this.get(2, 1) * v.y + this.get(2, 2) * v.z + this.get(2, 3) * v.w,
-      this.get(3, 0) * v.x + this.get(3, 1) * v.y + this.get(3, 2) * v.z + this.get(3, 3) * v.w
+      this.get(0, 0) * v.x +
+        this.get(0, 1) * v.y +
+        this.get(0, 2) * v.z +
+        this.get(0, 3) * v.w,
+      this.get(1, 0) * v.x +
+        this.get(1, 1) * v.y +
+        this.get(1, 2) * v.z +
+        this.get(1, 3) * v.w,
+      this.get(2, 0) * v.x +
+        this.get(2, 1) * v.y +
+        this.get(2, 2) * v.z +
+        this.get(2, 3) * v.w,
+      this.get(3, 0) * v.x +
+        this.get(3, 1) * v.y +
+        this.get(3, 2) * v.z +
+        this.get(3, 3) * v.w,
     );
   }
 
@@ -206,24 +238,104 @@ export class Matrix4 {
 
     if (determinant != 0) {
       let inverseDeterminant = 1 / determinant;
-      m.set(0, 0, (+this.get(1, 1) * b5 - this.get(1, 2) * b4 + this.get(1, 3) * b3) * inverseDeterminant);
-      m.set(0, 1, (-this.get(0, 1) * b5 + this.get(0, 2) * b4 - this.get(0, 3) * b3) * inverseDeterminant);
-      m.set(0, 2, (+this.get(3, 1) * a5 - this.get(3, 2) * a4 + this.get(3, 3) * a3) * inverseDeterminant);
-      m.set(0, 3, (-this.get(2, 1) * a5 + this.get(2, 2) * a4 - this.get(2, 3) * a3) * inverseDeterminant);
-      m.set(1, 0, (-this.get(1, 0) * b5 + this.get(1, 2) * b2 - this.get(1, 3) * b1) * inverseDeterminant);
-      m.set(1, 1, (+this.get(0, 0) * b5 - this.get(0, 2) * b2 + this.get(0, 3) * b1) * inverseDeterminant);
-      m.set(1, 2, (-this.get(3, 0) * a5 + this.get(3, 2) * a2 - this.get(3, 3) * a1) * inverseDeterminant);
-      m.set(1, 3, (+this.get(2, 0) * a5 - this.get(2, 2) * a2 + this.get(2, 3) * a1) * inverseDeterminant);
-      m.set(2, 0, (+this.get(1, 0) * b4 - this.get(1, 1) * b2 + this.get(1, 3) * b0) * inverseDeterminant);
-      m.set(2, 1, (-this.get(0, 0) * b4 + this.get(0, 1) * b2 - this.get(0, 3) * b0) * inverseDeterminant);
-      m.set(2, 2, (+this.get(3, 0) * a4 - this.get(3, 1) * a2 + this.get(3, 3) * a0) * inverseDeterminant);
-      m.set(2, 3, (-this.get(2, 0) * a4 + this.get(2, 1) * a2 - this.get(2, 3) * a0) * inverseDeterminant);
-      m.set(3, 0, (-this.get(1, 0) * b3 + this.get(1, 1) * b1 - this.get(1, 2) * b0) * inverseDeterminant);
-      m.set(3, 1, (+this.get(0, 0) * b3 - this.get(0, 1) * b1 + this.get(0, 2) * b0) * inverseDeterminant);
-      m.set(3, 2, (-this.get(3, 0) * a3 + this.get(3, 1) * a1 - this.get(3, 2) * a0) * inverseDeterminant);
-      m.set(3, 3, (+this.get(2, 0) * a3 - this.get(2, 1) * a1 + this.get(2, 2) * a0) * inverseDeterminant);
+      m.set(
+        0,
+        0,
+        (+this.get(1, 1) * b5 - this.get(1, 2) * b4 + this.get(1, 3) * b3) *
+          inverseDeterminant,
+      );
+      m.set(
+        0,
+        1,
+        (-this.get(0, 1) * b5 + this.get(0, 2) * b4 - this.get(0, 3) * b3) *
+          inverseDeterminant,
+      );
+      m.set(
+        0,
+        2,
+        (+this.get(3, 1) * a5 - this.get(3, 2) * a4 + this.get(3, 3) * a3) *
+          inverseDeterminant,
+      );
+      m.set(
+        0,
+        3,
+        (-this.get(2, 1) * a5 + this.get(2, 2) * a4 - this.get(2, 3) * a3) *
+          inverseDeterminant,
+      );
+      m.set(
+        1,
+        0,
+        (-this.get(1, 0) * b5 + this.get(1, 2) * b2 - this.get(1, 3) * b1) *
+          inverseDeterminant,
+      );
+      m.set(
+        1,
+        1,
+        (+this.get(0, 0) * b5 - this.get(0, 2) * b2 + this.get(0, 3) * b1) *
+          inverseDeterminant,
+      );
+      m.set(
+        1,
+        2,
+        (-this.get(3, 0) * a5 + this.get(3, 2) * a2 - this.get(3, 3) * a1) *
+          inverseDeterminant,
+      );
+      m.set(
+        1,
+        3,
+        (+this.get(2, 0) * a5 - this.get(2, 2) * a2 + this.get(2, 3) * a1) *
+          inverseDeterminant,
+      );
+      m.set(
+        2,
+        0,
+        (+this.get(1, 0) * b4 - this.get(1, 1) * b2 + this.get(1, 3) * b0) *
+          inverseDeterminant,
+      );
+      m.set(
+        2,
+        1,
+        (-this.get(0, 0) * b4 + this.get(0, 1) * b2 - this.get(0, 3) * b0) *
+          inverseDeterminant,
+      );
+      m.set(
+        2,
+        2,
+        (+this.get(3, 0) * a4 - this.get(3, 1) * a2 + this.get(3, 3) * a0) *
+          inverseDeterminant,
+      );
+      m.set(
+        2,
+        3,
+        (-this.get(2, 0) * a4 + this.get(2, 1) * a2 - this.get(2, 3) * a0) *
+          inverseDeterminant,
+      );
+      m.set(
+        3,
+        0,
+        (-this.get(1, 0) * b3 + this.get(1, 1) * b1 - this.get(1, 2) * b0) *
+          inverseDeterminant,
+      );
+      m.set(
+        3,
+        1,
+        (+this.get(0, 0) * b3 - this.get(0, 1) * b1 + this.get(0, 2) * b0) *
+          inverseDeterminant,
+      );
+      m.set(
+        3,
+        2,
+        (-this.get(3, 0) * a3 + this.get(3, 1) * a1 - this.get(3, 2) * a0) *
+          inverseDeterminant,
+      );
+      m.set(
+        3,
+        3,
+        (+this.get(2, 0) * a3 - this.get(2, 1) * a1 + this.get(2, 2) * a0) *
+          inverseDeterminant,
+      );
     } else {
-      throw Error('Matrix is singular.');
+      throw Error("Matrix is singular.");
     }
 
     return m;

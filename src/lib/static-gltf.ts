@@ -1,4 +1,11 @@
-export type AssociationType = 'SCALAR' | 'VEC2' | 'VEC3' | 'VEC4' | 'MAT2' | 'MAT3' | 'MAT4';
+export type AssociationType =
+  | "SCALAR"
+  | "VEC2"
+  | "VEC3"
+  | "VEC4"
+  | "MAT2"
+  | "MAT3"
+  | "MAT4";
 
 namespace meta {
   export type Index = number;
@@ -10,17 +17,17 @@ namespace meta {
     /**
      * The index of the bufferView with sparse indices. Referenced bufferView can't have ARRAY_BUFFER or ELEMENT_ARRAY_BUFFER target.
      */
-    'bufferView': Index;
+    bufferView: Index;
     /**
      * The offset relative to the start of the bufferView in bytes. Must be aligned.
      */
-    'byteOffset'?: number;
+    byteOffset?: number;
     /**
      * The indices data type.
      */
-    'componentType': 5121 | 5123 | 5125 | number;
-    'extensions'?: any;
-    'extras'?: any;
+    componentType: 5121 | 5123 | 5125 | number;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
   /**
@@ -30,13 +37,13 @@ namespace meta {
     /**
      * The index of the bufferView with sparse values. Referenced bufferView can't have ARRAY_BUFFER or ELEMENT_ARRAY_BUFFER target.
      */
-    'bufferView': Index;
+    bufferView: Index;
     /**
      * The offset relative to the start of the bufferView in bytes. Must be aligned.
      */
-    'byteOffset'?: number;
-    'extensions'?: any;
-    'extras'?: any;
+    byteOffset?: number;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
   /**
@@ -46,17 +53,17 @@ namespace meta {
     /**
      * Number of entries stored in the sparse array.
      */
-    'count': number;
+    count: number;
     /**
      * Index array of size `count` that points to those accessor attributes that deviate from their initialization value. Indices must strictly increase.
      */
-    'indices': AccessorSparseIndices;
+    indices: AccessorSparseIndices;
     /**
      * Array of size `count` times number of components, storing the displaced accessor attributes pointed by `indices`. Substituted values must have the same `componentType` and number of components as the base accessor.
      */
-    'values': AccessorSparseValues;
-    'extensions'?: any;
-    'extras'?: any;
+    values: AccessorSparseValues;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
   /**
@@ -67,39 +74,39 @@ namespace meta {
     /**
      * The index of the bufferView.
      */
-    'bufferView'?: Index;
+    bufferView?: Index;
     /**
      * The offset relative to the start of the bufferView in bytes.
      */
-    'byteOffset'?: number;
+    byteOffset?: number;
     /**
      * The datatype of components in the attribute.
      */
-    'componentType': 5120 | 5121 | 5122 | 5123 | 5125 | 5126 | number;
+    componentType: 5120 | 5121 | 5122 | 5123 | 5125 | 5126 | number;
     /**
      * Specifies whether integer data values should be normalized.
      */
-    'normalized'?: boolean;
+    normalized?: boolean;
     /**
      * The number of attributes referenced by this accessor.
      */
-    'count': number;
+    count: number;
     type: AssociationType;
     /**
      * Maximum value of each component in this attribute.
      */
-    'max'?: number[];
+    max?: number[];
     /**
      * Minimum value of each component in this attribute.
      */
-    'min'?: number[];
+    min?: number[];
     /**
      * Sparse storage of attributes that deviate from their initialization value.
      */
-    'sparse'?: AccessorSparse;
-    'name'?: any;
-    'extensions'?: any;
-    'extras'?: any;
+    sparse?: AccessorSparse;
+    name?: any;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
 
@@ -110,21 +117,21 @@ namespace meta {
     /**
      * A copyright message suitable for display to credit the content creator.
      */
-    'copyright'?: string;
+    copyright?: string;
     /**
      * Tool that generated this glTF model.  Useful for debugging.
      */
-    'generator'?: string;
+    generator?: string;
     /**
      * The glTF version that this asset targets.
      */
-    'version': string;
+    version: string;
     /**
      * The minimum glTF version that this asset targets.
      */
-    'minVersion'?: string;
-    'extensions'?: any;
-    'extras'?: any;
+    minVersion?: string;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
   /**
@@ -134,14 +141,14 @@ namespace meta {
     /**
      * The uri of the buffer.
      */
-    'uri'?: string;
+    uri?: string;
     /**
      * The length of the buffer in bytes.
      */
-    'byteLength': number;
-    'name'?: any;
-    'extensions'?: any;
-    'extras'?: any;
+    byteLength: number;
+    name?: any;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
   /**
@@ -151,26 +158,26 @@ namespace meta {
     /**
      * The index of the buffer.
      */
-    'buffer': Index;
+    buffer: Index;
     /**
      * The offset into the buffer in bytes.
      */
-    'byteOffset'?: number;
+    byteOffset?: number;
     /**
      * The total byte length of the buffer view.
      */
-    'byteLength': number;
+    byteLength: number;
     /**
      * The stride, in bytes.
      */
-    'byteStride'?: number;
+    byteStride?: number;
     /**
      * The target that the GPU buffer should be bound to.
      */
-    'target'?: 34962 | 34963 | number;
-    'name'?: any;
-    'extensions'?: any;
-    'extras'?: any;
+    target?: 34962 | 34963 | number;
+    name?: any;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
 
@@ -181,29 +188,29 @@ namespace meta {
     /**
      * A dictionary object, where each key corresponds to mesh attribute semantic and each value is the index of the accessor containing attribute's data.
      */
-    'attributes': {
+    attributes: {
       [k: string]: Index;
     };
     /**
      * The index of the accessor that contains the indices.
      */
-    'indices'?: Index;
+    indices?: Index;
     /**
      * The index of the material to apply to this primitive when rendering.
      */
-    'material'?: Index;
+    material?: Index;
     /**
      * The type of primitives to render.
      */
-    'mode'?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | number;
+    mode?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | number;
     /**
      * An array of Morph Targets, each  Morph Target is a dictionary mapping attributes (only `POSITION`, `NORMAL`, and `TANGENT` supported) to their deviations in the Morph Target.
      */
-    'targets'?: {
+    targets?: {
       [k: string]: Index;
     }[];
-    'extensions'?: any;
-    'extras'?: any;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
   /**
@@ -213,14 +220,14 @@ namespace meta {
     /**
      * An array of primitives, each defining geometry to be rendered with a material.
      */
-    'primitives': MeshPrimitive[];
+    primitives: MeshPrimitive[];
     /**
      * Array of weights to be applied to the Morph Targets.
      */
-    'weights'?: number[];
-    'name'?: any;
-    'extensions'?: any;
-    'extras'?: any;
+    weights?: number[];
+    name?: any;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
   /**
@@ -230,12 +237,12 @@ namespace meta {
     /**
      * The indices of this node's children.
      */
-    'children'?: Index[];
+    children?: Index[];
     name?: string;
     /**
      * The index of the mesh in this node.
      */
-    'mesh'?: Index;
+    mesh?: Index;
   }
 
   export interface Scene {
@@ -246,32 +253,31 @@ namespace meta {
     /**
      * Names of glTF extensions used somewhere in this asset.
      */
-    'extensionsUsed'?: string[];
+    extensionsUsed?: string[];
     /**
      * Names of glTF extensions required to properly load this asset.
      */
-    'extensionsRequired'?: string[];
+    extensionsRequired?: string[];
     accessors: Accessor[];
     /**
      * An array of keyframe animations.
      */
-    'animations'?: Animation[];
+    animations?: Animation[];
     /**
      * Metadata about the glTF asset.
      */
-    'asset': Asset;
+    asset: Asset;
     buffers: Buffer[];
     bufferViews: BufferView[];
     meshes: Mesh[];
     nodes: Node[];
     scene: Index;
     scenes: Scene[];
-    'extensions'?: any;
-    'extras'?: any;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
 }
-
 
 export interface Node {
   id: number;
@@ -318,24 +324,28 @@ interface StringToNumber {
 }
 
 const componentCounts: StringToNumber = {
-  'SCALAR': 1,
-  'VEC2': 2,
-  'VEC3': 3,
-  'VEC4': 4,
-  'MAT2': 4,
-  'MAT3': 9,
-  'MAT4': 16,
+  SCALAR: 1,
+  VEC2: 2,
+  VEC3: 3,
+  VEC4: 4,
+  MAT2: 4,
+  MAT3: 9,
+  MAT4: 16,
 };
 
 async function readExternalBuffer(path: string, buffer: string) {
   // The external buffers are in the same directory as the model file.
   // We extract the parent directory from the path.
-  const directory = path.split('/').slice(0, -1).join('/');
+  const directory = path.split("/").slice(0, -1).join("/");
   const response = await fetch(`${directory}/${buffer}`);
   return await response.arrayBuffer();
 }
 
-function extractBuffer(gltf: meta.Root, buffers: ArrayBuffer[], accessor: meta.Accessor): FloatBuffer | IntBuffer {
+function extractBuffer(
+  gltf: meta.Root,
+  buffers: ArrayBuffer[],
+  accessor: meta.Accessor,
+): FloatBuffer | IntBuffer {
   const bufferView = gltf.bufferViews![accessor.bufferView as number];
   // How many numbers is each sample?
   const componentCount = componentCounts[accessor.type];
@@ -346,17 +356,57 @@ function extractBuffer(gltf: meta.Root, buffers: ArrayBuffer[], accessor: meta.A
 
   let buffer;
   if (componentType == BufferType.Float) {
-    buffer = new Float32Array(buffers[bufferView.buffer], offset, accessor.count * componentCount)
-    return {componentCount, buffer, associationType, componentType, count} as FloatBuffer;
+    buffer = new Float32Array(
+      buffers[bufferView.buffer],
+      offset,
+      accessor.count * componentCount,
+    );
+    return {
+      componentCount,
+      buffer,
+      associationType,
+      componentType,
+      count,
+    } as FloatBuffer;
   } else if (componentType == BufferType.Int) {
-    buffer = new Uint32Array(buffers[bufferView.buffer], offset, accessor.count * componentCount);
-    return {componentCount, buffer, associationType, componentType, count} as IntBuffer;
+    buffer = new Uint32Array(
+      buffers[bufferView.buffer],
+      offset,
+      accessor.count * componentCount,
+    );
+    return {
+      componentCount,
+      buffer,
+      associationType,
+      componentType,
+      count,
+    } as IntBuffer;
   } else if (componentType == BufferType.Short) {
-    buffer = new Uint16Array(buffers[bufferView.buffer], offset, accessor.count * componentCount);
-    return {componentCount, buffer, associationType, componentType, count} as IntBuffer;
+    buffer = new Uint16Array(
+      buffers[bufferView.buffer],
+      offset,
+      accessor.count * componentCount,
+    );
+    return {
+      componentCount,
+      buffer,
+      associationType,
+      componentType,
+      count,
+    } as IntBuffer;
   } else if (componentType == BufferType.UnsignedByte) {
-    buffer = new Uint8Array(buffers[bufferView.buffer], offset, accessor.count * componentCount);
-    return {componentCount, buffer, associationType, componentType, count} as IntBuffer;
+    buffer = new Uint8Array(
+      buffers[bufferView.buffer],
+      offset,
+      accessor.count * componentCount,
+    );
+    return {
+      componentCount,
+      buffer,
+      associationType,
+      componentType,
+      count,
+    } as IntBuffer;
   } else {
     throw `unknown component type ${componentType}`;
   }
@@ -367,7 +417,12 @@ function getAccessor(gltf: meta.Root, mesh: meta.Mesh, attributeName: string) {
   return gltf.accessors[attribute];
 }
 
-function extractNamedBuffer(gltf: meta.Root, buffers: ArrayBuffer[], mesh: meta.Mesh, name: string) {
+function extractNamedBuffer(
+  gltf: meta.Root,
+  buffers: ArrayBuffer[],
+  mesh: meta.Mesh,
+  name: string,
+) {
   if (mesh.primitives[0].attributes[name] === undefined) {
     return null;
   }
@@ -381,17 +436,24 @@ function extractNodes(index: number, node: meta.Node): Node {
     id: index,
     name: node.name,
     children: node.children || [],
-    mesh: node.mesh
+    mesh: node.mesh,
   } as Node;
 }
 
 function extractMesh(gltf: meta.Root, mesh: meta.Mesh, buffers: ArrayBuffer[]) {
-  let indices: {buffer: Uint8Array | Uint16Array | Uint32Array, count: number} | null = null;
+  let indices: {
+    buffer: Uint8Array | Uint16Array | Uint32Array;
+    count: number;
+  } | null = null;
 
   // TODO: this only loads the first part of the mesh.
   if (mesh.primitives[0].indices) {
     const indexAccessor = gltf.accessors[mesh.primitives[0].indices];
-    const indexBuffer = extractBuffer(gltf, buffers, indexAccessor) as IntBuffer;
+    const indexBuffer = extractBuffer(
+      gltf,
+      buffers,
+      indexAccessor,
+    ) as IntBuffer;
     indices = {
       buffer: indexBuffer.buffer,
       count: indexBuffer.buffer.length,
@@ -400,10 +462,10 @@ function extractMesh(gltf: meta.Root, mesh: meta.Mesh, buffers: ArrayBuffer[]) {
 
   return {
     indices,
-    positions: extractNamedBuffer(gltf, buffers, mesh, 'POSITION'),
-    colors: extractNamedBuffer(gltf, buffers, mesh, 'COLOR_0'),
-    normals: extractNamedBuffer(gltf, buffers, mesh, 'NORMAL'),
-    tangents: extractNamedBuffer(gltf, buffers, mesh, 'TANGENT'),
+    positions: extractNamedBuffer(gltf, buffers, mesh, "POSITION"),
+    colors: extractNamedBuffer(gltf, buffers, mesh, "COLOR_0"),
+    normals: extractNamedBuffer(gltf, buffers, mesh, "NORMAL"),
+    tangents: extractNamedBuffer(gltf, buffers, mesh, "TANGENT"),
   } as Mesh;
 }
 
@@ -420,12 +482,14 @@ export class Gltf {
 
   static async readFromUrl(url: string) {
     const response = await fetch(url);
-    const gltf = await response.json() as meta.Root;
+    const gltf = (await response.json()) as meta.Root;
 
     // TODO: assign defaults.
 
     // Read in all external buffers, like textures.
-    const bufferPromises = gltf.buffers.map(buffer => readExternalBuffer(url, buffer.uri!));
+    const bufferPromises = gltf.buffers.map((buffer) =>
+      readExternalBuffer(url, buffer.uri!),
+    );
     const buffers = await Promise.all(bufferPromises);
 
     // glTF files may have multiple scenes. A scene has a list of nodes. Nodes
@@ -434,13 +498,13 @@ export class Gltf {
     const scene = gltf.scenes[gltf.scene];
 
     // Extract the meshes.
-    const meshes = gltf.meshes.map(mesh => extractMesh(gltf, mesh, buffers));
+    const meshes = gltf.meshes.map((mesh) => extractMesh(gltf, mesh, buffers));
 
     const rootNode = scene.nodes[0];
     const nodes = gltf.nodes.map((node, i) => extractNodes(i, node));
 
     // Use last component as name.
-    const pathComponents = url.split('/');
+    const pathComponents = url.split("/");
     const name = pathComponents[pathComponents.length - 1];
 
     return new Gltf(name, meshes, nodes);

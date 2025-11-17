@@ -1,10 +1,10 @@
-import { Matrix4 } from 'lib/matrix.js';
+import { Matrix4 } from "@/lib/matrix.js";
 
 export class Quaternion {
   xyzw: number[];
 
   constructor(x: number, y: number, z: number, w: number) {
-    this.xyzw = [x,y,z,w];
+    this.xyzw = [x, y, z, w];
   }
 
   get x() {
@@ -46,10 +46,8 @@ export class Quaternion {
   slerp(that: Quaternion, t: number) {
     // How aligned are the two quaternions? Find their dot product. Since
     // they're normalized, the dot product is also their cosine.
-    let cosine = this.x * that.x +
-                this.y * that.y +
-                this.z * that.z +
-                this.w * that.w;
+    let cosine =
+      this.x * that.x + this.y * that.y + this.z * that.z + this.w * that.w;
 
     // Flip that vector if their alignment is negative.
     if (cosine < 0.0) {
@@ -78,7 +76,7 @@ export class Quaternion {
       a * this.x + b * that.x,
       a * this.y + b * that.y,
       a * this.z + b * that.z,
-      a * this.w + b * that.w,
+      a * this.w + b * that.w
     );
   }
 
@@ -122,5 +120,4 @@ export class Quaternion {
 
     return m;
   }
-
 }

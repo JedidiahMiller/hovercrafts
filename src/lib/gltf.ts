@@ -1,262 +1,269 @@
-import { Matrix4 } from './matrix.js';
-import { Quaternion } from './quaternion.js';
-import { Vector3 } from './vector.js';
+import { Matrix4 } from "./matrix.js";
+import { Quaternion } from "./quaternion.js";
+import { Vector3 } from "./vector.js";
 
 // https://github.com/KhronosGroup/glTF-Tutorials/tree/main/gltfTutorial
 // https://github.com/larsjarlvik/webgl-gltf/tree/master/src/webgl-gltf
 
-export type AssociationType = 'SCALAR' | 'VEC2' | 'VEC3' | 'VEC4' | 'MAT2' | 'MAT3' | 'MAT4';
+export type AssociationType =
+  | "SCALAR"
+  | "VEC2"
+  | "VEC3"
+  | "VEC4"
+  | "MAT2"
+  | "MAT3"
+  | "MAT4";
 
 namespace json {
   export type Index = number;
 
   export interface AccessorSparseIndices {
-    'bufferView': Index;
-    'byteOffset'?: number;
-    'componentType': 5121 | 5123 | 5125 | number;
-    'extensions'?: any;
-    'extras'?: any;
+    bufferView: Index;
+    byteOffset?: number;
+    componentType: 5121 | 5123 | 5125 | number;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
 
   export interface AccessorSparseValues {
-    'bufferView': Index;
-    'byteOffset'?: number;
-    'extensions'?: any;
-    'extras'?: any;
+    bufferView: Index;
+    byteOffset?: number;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
 
   export interface AccessorSparse {
-    'count': number;
-    'indices': AccessorSparseIndices;
-    'values': AccessorSparseValues;
-    'extensions'?: any;
-    'extras'?: any;
+    count: number;
+    indices: AccessorSparseIndices;
+    values: AccessorSparseValues;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
 
   export interface Accessor {
-    'bufferView'?: Index;
-    'byteOffset'?: number;
-    'componentType': 5120 | 5121 | 5122 | 5123 | 5125 | 5126 | number;
-    'normalized'?: boolean;
-    'count': number;
+    bufferView?: Index;
+    byteOffset?: number;
+    componentType: 5120 | 5121 | 5122 | 5123 | 5125 | 5126 | number;
+    normalized?: boolean;
+    count: number;
     type: AssociationType;
-    'max'?: number[];
-    'min'?: number[];
-    'sparse'?: AccessorSparse;
-    'name'?: any;
-    'extensions'?: any;
-    'extras'?: any;
+    max?: number[];
+    min?: number[];
+    sparse?: AccessorSparse;
+    name?: any;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
 
   export interface AnimationChannelTarget {
-    'node'?: Index;
-    'path': 'translation' | 'rotation' | 'scale' | 'weights' | string;
-    'extensions'?: any;
-    'extras'?: any;
+    node?: Index;
+    path: "translation" | "rotation" | "scale" | "weights" | string;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
 
   export interface AnimationChannel {
-    'sampler': Index;
-    'target': AnimationChannelTarget;
-    'extensions'?: any;
-    'extras'?: any;
+    sampler: Index;
+    target: AnimationChannelTarget;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
 
   export interface AnimationSampler {
-    'input': Index;
-    'interpolation'?: 'LINEAR' | 'STEP' | 'CUBICSPLINE' | string;
-    'output': Index;
-    'extensions'?: any;
-    'extras'?: any;
+    input: Index;
+    interpolation?: "LINEAR" | "STEP" | "CUBICSPLINE" | string;
+    output: Index;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
 
   export interface Animation {
-    'channels': AnimationChannel[];
-    'samplers': AnimationSampler[];
-    'name'?: any;
-    'extensions'?: any;
-    'extras'?: any;
+    channels: AnimationChannel[];
+    samplers: AnimationSampler[];
+    name?: any;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
 
   export interface Asset {
-    'copyright'?: string;
-    'generator'?: string;
-    'version': string;
-    'minVersion'?: string;
-    'extensions'?: any;
-    'extras'?: any;
+    copyright?: string;
+    generator?: string;
+    version: string;
+    minVersion?: string;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
 
   export interface Buffer {
-    'uri'?: string;
-    'byteLength': number;
-    'name'?: any;
-    'extensions'?: any;
-    'extras'?: any;
+    uri?: string;
+    byteLength: number;
+    name?: any;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
 
   export interface BufferView {
-    'buffer': Index;
-    'byteOffset'?: number;
-    'byteLength': number;
-    'byteStride'?: number;
-    'target'?: 34962 | 34963 | number;
-    'name'?: any;
-    'extensions'?: any;
-    'extras'?: any;
+    buffer: Index;
+    byteOffset?: number;
+    byteLength: number;
+    byteStride?: number;
+    target?: 34962 | 34963 | number;
+    name?: any;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
 
   export interface CameraOrthographic {
-    'xmag': number;
-    'ymag': number;
-    'zfar': number;
-    'znear': number;
-    'extensions'?: any;
-    'extras'?: any;
+    xmag: number;
+    ymag: number;
+    zfar: number;
+    znear: number;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
 
   export interface CameraPerspective {
-    'aspectRatio'?: number;
-    'yfov': number;
-    'zfar'?: number;
-    'znear': number;
-    'extensions'?: any;
-    'extras'?: any;
+    aspectRatio?: number;
+    yfov: number;
+    zfar?: number;
+    znear: number;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
 
   export interface Camera {
-    'orthographic'?: CameraOrthographic;
-    'perspective'?: CameraPerspective;
-    'type': 'perspective' | 'orthographic' | string;
-    'name'?: any;
-    'extensions'?: any;
-    'extras'?: any;
+    orthographic?: CameraOrthographic;
+    perspective?: CameraPerspective;
+    type: "perspective" | "orthographic" | string;
+    name?: any;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
 
   export interface Image {
-    'uri'?: string;
-    'mimeType'?: 'image/jpeg' | 'image/png' | string;
-    'bufferView'?: Index;
-    'name'?: any;
-    'extensions'?: any;
-    'extras'?: any;
+    uri?: string;
+    mimeType?: "image/jpeg" | "image/png" | string;
+    bufferView?: Index;
+    name?: any;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
 
   export interface TextureInfo {
-    'index': Index;
-    'texCoord'?: number;
-    'extensions'?: any;
-    'extras'?: any;
+    index: Index;
+    texCoord?: number;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
 
   export interface MaterialPbrMetallicRoughness {
-    'baseColorFactor'?: number[];
-    'baseColorTexture'?: TextureInfo;
-    'metallicFactor'?: number;
-    'roughnessFactor'?: number;
-    'metallicRoughnessTexture'?: TextureInfo;
-    'extensions'?: any;
-    'extras'?: any;
+    baseColorFactor?: number[];
+    baseColorTexture?: TextureInfo;
+    metallicFactor?: number;
+    roughnessFactor?: number;
+    metallicRoughnessTexture?: TextureInfo;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
 
   export interface MaterialNormalTextureInfo {
-    'index'?: any;
-    'texCoord'?: any;
-    'scale'?: number;
-    'extensions'?: any;
-    'extras'?: any;
+    index?: any;
+    texCoord?: any;
+    scale?: number;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
 
   export interface MaterialOcclusionTextureInfo {
-    'index'?: any;
-    'texCoord'?: any;
-    'strength'?: number;
-    'extensions'?: any;
-    'extras'?: any;
+    index?: any;
+    texCoord?: any;
+    strength?: number;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
 
   export interface Material {
-    'name'?: any;
-    'extensions'?: any;
-    'extras'?: any;
-    'pbrMetallicRoughness'?: MaterialPbrMetallicRoughness;
-    'normalTexture'?: MaterialNormalTextureInfo;
-    'occlusionTexture'?: MaterialOcclusionTextureInfo;
-    'emissiveTexture'?: TextureInfo;
-    'emissiveFactor'?: number[];
-    'alphaMode'?: 'OPAQUE' | 'MASK' | 'BLEND' | string;
-    'alphaCutoff'?: number;
-    'doubleSided'?: boolean;
+    name?: any;
+    extensions?: any;
+    extras?: any;
+    pbrMetallicRoughness?: MaterialPbrMetallicRoughness;
+    normalTexture?: MaterialNormalTextureInfo;
+    occlusionTexture?: MaterialOcclusionTextureInfo;
+    emissiveTexture?: TextureInfo;
+    emissiveFactor?: number[];
+    alphaMode?: "OPAQUE" | "MASK" | "BLEND" | string;
+    alphaCutoff?: number;
+    doubleSided?: boolean;
     [k: string]: any;
   }
 
   export interface MeshPrimitive {
-    'attributes': {
+    attributes: {
       [k: string]: Index;
     };
-    'indices'?: Index;
-    'material'?: Index;
-    'mode'?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | number;
-    'targets'?: {
+    indices?: Index;
+    material?: Index;
+    mode?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | number;
+    targets?: {
       [k: string]: Index;
     }[];
-    'extensions'?: any;
-    'extras'?: any;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
 
   export interface Mesh {
-    'primitives': MeshPrimitive[];
-    'weights'?: number[];
-    'name'?: any;
-    'extensions'?: any;
-    'extras'?: any;
+    primitives: MeshPrimitive[];
+    weights?: number[];
+    name?: any;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
 
   export interface Node {
-    'camera'?: Index;
-    'children'?: Index[];
-    'skin'?: Index;
-    'matrix'?: number[];
-    'mesh'?: Index;
-    'rotation'?: number[];
-    'scale'?: number[];
-    'translation'?: number[];
-    'weights'?: number[];
-    'name'?: any;
-    'extensions'?: any;
-    'extras'?: any;
+    camera?: Index;
+    children?: Index[];
+    skin?: Index;
+    matrix?: number[];
+    mesh?: Index;
+    rotation?: number[];
+    scale?: number[];
+    translation?: number[];
+    weights?: number[];
+    name?: any;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
 
   export interface Sampler {
-    'magFilter'?: 9728 | 9729 | number;
-    'minFilter'?: 9728 | 9729 | 9984 | 9985 | 9986 | 9987 | number;
-    'wrapS'?: 33071 | 33648 | 10497 | number;
-    'wrapT'?: 33071 | 33648 | 10497 | number;
-    'name'?: any;
-    'extensions'?: any;
-    'extras'?: any;
+    magFilter?: 9728 | 9729 | number;
+    minFilter?: 9728 | 9729 | 9984 | 9985 | 9986 | 9987 | number;
+    wrapS?: 33071 | 33648 | 10497 | number;
+    wrapT?: 33071 | 33648 | 10497 | number;
+    name?: any;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
 
@@ -269,12 +276,12 @@ namespace json {
   }
 
   export interface Skin {
-    'inverseBindMatrices'?: Index;
-    'skeleton'?: Index;
-    'joints': Index[];
-    'name'?: any;
-    'extensions'?: any;
-    'extras'?: any;
+    inverseBindMatrices?: Index;
+    skeleton?: Index;
+    joints: Index[];
+    name?: any;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
 
@@ -288,11 +295,11 @@ namespace json {
   }
 
   export interface Root {
-    'extensionsUsed'?: string[];
-    'extensionsRequired'?: string[];
+    extensionsUsed?: string[];
+    extensionsRequired?: string[];
     accessors: Accessor[];
-    'animations'?: Animation[];
-    'asset': Asset;
+    animations?: Animation[];
+    asset: Asset;
     buffers: Buffer[];
     bufferViews: BufferView[];
     cameras: Camera[];
@@ -305,8 +312,8 @@ namespace json {
     scenes: Scene[];
     skins: Skin[];
     textures: Texture[];
-    'extensions'?: any;
-    'extras'?: any;
+    extensions?: any;
+    extras?: any;
     [k: string]: any;
   }
 }
@@ -344,7 +351,7 @@ export interface Transform {
 export interface KeyFrame {
   time: number;
   transform: Vector3 | Quaternion;
-  type: 'translation' | 'rotation' | 'scale';
+  type: "translation" | "rotation" | "scale";
 }
 
 export enum BufferType {
@@ -386,7 +393,10 @@ interface ActiveAnimation {
   elapsed: number;
 }
 
-const getPreviousAndNextKeyFrame = (keyFrames: KeyFrame[], animationTime: number) => {
+const getPreviousAndNextKeyFrame = (
+  keyFrames: KeyFrame[],
+  animationTime: number,
+) => {
   let next = keyFrames[0];
   let previous = keyFrames[0];
 
@@ -403,32 +413,35 @@ const getPreviousAndNextKeyFrame = (keyFrames: KeyFrame[], animationTime: number
 const getTransform = (keyFrames: KeyFrame[], duration: number) => {
   if (keyFrames.length === 1) {
     switch (keyFrames[0].type) {
-      case 'translation':
-      case 'scale':
+      case "translation":
+      case "scale":
         return keyFrames[0].transform as Vector3;
-      case 'rotation': {
+      case "rotation": {
         return keyFrames[0].transform as Quaternion;
       }
     }
   }
 
-  const animationTime = duration / 1000.0 % keyFrames[keyFrames.length - 1].time;
+  const animationTime =
+    (duration / 1000.0) % keyFrames[keyFrames.length - 1].time;
   const frames = getPreviousAndNextKeyFrame(keyFrames, animationTime);
-  const progression = (animationTime - frames.previous.time) / (frames.next.time - frames.previous.time);
+  const progression =
+    (animationTime - frames.previous.time) /
+    (frames.next.time - frames.previous.time);
 
   switch (frames.previous.type) {
-    case 'translation':
-    case 'scale': {
+    case "translation":
+    case "scale": {
       const result = (frames.previous.transform as Vector3).lerp(
         frames.next.transform as Vector3,
-        progression
+        progression,
       );
       return result;
     }
-    case 'rotation': {
+    case "rotation": {
       const result = (frames.previous.transform as Quaternion).slerp(
         frames.next.transform as Quaternion,
-        progression
+        progression,
       );
       return result;
     }
@@ -440,9 +453,18 @@ interface TransformMatrices {
 }
 
 const get = (c: Transform, elapsed: number) => {
-  const t = c && c.translation.length > 0 ? getTransform(c.translation, elapsed) as Vector3 : new Vector3(0, 0, 0);
-  const r = c && c.rotation.length > 0 ? getTransform(c.rotation, elapsed) as Quaternion : new Quaternion(0, 0, 0, 1);
-  const s = c && c.scale.length > 0 ? getTransform(c.scale, elapsed) as Vector3 : new Vector3(1, 1, 1);
+  const t =
+    c && c.translation.length > 0
+      ? (getTransform(c.translation, elapsed) as Vector3)
+      : new Vector3(0, 0, 0);
+  const r =
+    c && c.rotation.length > 0
+      ? (getTransform(c.rotation, elapsed) as Quaternion)
+      : new Quaternion(0, 0, 0, 1);
+  const s =
+    c && c.scale.length > 0
+      ? (getTransform(c.scale, elapsed) as Vector3)
+      : new Vector3(1, 1, 1);
   return { t, r, s };
 };
 
@@ -451,34 +473,38 @@ interface StringToNumber {
 }
 
 const componentCounts: StringToNumber = {
-  'SCALAR': 1,
-  'VEC2': 2,
-  'VEC3': 3,
-  'VEC4': 4,
-  'MAT2': 4,
-  'MAT3': 9,
-  'MAT4': 16,
+  SCALAR: 1,
+  VEC2: 2,
+  VEC3: 3,
+  VEC4: 4,
+  MAT2: 4,
+  MAT3: 9,
+  MAT4: 16,
 };
 
 async function readExternalBuffer(path: string, buffer: string) {
   // The external buffers are in the same directory as the model file.
   // We extract the parent directory from the path.
-  const directory = path.split('/').slice(0, -1).join('/');
+  const directory = path.split("/").slice(0, -1).join("/");
   const response = await fetch(`${directory}/${buffer}`);
   return await response.arrayBuffer();
 }
 
 async function getTexture(gl: WebGL2RenderingContext, uri: string) {
-  return new Promise<WebGLTexture>(resolve => {
+  return new Promise<WebGLTexture>((resolve) => {
     const img = new Image();
     img.onload = () => {
       const texture = gl.createTexture();
       gl.bindTexture(gl.TEXTURE_2D, texture);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+      gl.texParameteri(
+        gl.TEXTURE_2D,
+        gl.TEXTURE_MIN_FILTER,
+        gl.LINEAR_MIPMAP_LINEAR,
+      );
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
-      const ext = gl.getExtension('EXT_texture_filter_anisotropic');
+      const ext = gl.getExtension("EXT_texture_filter_anisotropic");
       if (ext) {
         const max = gl.getParameter(ext.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
         gl.texParameterf(gl.TEXTURE_2D, ext.TEXTURE_MAX_ANISOTROPY_EXT, max);
@@ -486,13 +512,17 @@ async function getTexture(gl: WebGL2RenderingContext, uri: string) {
 
       gl.generateMipmap(gl.TEXTURE_2D);
       resolve(texture!);
-    }
+    };
     img.src = uri;
-    img.crossOrigin = 'undefined';
+    img.crossOrigin = "undefined";
   });
 }
 
-function extractBuffer(gltf: json.Root, buffers: ArrayBuffer[], accessor: json.Accessor): FloatBuffer | IntBuffer {
+function extractBuffer(
+  gltf: json.Root,
+  buffers: ArrayBuffer[],
+  accessor: json.Accessor,
+): FloatBuffer | IntBuffer {
   const bufferView = gltf.bufferViews![accessor.bufferView as number];
   // How many numbers is each sample?
   const componentCount = componentCounts[accessor.type];
@@ -503,17 +533,57 @@ function extractBuffer(gltf: json.Root, buffers: ArrayBuffer[], accessor: json.A
 
   let buffer;
   if (componentType == BufferType.Float) {
-    buffer = new Float32Array(buffers[bufferView.buffer], offset, accessor.count * componentCount)
-    return { componentCount, buffer, associationType, componentType, count } as FloatBuffer;
+    buffer = new Float32Array(
+      buffers[bufferView.buffer],
+      offset,
+      accessor.count * componentCount,
+    );
+    return {
+      componentCount,
+      buffer,
+      associationType,
+      componentType,
+      count,
+    } as FloatBuffer;
   } else if (componentType == BufferType.Int) {
-    buffer = new Uint32Array(buffers[bufferView.buffer], offset, accessor.count * componentCount);
-    return { componentCount, buffer, associationType, componentType, count } as IntBuffer;
+    buffer = new Uint32Array(
+      buffers[bufferView.buffer],
+      offset,
+      accessor.count * componentCount,
+    );
+    return {
+      componentCount,
+      buffer,
+      associationType,
+      componentType,
+      count,
+    } as IntBuffer;
   } else if (componentType == BufferType.Short) {
-    buffer = new Uint16Array(buffers[bufferView.buffer], offset, accessor.count * componentCount);
-    return { componentCount, buffer, associationType, componentType, count } as IntBuffer;
+    buffer = new Uint16Array(
+      buffers[bufferView.buffer],
+      offset,
+      accessor.count * componentCount,
+    );
+    return {
+      componentCount,
+      buffer,
+      associationType,
+      componentType,
+      count,
+    } as IntBuffer;
   } else if (componentType == BufferType.UnsignedByte) {
-    buffer = new Uint8Array(buffers[bufferView.buffer], offset, accessor.count * componentCount);
-    return { componentCount, buffer, associationType, componentType, count } as IntBuffer;
+    buffer = new Uint8Array(
+      buffers[bufferView.buffer],
+      offset,
+      accessor.count * componentCount,
+    );
+    return {
+      componentCount,
+      buffer,
+      associationType,
+      componentType,
+      count,
+    } as IntBuffer;
   } else {
     throw `unknown component type ${componentType}`;
   }
@@ -524,7 +594,12 @@ function getAccessor(gltf: json.Root, mesh: json.Mesh, attributeName: string) {
   return gltf.accessors[attribute];
 }
 
-function extractNamedBuffer(gltf: json.Root, buffers: ArrayBuffer[], mesh: json.Mesh, name: string) {
+function extractNamedBuffer(
+  gltf: json.Root,
+  buffers: ArrayBuffer[],
+  mesh: json.Mesh,
+  name: string,
+) {
   if (mesh.primitives[0].attributes[name] === undefined) {
     return null;
   }
@@ -545,15 +620,30 @@ function extractNodes(index: number, node: json.Node): Node {
     // TODO: what if there's more than one transformation? Is the order right?
 
     if (node.scale) {
-      transform = Matrix4.scale(node.scale[0], node.scale[1], node.scale[2]).multiplyMatrix(transform);
+      transform = Matrix4.scale(
+        node.scale[0],
+        node.scale[1],
+        node.scale[2],
+      ).multiplyMatrix(transform);
     }
 
     if (node.rotation) {
-      transform = new Quaternion(node.rotation[0], node.rotation[1], node.rotation[2], node.rotation[3]).toMatrix4().multiplyMatrix(transform);
+      transform = new Quaternion(
+        node.rotation[0],
+        node.rotation[1],
+        node.rotation[2],
+        node.rotation[3],
+      )
+        .toMatrix4()
+        .multiplyMatrix(transform);
     }
 
     if (node.translation) {
-      transform = Matrix4.translate(node.translation[0], node.translation[1], node.translation[2]).multiplyMatrix(transform);
+      transform = Matrix4.translate(
+        node.translation[0],
+        node.translation[1],
+        node.translation[2],
+      ).multiplyMatrix(transform);
     }
   }
 
@@ -564,22 +654,30 @@ function extractNodes(index: number, node: json.Node): Node {
     localBindTransform: transform,
     animatedTransform: Matrix4.identity(),
     skin: node.skin,
-    mesh: node.mesh
+    mesh: node.mesh,
   } as Node;
 }
 
-function extractAnimation(gltf: json.Root, animation: json.Animation, buffers: ArrayBuffer[]) {
-  const channels = animation.channels.map(c => {
+function extractAnimation(
+  gltf: json.Root,
+  animation: json.Animation,
+  buffers: ArrayBuffer[],
+) {
+  const channels = animation.channels.map((c) => {
     const sampler = animation.samplers[c.sampler];
     const time = extractBuffer(gltf, buffers, gltf.accessors![sampler.input]);
-    const buffer = extractBuffer(gltf, buffers, gltf.accessors![sampler.output]);
+    const buffer = extractBuffer(
+      gltf,
+      buffers,
+      gltf.accessors![sampler.output],
+    );
 
     return {
       node: c.target.node,
       type: c.target.path,
       time,
       buffer,
-      interpolation: sampler.interpolation ? sampler.interpolation : 'LINEAR',
+      interpolation: sampler.interpolation ? sampler.interpolation : "LINEAR",
     };
   });
 
@@ -594,27 +692,34 @@ function extractAnimation(gltf: json.Root, animation: json.Animation, buffers: A
     }
 
     for (let i = 0; i < channel.time.buffer.length; i++) {
-      const size = channel.interpolation === 'CUBICSPLINE' ? channel.buffer.componentCount * 3 : channel.buffer.componentCount;
-      const offset = channel.interpolation === 'CUBICSPLINE' ? channel.buffer.componentCount : 0;
+      const size =
+        channel.interpolation === "CUBICSPLINE"
+          ? channel.buffer.componentCount * 3
+          : channel.buffer.componentCount;
+      const offset =
+        channel.interpolation === "CUBICSPLINE"
+          ? channel.buffer.componentCount
+          : 0;
 
-      const transform = channel.type === 'rotation'
-        ? new Quaternion(
-            channel.buffer.buffer[i * size + offset],
-            channel.buffer.buffer[i * size + offset + 1],
-            channel.buffer.buffer[i * size + offset + 2],
-            channel.buffer.buffer[i * size + offset + 3]
-          )
-        : new Vector3(
-            channel.buffer.buffer[i * size + offset],
-            channel.buffer.buffer[i * size + offset + 1],
-            channel.buffer.buffer[i * size + offset + 2]
-          );
+      const transform =
+        channel.type === "rotation"
+          ? new Quaternion(
+              channel.buffer.buffer[i * size + offset],
+              channel.buffer.buffer[i * size + offset + 1],
+              channel.buffer.buffer[i * size + offset + 2],
+              channel.buffer.buffer[i * size + offset + 3],
+            )
+          : new Vector3(
+              channel.buffer.buffer[i * size + offset],
+              channel.buffer.buffer[i * size + offset + 1],
+              channel.buffer.buffer[i * size + offset + 2],
+            );
 
       c[channel.node!][channel.type].push({
         time: channel.time.buffer[i],
         transform: transform,
         type: channel.type,
-      } as KeyFrame)
+      } as KeyFrame);
     }
   });
 
@@ -622,12 +727,19 @@ function extractAnimation(gltf: json.Root, animation: json.Animation, buffers: A
 }
 
 function extractMesh(gltf: json.Root, mesh: json.Mesh, buffers: ArrayBuffer[]) {
-  let indices: { buffer: Uint8Array | Uint16Array | Uint32Array, count: number } | null = null;
+  let indices: {
+    buffer: Uint8Array | Uint16Array | Uint32Array;
+    count: number;
+  } | null = null;
 
   // TODO: this only loads the first part of the mesh.
   if (mesh.primitives[0].indices) {
     const indexAccessor = gltf.accessors[mesh.primitives[0].indices];
-    const indexBuffer = extractBuffer(gltf, buffers, indexAccessor) as IntBuffer;
+    const indexBuffer = extractBuffer(
+      gltf,
+      buffers,
+      indexAccessor,
+    ) as IntBuffer;
     indices = {
       buffer: indexBuffer.buffer,
       count: indexBuffer.buffer.length,
@@ -636,13 +748,13 @@ function extractMesh(gltf: json.Root, mesh: json.Mesh, buffers: ArrayBuffer[]) {
 
   return {
     indices,
-    positions: extractNamedBuffer(gltf, buffers, mesh, 'POSITION'),
-    normals: extractNamedBuffer(gltf, buffers, mesh, 'NORMAL'),
-    colors: extractNamedBuffer(gltf, buffers, mesh, 'COLOR_0'),
-    tangents: extractNamedBuffer(gltf, buffers, mesh, 'TANGENT'),
-    texCoord: extractNamedBuffer(gltf, buffers, mesh, 'TEXCOORD_0'),
-    joints: extractNamedBuffer(gltf, buffers, mesh, 'JOINTS_0'),
-    weights: extractNamedBuffer(gltf, buffers, mesh, 'WEIGHTS_0'),
+    positions: extractNamedBuffer(gltf, buffers, mesh, "POSITION"),
+    normals: extractNamedBuffer(gltf, buffers, mesh, "NORMAL"),
+    colors: extractNamedBuffer(gltf, buffers, mesh, "COLOR_0"),
+    tangents: extractNamedBuffer(gltf, buffers, mesh, "TANGENT"),
+    texCoord: extractNamedBuffer(gltf, buffers, mesh, "TEXCOORD_0"),
+    joints: extractNamedBuffer(gltf, buffers, mesh, "JOINTS_0"),
+    weights: extractNamedBuffer(gltf, buffers, mesh, "WEIGHTS_0"),
   } as Mesh;
 }
 
@@ -656,7 +768,7 @@ export class Model {
   activeAnimations: ActiveAnimation[];
 
   constructor() {
-    this.name = '';
+    this.name = "";
     this.rootNode = -1;
     this.meshes = [];
     this.nodes = [];
@@ -669,14 +781,16 @@ export class Model {
     const model = new Model();
 
     const response = await fetch(url);
-    const gltf = await response.json() as json.Root;
+    const gltf = (await response.json()) as json.Root;
 
     // Use last component as name.
-    const pathComponents = url.split('/');
+    const pathComponents = url.split("/");
     model.name = pathComponents[pathComponents.length - 1];
 
     // Read in all external buffers, like textures.
-    const bufferPromises = gltf.buffers.map(buffer => readExternalBuffer(url, buffer.uri!));
+    const bufferPromises = gltf.buffers.map((buffer) =>
+      readExternalBuffer(url, buffer.uri!),
+    );
     const buffers = await Promise.all(bufferPromises);
 
     // glTF files may have multiple scenes. A scene has a list of nodes. Nodes
@@ -685,23 +799,33 @@ export class Model {
     const scene = gltf.scenes[gltf.scene];
 
     // Extract the meshes.
-    model.meshes = gltf.meshes.map(mesh => extractMesh(gltf, mesh, buffers));
+    model.meshes = gltf.meshes.map((mesh) => extractMesh(gltf, mesh, buffers));
 
     model.rootNode = scene.nodes[0];
     model.nodes = gltf.nodes.map((node, i) => extractNodes(i, node));
 
     if (gltf.animations) {
       for (let animation of gltf.animations) {
-        model.animations[animation.name] = extractAnimation(gltf, animation, buffers);
+        model.animations[animation.name] = extractAnimation(
+          gltf,
+          animation,
+          buffers,
+        );
       }
     }
 
     if (gltf.skins) {
-      model.skins = gltf.skins.map(skin => {
-        const bindTransforms = extractBuffer(gltf, buffers, gltf.accessors![skin.inverseBindMatrices!]) as FloatBuffer;
+      model.skins = gltf.skins.map((skin) => {
+        const bindTransforms = extractBuffer(
+          gltf,
+          buffers,
+          gltf.accessors![skin.inverseBindMatrices!],
+        ) as FloatBuffer;
         const inverseBindTransforms = skin.joints.map((_, i) => {
           const matrix = new Matrix4();
-          matrix.elements = new Float32Array(bindTransforms.buffer.slice(i * 16, i * 16 + 16));
+          matrix.elements = new Float32Array(
+            bindTransforms.buffer.slice(i * 16, i * 16 + 16),
+          );
           return matrix;
         });
         return {
@@ -716,7 +840,10 @@ export class Model {
 
   play(clip: string) {
     // Only queue if not most recently queued.
-    if (this.activeAnimations.length === 0 || this.activeAnimations[this.activeAnimations.length - 1].key !== clip) {
+    if (
+      this.activeAnimations.length === 0 ||
+      this.activeAnimations[this.activeAnimations.length - 1].key !== clip
+    ) {
       this.activeAnimations.push({ key: clip, elapsed: 0 });
       // Only keep most recent two animations.
       this.activeAnimations.splice(0, this.activeAnimations.length - 2);
@@ -737,12 +864,18 @@ export class Model {
 
       for (let key of Object.keys(this.animations[rootAnimation.key])) {
         let c = parseInt(key);
-        const transform = get(this.animations[rootAnimation.key][c], rootAnimation.elapsed);
+        const transform = get(
+          this.animations[rootAnimation.key][c],
+          rootAnimation.elapsed,
+        );
 
         for (let animation of this.activeAnimations) {
           if (rootAnimation.key == animation.key || blend <= 0) continue;
 
-          const cTransform = get(this.animations[animation.key][c], animation.elapsed);
+          const cTransform = get(
+            this.animations[animation.key][c],
+            animation.elapsed,
+          );
           transform.t = transform.t.lerp(cTransform.t, blend);
           transform.r = transform.r.slerp(cTransform.r, blend);
           transform.s = transform.s.lerp(cTransform.s, blend);
@@ -752,9 +885,13 @@ export class Model {
         const rotTransform = (transform.r as Quaternion).toMatrix4();
 
         localTransform = localTransform
-          .multiplyMatrix(Matrix4.translate(transform.t.x, transform.t.y, transform.t.z))
+          .multiplyMatrix(
+            Matrix4.translate(transform.t.x, transform.t.y, transform.t.z),
+          )
           .multiplyMatrix(rotTransform)
-          .multiplyMatrix(Matrix4.scale(transform.s.x, transform.s.y, transform.s.z));
+          .multiplyMatrix(
+            Matrix4.scale(transform.s.x, transform.s.y, transform.s.z),
+          );
 
         transforms[c] = localTransform;
       }
@@ -768,12 +905,26 @@ export class Model {
     const appliedTransforms: Matrix4[] = [];
 
     for (let skin of this.skins) {
-      this.applyTransform(appliedTransforms, transforms, Matrix4.identity(), skin, this.rootNode, inverse);
+      this.applyTransform(
+        appliedTransforms,
+        transforms,
+        Matrix4.identity(),
+        skin,
+        this.rootNode,
+        inverse,
+      );
     }
     return appliedTransforms;
   }
 
-  applyTransform(appliedTransforms: Matrix4[], transforms: TransformMatrices, parentTransform: Matrix4, skin: Skin, nodeIndex: number, inverse: boolean) {
+  applyTransform(
+    appliedTransforms: Matrix4[],
+    transforms: TransformMatrices,
+    parentTransform: Matrix4,
+    skin: Skin,
+    nodeIndex: number,
+    inverse: boolean,
+  ) {
     const node = this.nodes[nodeIndex];
     const transformIndex = skin.joints.indexOf(node.id);
 
@@ -792,8 +943,15 @@ export class Model {
       appliedTransforms[transformIndex] = childTransform;
     }
 
-    node.children.forEach(childNode => {
-      this.applyTransform(appliedTransforms, transforms, childTransform, skin, childNode, inverse);
+    node.children.forEach((childNode) => {
+      this.applyTransform(
+        appliedTransforms,
+        transforms,
+        childTransform,
+        skin,
+        childNode,
+        inverse,
+      );
     });
   }
 }

@@ -2,15 +2,26 @@ export class ShaderProgram {
   vertexShader: WebGLShader;
   fragmentShader: WebGLShader;
   program: WebGLProgram;
-  uniforms: {[name: string]: WebGLUniformLocation};
+  uniforms: { [name: string]: WebGLUniformLocation };
   isBound: boolean;
 
-  constructor(vertexSource: string, fragmentSource: string, version: number = 300, precision = 'mediump') {
+  constructor(
+    vertexSource: string,
+    fragmentSource: string,
+    version: number = 300,
+    precision = "mediump",
+  ) {
     this.isBound = false;
 
     // Compile.
-    this.vertexShader = this.compileSource(gl.VERTEX_SHADER, `#version ${version} es\n${vertexSource}`);
-    this.fragmentShader = this.compileSource(gl.FRAGMENT_SHADER, `#version ${version} es\nprecision ${precision} float;\n${fragmentSource}`);
+    this.vertexShader = this.compileSource(
+      gl.VERTEX_SHADER,
+      `#version ${version} es\n${vertexSource}`,
+    );
+    this.fragmentShader = this.compileSource(
+      gl.FRAGMENT_SHADER,
+      `#version ${version} es\nprecision ${precision} float;\n${fragmentSource}`,
+    );
 
     // Link.
     this.program = gl.createProgram()!;
@@ -53,7 +64,7 @@ export class ShaderProgram {
   }
 
   compileErrorReport(message: string, type: GLenum, source: string) {
-    let report = `I found errors in a ${type === gl.VERTEX_SHADER ? 'vertex' : 'fragment'} shader.\n`;
+    let report = `I found errors in a ${type === gl.VERTEX_SHADER ? "vertex" : "fragment"} shader.\n`;
 
     let matches = message.matchAll(/^ERROR: (\d+):(\d+): (.*)$/gm);
     for (let match of matches) {
@@ -66,9 +77,9 @@ export class ShaderProgram {
       report += `\nError on line ${line + 1}: ${match[3]}\n\n`;
       for (let i = startLine; i <= endLine; ++i) {
         if (i === line) {
-          report += `! ${(i + 1).toString().padStart(lineIndexWidth, ' ')}   ${lines[i]}\n`;
+          report += `! ${(i + 1).toString().padStart(lineIndexWidth, " ")}   ${lines[i]}\n`;
         } else {
-          report += `  ${(i + 1).toString().padStart(lineIndexWidth, ' ')}   ${lines[i]}\n`;
+          report += `  ${(i + 1).toString().padStart(lineIndexWidth, " ")}   ${lines[i]}\n`;
         }
       }
     }
@@ -85,7 +96,9 @@ export class ShaderProgram {
     if (!isOkay) {
       let message = gl.getShaderInfoLog(shader)!;
       gl.deleteShader(shader);
-      throw new ShaderCompilationError(this.compileErrorReport(message, type, source));
+      throw new ShaderCompilationError(
+        this.compileErrorReport(message, type, source),
+      );
     }
 
     return shader;

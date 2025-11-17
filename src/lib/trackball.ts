@@ -17,10 +17,20 @@ export class Trackball {
   }
 
   pixelsToSphere(mousePixel: Vector3): Vector3 {
-    const mouseNormalized = mousePixel.divide(this.dimensions).scalarMultiply(2).subtract(new Vector3(1, 1, 1));
-    const zSquared = 1 - mouseNormalized.x * mouseNormalized.x - mouseNormalized.y * mouseNormalized.y;
+    const mouseNormalized = mousePixel
+      .divide(this.dimensions)
+      .scalarMultiply(2)
+      .subtract(new Vector3(1, 1, 1));
+    const zSquared =
+      1 -
+      mouseNormalized.x * mouseNormalized.x -
+      mouseNormalized.y * mouseNormalized.y;
     if (zSquared > 0) {
-      return new Vector3(mouseNormalized.x, mouseNormalized.y, Math.sqrt(zSquared));
+      return new Vector3(
+        mouseNormalized.x,
+        mouseNormalized.y,
+        Math.sqrt(zSquared),
+      );
     } else {
       return new Vector3(mouseNormalized.x, mouseNormalized.y, 0).normalize();
     }
@@ -44,10 +54,8 @@ export class Trackball {
     if (Math.abs(dot) < 0.999999) {
       const radians = Math.acos(dot);
       const axis = this.mouseSphere0.cross(mouseSphereNow).normalize();
-      const rotaterNow = Matrix4.rotateAround(axis, radians * 180 / Math.PI);
+      const rotaterNow = Matrix4.rotateAround(axis, (radians * 180) / Math.PI);
       this.rotater = rotaterNow.multiplyMatrix(this.previousRotater);
     }
   }
-
-
 }

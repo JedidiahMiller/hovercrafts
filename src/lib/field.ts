@@ -8,8 +8,8 @@ export class Field2 {
   values: number[]; // in [0, 1] and in row-major order
 
   constructor(width: number, height: number, values: number[]) {
-    this.width = width; 
-    this.height = height; 
+    this.width = width;
+    this.height = height;
     this.values = values;
   }
 
@@ -19,8 +19,8 @@ export class Field2 {
 
   static readFromImage(image: HTMLImageElement): Field2 {
     // Go through canvas to get the pixel data.
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d') as CanvasRenderingContext2D;
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d") as CanvasRenderingContext2D;
     canvas.width = image.width;
     canvas.height = image.height;
     context.drawImage(image, 0, 0, image.width, image.height);
@@ -45,8 +45,6 @@ export class Field2 {
         positions.push(new Vector3(x, y, z).multiply(factors));
       }
     }
-
-
 
     const index = (x: number, y: number) => {
       return y * this.width + x;
@@ -74,7 +72,6 @@ export class Field2 {
     trimesh.setTexture(texCoords);
     return trimesh;
   }
-
 
   blerp(x: number, y: number): number {
     const floorX = Math.floor(x);

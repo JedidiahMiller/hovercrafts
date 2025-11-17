@@ -1,7 +1,5 @@
 uniform vec3 lightPosition;
-uniform float emissive; // 0 for normal surfaces, 1 for glowing sun
 uniform sampler2D terrainTexture;
-
 
 in vec3 mixNormal;
 in vec3 mixEyePosition;
@@ -10,7 +8,7 @@ in vec2 mixTexPosition;
 
 out vec4 fragmentColor;
 
-const float ambientFactor = 0.2;
+const float ambientFactor = 0.3;
 const float shininess = 50.0;
 
 void main() {
@@ -26,9 +24,8 @@ void main() {
     float specularity = pow(max(0.0, dot(halfDirection, normal)), shininess);
     vec3 specular = specularity * vec3(1.0);
 
-    vec3 glow = mixColor * emissive; // add unlit color for sun
-
-    // vec3 rgb = ambient + diffuse + specular + glow;
-    vec3 rgb = texture(terrainTexture, mixTexPosition).rgb;
-    fragmentColor = vec4(rgb, 1.0);
+    vec3 lighting = ambient + diffuse + specular;
+    vec3 textureColor = texture(terrainTexture, mixTexPosition).rgb;
+    // vec3 rgb = lighting * textureColor;
+    fragmentColor = vec4(lighting, 1.0);
 }

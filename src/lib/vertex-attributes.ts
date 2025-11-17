@@ -3,8 +3,14 @@ export class VertexAttribute {
   nvertices: number;
   ncomponents: number;
   buffer: WebGLBuffer;
- 
-  constructor(name: string, nvertices: number, ncomponents: number, floats: Float32Array, usage: number = gl.STATIC_DRAW) {
+
+  constructor(
+    name: string,
+    nvertices: number,
+    ncomponents: number,
+    floats: Float32Array,
+    usage: number = gl.STATIC_DRAW,
+  ) {
     this.name = name;
     this.nvertices = nvertices;
     this.ncomponents = ncomponents;
@@ -39,13 +45,25 @@ export class VertexAttributes {
     this.attributes = [];
   }
 
-  addAttribute(name: string, nvertices: number, ncomponents: number, floats: Float32Array, usage: number = gl.STATIC_DRAW) {
+  addAttribute(
+    name: string,
+    nvertices: number,
+    ncomponents: number,
+    floats: Float32Array,
+    usage: number = gl.STATIC_DRAW,
+  ) {
     if (this.nvertices >= 0 && nvertices != this.nvertices) {
       throw "Attributes must have same number of vertices.";
     }
 
     this.nvertices = nvertices;
-    let attribute = new VertexAttribute(name, nvertices, ncomponents, floats, usage);
+    let attribute = new VertexAttribute(
+      name,
+      nvertices,
+      ncomponents,
+      floats,
+      usage,
+    );
     this.attributes.push(attribute);
 
     return attribute;

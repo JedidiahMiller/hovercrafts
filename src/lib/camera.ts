@@ -41,16 +41,16 @@ export class ThirdPersonCamera {
     let avatarTranslater = Matrix4.translate(
       this.anchor.x,
       this.anchor.y,
-      this.anchor.z
+      this.anchor.z,
     );
     this.worldFromModel = avatarTranslater.multiplyMatrix(avatarRotater);
 
     const cameraFrom = this.worldFromModel.multiplyPosition(this.offset);
-    const focalPoint = this.anchor
-      .add(this.forward.scalarMultiply(this.focalDistance));
+    const focalPoint = this.anchor.add(
+      this.forward.scalarMultiply(this.focalDistance),
+    );
     const cameraForward = focalPoint.subtract(cameraFrom).normalize();
     this.eyeFromWorld = Matrix4.look(cameraFrom, cameraForward, this.worldUp);
-
   }
 
   strafe(distance: number) {

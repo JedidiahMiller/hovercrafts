@@ -1,21 +1,26 @@
-import { lerp } from "lib/math-utilities.js";
-import { Trimesh } from "lib/trimesh.js";
-import { Vector3 } from "lib/vector.js";
+import { lerp } from "@/lib/math-utilities.js";
+import { Trimesh } from "@/lib/trimesh.js";
+import { Vector3 } from "@/lib/vector.js";
 
 export class Prefab {
-  static grid(width: number, height: number, longitudeCount: number, latitudeCount: number) {
+  static grid(
+    width: number,
+    height: number,
+    longitudeCount: number,
+    latitudeCount: number
+  ) {
     const positions: Vector3[] = [];
 
     for (let lat = 0; lat < latitudeCount; ++lat) {
-      const y = lat / (latitudeCount - 1) * height;
+      const y = (lat / (latitudeCount - 1)) * height;
       for (let lon = 0; lon < longitudeCount; ++lon) {
-        const x = lon / (longitudeCount - 1) * width;
+        const x = (lon / (longitudeCount - 1)) * width;
         positions.push(new Vector3(x, y, 0));
       }
     }
 
     const index = (lon: number, lat: number) => {
-        return lat * longitudeCount + lon;
+      return lat * longitudeCount + lon;
     };
 
     const faces: number[][] = [];
@@ -24,15 +29,11 @@ export class Prefab {
         const nextLon = lon + 1;
         const nextLat = lat + 1;
 
+        faces.push([index(lon, lat), index(nextLon, lat), index(lon, nextLat)]);
         faces.push([
-            index(lon, lat),
-            index(nextLon, lat),
-            index(lon, nextLat)
-        ]);
-        faces.push([
-            index(nextLon, lat),
-            index(nextLon, nextLat),
-            index(lon, nextLat),
+          index(nextLon, lat),
+          index(nextLon, nextLat),
+          index(lon, nextLat),
         ]);
       }
     }
@@ -40,13 +41,18 @@ export class Prefab {
     return new Trimesh(positions, faces);
   }
 
-  static cylinder(radius: number, height: number, longitudeCount: number, latitudeCount: number) {
+  static cylinder(
+    radius: number,
+    height: number,
+    longitudeCount: number,
+    latitudeCount: number
+  ) {
     const positions: Vector3[] = [];
 
     for (let lat = 0; lat < latitudeCount; ++lat) {
-      const y = lat / (latitudeCount - 1) * height;
+      const y = (lat / (latitudeCount - 1)) * height;
       for (let lon = 0; lon < longitudeCount; ++lon) {
-        const radians = lon / longitudeCount * 2 * Math.PI;
+        const radians = (lon / longitudeCount) * 2 * Math.PI;
         const x = radius * Math.cos(radians);
         const z = radius * Math.sin(radians);
         positions.push(new Vector3(x, y, z));
@@ -54,7 +60,7 @@ export class Prefab {
     }
 
     const index = (lon: number, lat: number) => {
-        return lat * longitudeCount + lon;
+      return lat * longitudeCount + lon;
     };
 
     const faces: number[][] = [];
@@ -63,11 +69,7 @@ export class Prefab {
         let nextLon = (lon + 1) % longitudeCount;
         let nextLat = lat + 1;
 
-        faces.push([
-          index(lon, lat),
-          index(nextLon, lat),
-          index(lon, nextLat),
-        ]);
+        faces.push([index(lon, lat), index(nextLon, lat), index(lon, nextLat)]);
 
         faces.push([
           index(nextLon, lat),
@@ -112,30 +114,28 @@ export class Prefab {
 
     for (let lat = 0; lat < latitudeCount; ++lat) {
       // First find the position on the prime meridian.
-      const latRadians = lerp(-Math.PI * 0.5, Math.PI * 0.5, lat / (latitudeCount - 1));
+      const latRadians = lerp(
+        -Math.PI * 0.5,
+        Math.PI * 0.5,
+        lat / (latitudeCount - 1)
+      );
       let x = radius * Math.cos(latRadians);
       let y = radius * Math.sin(latRadians);
 
       for (let lon = 0; lon < longitudeCount; ++lon) {
-        const lonRadians = lon / longitudeCount * -2 * Math.PI;
-        positions.push(new Vector3(
-          x * Math.cos(lonRadians),
-          y,
-          x * Math.sin(lonRadians)
-        ));
+        const lonRadians = (lon / longitudeCount) * -2 * Math.PI;
+        positions.push(
+          new Vector3(x * Math.cos(lonRadians), y, x * Math.sin(lonRadians))
+        );
 
         const nextLon = lon + 1;
         const nextLat = lat + 1;
 
+        faces.push([index(lon, lat), index(nextLon, lat), index(lon, nextLat)]);
         faces.push([
-            index(lon, lat),
-            index(nextLon, lat),
-            index(lon, nextLat)
-        ]);
-        faces.push([
-            index(nextLon, lat),
-            index(nextLon, nextLat),
-            index(lon, nextLat),
+          index(nextLon, lat),
+          index(nextLon, nextLat),
+          index(lon, nextLat),
         ]);
       }
     }
@@ -143,7 +143,12 @@ export class Prefab {
     return new Trimesh(positions, faces);
   }
 
-  static torus(innerRadius: number, outerRadius: number, longitudeCount: number, latitudeCount: number) {
+  static torus(
+    innerRadius: number,
+    outerRadius: number,
+    longitudeCount: number,
+    latitudeCount: number
+  ) {
     const positions: Vector3[] = [];
     const index = (lon: number, lat: number) => {
       return lat * longitudeCount + lon;
@@ -159,22 +164,15 @@ export class Prefab {
       let x = outmostRadius + inmostRadius * Math.cos(latRadians);
       let y = inmostRadius * Math.sin(latRadians);
 
-
       for (let lon = 0; lon < longitudeCount; ++lon) {
-        const lonRadians = lon / longitudeCount * 2 * Math.PI;
-        positions.push(new Vector3(
-          x * Math.cos(lonRadians),
-          y,
-          x * Math.sin(lonRadians)
-        ));
+        const lonRadians = (lon / longitudeCount) * 2 * Math.PI;
+        positions.push(
+          new Vector3(x * Math.cos(lonRadians), y, x * Math.sin(lonRadians))
+        );
         let nextLon = (lon + 1) % longitudeCount;
         let nextLat = (lat + 1) % latitudeCount;
 
-        faces.push([
-          index(lon, lat),
-          index(nextLon, lat),
-          index(lon, nextLat),
-        ]);
+        faces.push([index(lon, lat), index(nextLon, lat), index(lon, nextLat)]);
 
         faces.push([
           index(nextLon, lat),
@@ -188,14 +186,14 @@ export class Prefab {
 
   static skybox() {
     const positions = [
-      new Vector3(-1, -1,  1),
-      new Vector3( 1, -1,  1),
-      new Vector3(-1,  1,  1),
-      new Vector3( 1,  1,  1),
+      new Vector3(-1, -1, 1),
+      new Vector3(1, -1, 1),
+      new Vector3(-1, 1, 1),
+      new Vector3(1, 1, 1),
       new Vector3(-1, -1, -1),
-      new Vector3( 1, -1, -1),
-      new Vector3(-1,  1, -1),
-      new Vector3( 1,  1, -1),
+      new Vector3(1, -1, -1),
+      new Vector3(-1, 1, -1),
+      new Vector3(1, 1, -1),
     ];
 
     const faces = [
@@ -213,6 +211,6 @@ export class Prefab {
       [0, 5, 4],
     ];
 
-    return new Trimesh(positions, faces); 
+    return new Trimesh(positions, faces);
   }
 }

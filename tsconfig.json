@@ -13,9 +13,10 @@
     "noImplicitReturns": true,
     "noImplicitAny": true,
     "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
     "paths": {
-      "lib/*": ["./lib/*"]
+      "@/*": ["src/*"]
     }
   },
-  "include": ["apps", "lib" ]
+  "include": ["src", "globals.d.ts"]
 }

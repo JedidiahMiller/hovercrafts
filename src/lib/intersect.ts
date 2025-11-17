@@ -1,6 +1,11 @@
 import { Vector3 } from "./vector.js";
 
-export function intersectRaySphere(rayStart: Vector3, rayDirection: Vector3, sphereCenter: Vector3, sphereRadius: number) {
+export function intersectRaySphere(
+  rayStart: Vector3,
+  rayDirection: Vector3,
+  sphereCenter: Vector3,
+  sphereRadius: number,
+) {
   const centerToStart = rayStart.subtract(sphereCenter);
   const a = rayDirection.dot(rayDirection);
   const b = 2 * centerToStart.dot(rayDirection);
@@ -16,17 +21,20 @@ export function intersectRaySphere(rayStart: Vector3, rayDirection: Vector3, sph
     if (discriminant > 0) {
       return [
         rayStart.add(rayDirection.scalarMultiply(t0)),
-        rayStart.add(rayDirection.scalarMultiply(t1))
+        rayStart.add(rayDirection.scalarMultiply(t1)),
       ];
     } else {
-      return [
-        rayStart.add(rayDirection.scalarMultiply(t0)),
-      ];
+      return [rayStart.add(rayDirection.scalarMultiply(t0))];
     }
   }
 }
 
-export function intersectRayBox(rayStart: Vector3, rayDirection: Vector3, boxMin: Vector3, boxMax: Vector3) {
+export function intersectRayBox(
+  rayStart: Vector3,
+  rayDirection: Vector3,
+  boxMin: Vector3,
+  boxMax: Vector3,
+) {
   // Intersect the ray with the left and right planes.
   let t0 = (boxMin.x - rayStart.x) / rayDirection.x;
   let t1 = (boxMax.x - rayStart.x) / rayDirection.x;

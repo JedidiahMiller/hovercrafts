@@ -1,4 +1,4 @@
-import { lerp } from "lib/math-utilities.js";
+import { lerp } from "@/lib/math-utilities.js";
 
 export class Vector3 {
   xyz: number[];
@@ -36,9 +36,7 @@ export class Vector3 {
   }
 
   get magnitude() {
-    return Math.sqrt(this.x * this.x +
-                     this.y * this.y +
-                     this.z * this.z);
+    return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
   }
 
   inverse() {
@@ -87,12 +85,12 @@ export class Vector3 {
   }
 
   lerp(that: Vector3, blend: number) {
-  return new Vector3(
-    lerp(this.x, that.x, blend),
-    lerp(this.y, that.y, blend),
-    lerp(this.z, that.z, blend)
-  );
-}
+    return new Vector3(
+      lerp(this.x, that.x, blend),
+      lerp(this.y, that.y, blend),
+      lerp(this.z, that.z, blend)
+    );
+  }
 }
 
 export class Vector4 {
@@ -138,10 +136,9 @@ export class Vector4 {
   }
 
   get magnitude() {
-    return Math.sqrt(this.x * this.x +
-      this.y * this.y +
-      this.z * this.z +
-      this.w * this.w);
+    return Math.sqrt(
+      this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w
+    );
   }
 
   inverse() {
@@ -153,19 +150,39 @@ export class Vector4 {
   }
 
   add(that: Vector4) {
-    return new Vector4(this.x + that.x, this.y + that.y, this.z + that.z, this.w + that.w);
+    return new Vector4(
+      this.x + that.x,
+      this.y + that.y,
+      this.z + that.z,
+      this.w + that.w
+    );
   }
 
   subtract(that: Vector4) {
-    return new Vector4(this.x - that.x, this.y - that.y, this.z - that.z, this.w - that.w);
+    return new Vector4(
+      this.x - that.x,
+      this.y - that.y,
+      this.z - that.z,
+      this.w - that.w
+    );
   }
 
   scalarMultiply(factor: number) {
-    return new Vector4(this.x * factor, this.y * factor, this.z * factor, this.w * factor);
+    return new Vector4(
+      this.x * factor,
+      this.y * factor,
+      this.z * factor,
+      this.w * factor
+    );
   }
 
   multiply(that: Vector4) {
-    return new Vector4(this.x * that.x, this.y * that.y, this.z * that.z, this.w * that.w);
+    return new Vector4(
+      this.x * that.x,
+      this.y * that.y,
+      this.z * that.z,
+      this.w * that.w
+    );
   }
 
   normalize() {

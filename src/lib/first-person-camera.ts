@@ -21,7 +21,7 @@ export class FirstPersonCamera {
     this.right = new Vector3(
       this.eyeFromWorld.get(0, 0),
       this.eyeFromWorld.get(0, 1),
-      this.eyeFromWorld.get(0, 2)
+      this.eyeFromWorld.get(0, 2),
     );
   }
 
@@ -46,7 +46,6 @@ export class FirstPersonCamera {
     this.forward = rotation.multiplyPosition(this.forward);
     this.reorient();
   }
-
 }
 
 export class TerrainCamera {
@@ -59,7 +58,13 @@ export class TerrainCamera {
   offset: number;
   factors: Vector3;
 
-  constructor(from: Vector3, to: Vector3, field: Field2, offset: number, factors: Vector3) {
+  constructor(
+    from: Vector3,
+    to: Vector3,
+    field: Field2,
+    offset: number,
+    factors: Vector3,
+  ) {
     this.forward = to.subtract(from).normalize();
     this.from = from;
     this.worldUp = new Vector3(0, 1, 0);
@@ -75,7 +80,7 @@ export class TerrainCamera {
     this.right = new Vector3(
       this.eyeFromWorld.get(0, 0),
       this.eyeFromWorld.get(0, 1),
-      this.eyeFromWorld.get(0, 2)
+      this.eyeFromWorld.get(0, 2),
     );
   }
 
@@ -109,5 +114,4 @@ export class TerrainCamera {
     const height = this.field.blerp(x, z);
     this.from.y = height * this.factors.y + this.offset;
   }
-
 }

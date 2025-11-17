@@ -1,4 +1,5 @@
-import checker from 'vite-plugin-checker';
+import checker from "vite-plugin-checker";
+import path from "path";
 
 export default {
   plugins: [
@@ -8,7 +9,7 @@ export default {
   ],
   resolve: {
     alias: {
-      lib: "/lib",
+      "@": path.resolve(__dirname, "src"),
     },
   },
 };
