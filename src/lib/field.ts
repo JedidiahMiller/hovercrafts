@@ -1,6 +1,6 @@
-import { lerp } from "./math-utilities.js";
-import { Trimesh } from "./trimesh.js";
-import { Vector3 } from "./vector.js";
+import { lerp } from "@/lib/math-utilities.js";
+import { Trimesh } from "@/lib/trimesh.js";
+import { Vector3 } from "@/lib/vector.js";
 
 export class Field2 {
   width: number;
@@ -89,5 +89,17 @@ export class Field2 {
     const middle = lerp(bottom, top, fractionY);
 
     return middle;
+  }
+
+  /**
+   * Gets the height of the terrain at the given coordinates
+   */
+  getHeight(x: number, z: number, factors: Vector3, yOffset = 0) {
+    const adjustedX = x / factors.x;
+    const adjustedZ = z / factors.z;
+
+    const height = this.blerp(adjustedX, adjustedZ);
+
+    return height * factors.y + yOffset;
   }
 }

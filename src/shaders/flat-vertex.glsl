@@ -14,8 +14,9 @@ out vec2 mixTexPosition;
 
 void main() {
   gl_Position = clipFromEye * eyeFromWorld * worldFromModel * vec4(position, 1.0);
-  mixNormal = vec3(eyeFromWorld * worldFromModel * vec4(normal, 0.0));
-  mixEyePosition = vec3(eyeFromWorld * worldFromModel * vec4(position, 1.0));
+  mixNormal = (eyeFromWorld * worldFromModel * vec4(normal, 0.0)).xyz;
+
+  mixEyePosition = (eyeFromWorld * worldFromModel * vec4(position, 1.0)).xyz;
   mixTexPosition = texPosition;
   mixColor = color;
 }

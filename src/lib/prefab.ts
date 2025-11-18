@@ -7,7 +7,7 @@ export class Prefab {
     width: number,
     height: number,
     longitudeCount: number,
-    latitudeCount: number
+    latitudeCount: number,
   ) {
     const positions: Vector3[] = [];
 
@@ -45,7 +45,7 @@ export class Prefab {
     radius: number,
     height: number,
     longitudeCount: number,
-    latitudeCount: number
+    latitudeCount: number,
   ) {
     const positions: Vector3[] = [];
 
@@ -117,7 +117,7 @@ export class Prefab {
       const latRadians = lerp(
         -Math.PI * 0.5,
         Math.PI * 0.5,
-        lat / (latitudeCount - 1)
+        lat / (latitudeCount - 1),
       );
       let x = radius * Math.cos(latRadians);
       let y = radius * Math.sin(latRadians);
@@ -125,7 +125,7 @@ export class Prefab {
       for (let lon = 0; lon < longitudeCount; ++lon) {
         const lonRadians = (lon / longitudeCount) * -2 * Math.PI;
         positions.push(
-          new Vector3(x * Math.cos(lonRadians), y, x * Math.sin(lonRadians))
+          new Vector3(x * Math.cos(lonRadians), y, x * Math.sin(lonRadians)),
         );
 
         const nextLon = lon + 1;
@@ -147,7 +147,7 @@ export class Prefab {
     innerRadius: number,
     outerRadius: number,
     longitudeCount: number,
-    latitudeCount: number
+    latitudeCount: number,
   ) {
     const positions: Vector3[] = [];
     const index = (lon: number, lat: number) => {
@@ -167,7 +167,7 @@ export class Prefab {
       for (let lon = 0; lon < longitudeCount; ++lon) {
         const lonRadians = (lon / longitudeCount) * 2 * Math.PI;
         positions.push(
-          new Vector3(x * Math.cos(lonRadians), y, x * Math.sin(lonRadians))
+          new Vector3(x * Math.cos(lonRadians), y, x * Math.sin(lonRadians)),
         );
         let nextLon = (lon + 1) % longitudeCount;
         let nextLat = (lat + 1) % latitudeCount;

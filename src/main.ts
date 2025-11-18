@@ -2,31 +2,42 @@ import { VertexAttributes } from "@/lib/vertex-attributes.js";
 import { ShaderProgram } from "@/lib/shader-program.js";
 import { fetchImage } from "@/lib/web-utilities.js";
 import { VertexArray } from "@/lib/vertex-array.js";
-import { Vector3 } from "@/lib/vector.js";
 import { Matrix4 } from "@/lib/matrix.js";
 import { Field2 } from "@/lib/field.js";
-import { ThirdPersonCamera } from "@/lib/camera.js";
 import { Prefab } from "@/lib/prefab.js";
 import vertexSource from "@/shaders/flat-vertex.glsl?raw";
 import fragmentSource from "@/shaders/flat-fragment.glsl?raw";
-import { TerrainCamera } from "./lib/first-person-camera.js";
+import { Vector3 } from "@/lib/vector.js";
+import { Renderer } from "@/renderer.js";
+import { ThirdPersonCamera } from "./lib/camera.js";
+import { MeshLoader } from "./mesh.js";
 
 let canvas: HTMLCanvasElement;
 let terrainShader: ShaderProgram;
+let hovercraftShader: ShaderProgram;
 let terrainVao: VertexArray;
-let racingPodVao: VertexArray;
-let racingPodPosition: Matrix4;
+let hovercraftVao: VertexArray;
 let clipFromEye: Matrix4;
 let then: DOMHighResTimeStamp | null = null;
 let worldLightPosition: Vector3;
-let racingPodPos: Vector3;
+let terrain: Field2;
+
+type Player = {
+  hovercraftPosition: Vector3;
+  hovercraftDirection: Vector3;
+};
+
+let player: Player = {
+  hovercraftPosition: new Vector3(0, 0, 0),
+  hovercraftDirection: new Vector3(0, 0, -1),
+};
 
 type PlayerControllers = {
   horizontal: number;
   vertical: number;
   yaw: number;
   pitch: number;
-  camera?: TerrainCamera | ThirdPersonCamera;
+  camera?: ThirdPersonCamera;
 };
 
 let playerControls: PlayerControllers = {
@@ -37,7 +48,7 @@ let playerControls: PlayerControllers = {
   camera: undefined,
 };
 
-const scaler = new Vector3(0.3, 5, 0.3);
+const scaler = new Vector3(0.75, 5, 0.75);
 
 async function initialize() {
   canvas = document.getElementById("canvas") as HTMLCanvasElement;
@@ -47,17 +58,23 @@ async function initialize() {
 
   window.addEventListener("keydown", onKeyDown);
   window.addEventListener("keyup", onKeyUp);
-  window.addEventListener("pointerdown", () => {
-    document.body.requestPointerLock();
-  });
-  window.addEventListener("pointermove", (event) => {
-    if (document.pointerLockElement) {
-      playerControls.yaw = -event.movementX * 1;
-      playerControls.pitch = -event.movementY * 1;
-    }
-  });
+  // window.addEventListener("pointerdown", () => {
+  //   document.body.requestPointerLock();
+  // });
+  // window.addEventListener("pointermove", (event) => {
+  //   if (document.pointerLockElement) {
+  //     playerControls.yaw = -event.movementX * 1;
+  //     playerControls.pitch = -event.movementY * 1;
+  //   }
+  // });
 
   terrainShader = new ShaderProgram(vertexSource, fragmentSource);
+  hovercraftShader = new ShaderProgram(vertexSource, fragmentSource);
+  hovercraftVao = await MeshLoader.getVao(
+    "/models/hovercraft.gltf",
+    vertexSource,
+    fragmentSource
+  );
   await initializeMap("/rockingham.png");
   await loadTexture();
   resizeCanvas();
@@ -102,31 +119,23 @@ function onKeyUp(event: KeyboardEvent) {
 
 async function initializeMap(url: string) {
   const image = await fetchImage(url);
-  const readImage = Field2.readFromImage(image);
-  const heightmap = readImage.toTrimesh(scaler);
+  terrain = Field2.readFromImage(image);
+  const heightmap = terrain.toTrimesh(scaler);
 
   heightmap.computeNormals();
 
   // Place the sun at the center of the terrain and raise it
-  const centerX = (readImage.width - 1) * 0.5 * scaler.x;
-  const centerZ = (readImage.height - 1) * 0.5 * scaler.z;
+  const centerX = (terrain.width - 1) * 0.5 * scaler.x;
+  const centerZ = (terrain.height - 1) * 0.5 * scaler.z;
   const raiseY = scaler.y * 20.0;
   worldLightPosition = new Vector3(centerX, raiseY, centerZ);
 
-  // Position the racing pod in the center of the map slightly above ground.
-  racingPodPos = new Vector3(centerX, 25, centerZ);
-  racingPodPosition = Matrix4.translate(
-    racingPodPos.x,
-    racingPodPos.y,
-    racingPodPos.z
-  );
+  player.hovercraftPosition = new Vector3(centerX, 25, centerZ);
 
-  playerControls.camera = new TerrainCamera(
-    new Vector3(centerX * 0.75, 0, centerZ), // Places the camera around Harrisonburg
-    new Vector3(centerX, 0, centerZ), // Look at Massanutten
-    readImage,
-    2,
-    scaler
+  playerControls.camera = new ThirdPersonCamera(
+    player.hovercraftPosition,
+    new Vector3(0, 3, -5),
+    new Vector3(0, 1, 0)
   );
 
   const attributes = new VertexAttributes();
@@ -153,31 +162,17 @@ async function initializeMap(url: string) {
   // Add color attribute - terrain
   const colors = new Float32Array(heightmap.vertexCount * 3);
   for (let i = 0; i < heightmap.vertexCount; i++) {
-    colors[i * 3] = 0.3; // Red
-    colors[i * 3 + 1] = 0.7; // Green
-    colors[i * 3 + 2] = 0.3; // Blue
+    colors[i * 3] = 0.9; // Red
+    colors[i * 3 + 1] = 0.1; // Green
+    colors[i * 3 + 2] = 0.07; // Blue
   }
   attributes.addAttribute("color", heightmap.vertexCount, 3, colors);
   attributes.addIndices(heightmap.faceBuffer());
   terrainVao = new VertexArray(terrainShader, attributes);
-
-  // Add a racing pod (sphere for placeholder)
-  const racingPod = Prefab.sphere(2, 8, 8);
-  // Shift the pod down a bit.
-  racingPod.computeNormals();
-  const racingPodAttr = new VertexAttributes();
-  racingPodAttr.addAttribute(
-    "position",
-    racingPod.vertexCount,
-    3,
-    racingPod.positionBuffer()
-  );
-  racingPodAttr.addIndices(racingPod.faceBuffer());
-
-  racingPodVao = new VertexArray(terrainShader, racingPodAttr);
 }
 
 function render() {
+  playerControls.camera!.updateTarget(player.hovercraftPosition);
   renderCameraPerspective(
     playerControls.camera!,
     0,
@@ -201,12 +196,19 @@ function animate() {
   const elapsed = then ? now - then : 0;
 
   // This is just for testing with the mouse.
-  playerControls.camera!.advance(playerControls.vertical * elapsed * 25);
-  playerControls.camera!.strafe(playerControls.horizontal * elapsed * 25);
-  playerControls.camera!.yaw(playerControls.yaw * 0.1);
-  playerControls.camera!.pitch(playerControls.pitch * 0.1);
-  playerControls.yaw = 0;
-  playerControls.pitch = 0;
+
+  player.hovercraftPosition = player.hovercraftPosition.add(
+    player.hovercraftDirection.scalarMultiply(
+      playerControls.vertical * elapsed * -5
+    )
+  );
+
+  // playerControls.camera!.advance(playerControls.vertical * elapsed * 25);
+  // playerControls.camera!.strafe(playerControls.horizontal * elapsed * 25);
+  // playerControls.camera!.yaw(playerControls.yaw * 0.1);
+  // playerControls.camera!.pitch(playerControls.pitch * 0.1);
+  // playerControls.yaw = 0;
+  // playerControls.pitch = 0;
 
   render();
   requestAnimationFrame(animate);
@@ -214,7 +216,7 @@ function animate() {
 }
 
 function renderCameraPerspective(
-  camera: TerrainCamera | ThirdPersonCamera,
+  camera: ThirdPersonCamera,
   viewportX: number,
   viewportY: number,
   viewportWidth: number,
@@ -223,54 +225,35 @@ function renderCameraPerspective(
   // Set up viewport and scissor for this camera
   gl.viewport(viewportX, viewportY, viewportWidth, viewportHeight);
   gl.scissor(viewportX, viewportY, viewportWidth, viewportHeight);
-  gl.clearColor(0.392, 0.584, 0.929, 1);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.enable(gl.DEPTH_TEST);
 
-  terrainShader.bind();
+  // Create the renderer
+  const renderer = new Renderer(worldLightPosition, clipFromEye);
 
-  // Upload three standard matrices
-  const worldFromModel = Matrix4.translate(0.0, 0.0, 0.0);
-  terrainShader.setUniformMatrix4fv("clipFromEye", clipFromEye.elements);
-  terrainShader.setUniformMatrix4fv(
-    "eyeFromWorld",
-    camera.eyeFromWorld.elements
-  );
-  terrainShader.setUniformMatrix4fv("worldFromModel", worldFromModel.elements);
-  terrainShader.setUniform1i("terrainTexture", 0);
+  // Terrain
+  renderer.render(terrainShader, terrainVao, camera);
 
-  const eyeLightPosition =
-    camera.eyeFromWorld.multiplyPosition(worldLightPosition);
-
-  terrainShader.setUniform3f(
-    "lightPosition",
-    eyeLightPosition.x,
-    eyeLightPosition.y,
-    eyeLightPosition.z
+  // Draw the hovercraft
+  player.hovercraftPosition.y = terrain.getHeight(
+    player.hovercraftPosition.x,
+    player.hovercraftPosition.z,
+    scaler,
+    5
   );
 
-  // Draw terrain
-  terrainVao.bind();
-  terrainVao.drawIndexed(gl.TRIANGLES);
-  terrainVao.unbind();
-
-  // Draw light sphere at the light position
-  const worldFromLight = Matrix4.translate(
-    worldLightPosition.x,
-    worldLightPosition.y,
-    worldLightPosition.z
+  const worldFromHovercraftModel = Matrix4.translate(
+    player.hovercraftPosition.x,
+    player.hovercraftPosition.y,
+    player.hovercraftPosition.z
   );
-  terrainShader.setUniformMatrix4fv("worldFromModel", worldFromLight.elements);
 
-  terrainShader.setUniformMatrix4fv(
-    "worldFromModel",
-    racingPodPosition.elements
+  renderer.render(
+    hovercraftShader,
+    hovercraftVao,
+    camera,
+    worldFromHovercraftModel
   );
-  racingPodVao.bind();
-  racingPodVao.drawIndexed(gl.TRIANGLES);
-  racingPodVao.unbind();
-
-  terrainShader.unbind();
 }
 
 function createRgbaTexture2d(

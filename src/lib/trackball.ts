@@ -1,5 +1,5 @@
-import { Matrix4 } from "./matrix.js";
-import { Vector3 } from "./vector.js";
+import { Matrix4 } from "@/lib/matrix.js";
+import { Vector3 } from "@/lib/vector.js";
 
 export class Trackball {
   mouseSphere0!: Vector3;

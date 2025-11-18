@@ -8,12 +8,12 @@ in vec2 mixTexPosition;
 
 out vec4 fragmentColor;
 
-const float ambientFactor = 0.3;
-const float shininess = 50.0;
+const float ambientFactor = 0.2;
+const float shininess = 5.0;
 
 void main() {
     vec3 lightDirection = normalize(lightPosition - mixEyePosition);
-    vec3 normal = normalize(mixNormal);
+    vec3 normal = - normalize(mixNormal);
     float litness = max(0.0, dot(normal, lightDirection));
 
     vec3 ambient = mixColor * ambientFactor;
@@ -26,6 +26,6 @@ void main() {
 
     vec3 lighting = ambient + diffuse + specular;
     vec3 textureColor = texture(terrainTexture, mixTexPosition).rgb;
-    // vec3 rgb = lighting * textureColor;
-    fragmentColor = vec4(lighting, 1.0);
+    vec3 rgb = lighting * textureColor;
+    fragmentColor = vec4(rgb, 1.0);
 }

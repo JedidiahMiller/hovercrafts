@@ -76,7 +76,7 @@ export class Quaternion {
       a * this.x + b * that.x,
       a * this.y + b * that.y,
       a * this.z + b * that.z,
-      a * this.w + b * that.w
+      a * this.w + b * that.w,
     );
   }
 

@@ -1,4 +1,4 @@
-import { Vector3 } from "./vector.js";
+import { Vector3 } from "@/lib/vector.js";
 
 export function intersectRaySphere(
   rayStart: Vector3,

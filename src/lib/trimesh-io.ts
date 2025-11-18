@@ -20,8 +20,8 @@ class TrimeshIo {
             new Vector3(
               parseFloat(fields[1]),
               parseFloat(fields[2]),
-              parseFloat(fields[3])
-            )
+              parseFloat(fields[3]),
+            ),
           );
         } else if (fields[0] === "f" && fields.length === 4) {
           faces.push([

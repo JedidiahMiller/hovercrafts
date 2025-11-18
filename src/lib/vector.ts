@@ -91,6 +91,10 @@ export class Vector3 {
       lerp(this.z, that.z, blend)
     );
   }
+
+  buffer() {
+    return new Float32Array([this.x, this.y, this.z]);
+  }
 }
 
 export class Vector4 {
