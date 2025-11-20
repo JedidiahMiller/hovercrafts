@@ -4,6 +4,9 @@ import { ShaderProgram } from "./lib/shader-program.js";
 import { Vector3 } from "./lib/vector.js";
 import { VertexArray } from "./lib/vertex-array.js";
 
+/**
+ * Contains the common render parameters for a scene
+ */
 export class Renderer {
   worldLightPosition: Vector3;
   clipFromEye: Matrix4;
@@ -13,11 +16,21 @@ export class Renderer {
     this.clipFromEye = clipFromEye;
   }
 
+  /**
+   * Render an object with the standard uniforms
+   *
+   * @param shader The shader program to use
+   * @param vao The vertex array to use
+   * @param camera The camera to use
+   * @param worldFromModel The world-from-model matrix
+   * @param texture The texture to use
+   */
   render(
     shader: ShaderProgram,
     vao: VertexArray,
     camera: Camera,
-    worldFromModel?: Matrix4
+    worldFromModel: Matrix4 = Matrix4.identity(),
+    texture: undefined | number = undefined
   ) {
     shader.bind();
     shader.setUniformMatrix4fv("clipFromEye", this.clipFromEye.elements);
@@ -26,7 +39,9 @@ export class Renderer {
       "worldFromModel",
       worldFromModel ? worldFromModel.elements : Matrix4.identity().elements
     );
-    shader.setUniform1i("terrainTexture", 0);
+    if (texture) {
+      shader.setUniform1i("textureSource", texture);
+    }
     const eyeLightPosition = camera.eyeFromWorld.multiplyPosition(
       this.worldLightPosition
     );

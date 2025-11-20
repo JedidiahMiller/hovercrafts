@@ -4,6 +4,9 @@ import { ShaderProgram } from "@/lib/shader-program.js";
 import { VertexArray } from "@/lib/vertex-array.js";
 
 export class MeshLoader {
+  /**
+   * Loads a mesh into a Vao
+   */
   static async getVao(
     source: string,
     vertexSource: string,
@@ -11,7 +14,6 @@ export class MeshLoader {
   ) {
     const gltf = await Gltf.readFromUrl(source);
 
-    console.log(gltf);
     const mesh = gltf.meshes[0];
 
     // Create the vertex attributes

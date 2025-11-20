@@ -108,6 +108,14 @@ export class Matrix4 {
     return m;
   }
 
+  /**
+   * Creates a perspective projection matrix
+   *
+   * @param fovY Field of view in degrees
+   * @param aspectRatio Aspect ratio of the viewport
+   * @param near Near clipping plane
+   * @param far Far clipping plane
+   */
   static perspective(
     fovY: number,
     aspectRatio: number,
