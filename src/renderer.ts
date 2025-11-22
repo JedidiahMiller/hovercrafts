@@ -8,10 +8,10 @@ import { VertexArray } from "./lib/vertex-array.js";
  * Contains the common render parameters for a scene
  */
 export class Renderer {
-  worldLightPosition: Vector3;
+  worldLightPosition?: Vector3;
   clipFromEye: Matrix4;
 
-  constructor(worldLightPosition: Vector3, clipFromEye: Matrix4) {
+  constructor(clipFromEye: Matrix4, worldLightPosition?: Vector3) {
     this.worldLightPosition = worldLightPosition;
     this.clipFromEye = clipFromEye;
   }
@@ -30,7 +30,8 @@ export class Renderer {
     vao: VertexArray,
     camera: Camera,
     worldFromModel: Matrix4 = Matrix4.identity(),
-    texture: undefined | number = undefined
+    texture: undefined | number = undefined,
+    includeWorldLight: boolean = true
   ) {
     shader.bind();
     shader.setUniformMatrix4fv("clipFromEye", this.clipFromEye.elements);
@@ -42,15 +43,17 @@ export class Renderer {
     if (texture) {
       shader.setUniform1i("textureSource", texture);
     }
-    const eyeLightPosition = camera.eyeFromWorld.multiplyPosition(
-      this.worldLightPosition
-    );
-    shader.setUniform3f(
-      "lightPosition",
-      eyeLightPosition.x,
-      eyeLightPosition.y,
-      eyeLightPosition.z
-    );
+    if (includeWorldLight && this.worldLightPosition) {
+      const eyeLightPosition = camera.eyeFromWorld.multiplyPosition(
+        this.worldLightPosition
+      );
+      shader.setUniform3f(
+        "lightPosition",
+        eyeLightPosition.x,
+        eyeLightPosition.y,
+        eyeLightPosition.z
+      );
+    }
 
     vao.bind();
     vao.drawIndexed(gl.TRIANGLES);

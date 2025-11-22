@@ -6,18 +6,28 @@ export class Field2 {
   width: number;
   height: number;
   values: number[]; // in [0, 1] and in row-major order
+  textureScale: number;
 
-  constructor(width: number, height: number, values: number[]) {
+  constructor(
+    width: number,
+    height: number,
+    values: number[],
+    textureScale: number = 1
+  ) {
     this.width = width;
     this.height = height;
     this.values = values;
+    this.textureScale = textureScale;
   }
 
   get2(x: number, y: number): number {
     return this.values[y * this.width + x];
   }
 
-  static readFromImage(image: HTMLImageElement): Field2 {
+  static readFromImage(
+    image: HTMLImageElement,
+    textureScale: number = 1
+  ): Field2 {
     // Go through canvas to get the pixel data.
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d") as CanvasRenderingContext2D;
@@ -32,7 +42,7 @@ export class Field2 {
       grays[i] = pixels.data[i * 4] / 255;
     }
 
-    return new Field2(image.width, image.height, grays);
+    return new Field2(image.width, image.height, grays, textureScale);
   }
 
   toTrimesh(factors: Vector3) {
@@ -64,8 +74,8 @@ export class Field2 {
 
     for (let z = 0; z < this.height; ++z) {
       for (let x = 0; x < this.width; ++x) {
-        const normalizedX = x / (this.width / 4) - 1;
-        const normalizedZ = z / (this.height / 4) - 1;
+        const normalizedX = (x * this.textureScale) / this.width - 1;
+        const normalizedZ = (z * this.textureScale) / this.height - 1;
         texCoords.push(normalizedX, normalizedZ);
       }
     }

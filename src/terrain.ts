@@ -10,15 +10,21 @@ export class Terrain {
   scaler: Vector3;
   vao!: VertexArray;
   shader: ShaderProgram;
+  textureScale: number;
 
-  constructor(scaler: Vector3, shader: ShaderProgram) {
+  constructor(
+    scaler: Vector3,
+    shader: ShaderProgram,
+    textureScale: number = 1
+  ) {
     this.scaler = scaler;
     this.shader = shader;
+    this.textureScale = textureScale;
   }
 
   async loadMap(url: string) {
     const image = await fetchImage(url);
-    this.field = Field2.readFromImage(image);
+    this.field = Field2.readFromImage(image, this.textureScale);
     const heightmap = this.field.toTrimesh(this.scaler);
 
     heightmap.computeNormals();

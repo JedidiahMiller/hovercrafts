@@ -9,9 +9,11 @@ in vec2 texPosition;
 out vec3 mixNormal;
 out vec3 mixEyePosition;
 out vec2 mixTexPosition;
+out float height;
 
 void main() {
   gl_Position = clipFromEye * eyeFromWorld * worldFromModel * vec4(position, 1.0);
+  height = (worldFromModel * vec4(position, 1.0)).y;
   mixNormal = (eyeFromWorld * worldFromModel * vec4(normal, 0.0)).xyz;
 
   mixEyePosition = (eyeFromWorld * worldFromModel * vec4(position, 1.0)).xyz;

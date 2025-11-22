@@ -12,6 +12,7 @@ import { ThirdPersonCamera } from "./lib/camera.js";
 import { MeshLoader } from "./mesh.js";
 import { Terrain } from "./terrain.js";
 import { Hovercraft } from "./hovercraft.js";
+import { OrbVisualizer } from "./debugging.js";
 
 let canvas: HTMLCanvasElement;
 let hovercraftShader: ShaderProgram;
@@ -47,7 +48,7 @@ let playerControls: PlayerControllers = {
   controller: null,
 };
 
-const scaler = new Vector3(10, 500, 10);
+const scaler = new Vector3(75, 1500, 75);
 
 async function initialize() {
   canvas = document.getElementById("canvas") as HTMLCanvasElement;
@@ -78,9 +79,10 @@ async function initialize() {
 
   terrain = new Terrain(
     scaler,
-    new ShaderProgram(terrainVertexSource, terrainFragmentSource)
+    new ShaderProgram(terrainVertexSource, terrainFragmentSource),
+    1
   );
-  await terrain.loadMap("/rockingham.png");
+  await terrain.loadMap("/custom.png");
 
   // Create the hovercraft
   player = {
@@ -90,7 +92,7 @@ async function initialize() {
   // Set up elements
 
   // Place the sun over the center
-  worldLightPosition = terrain.center.add(new Vector3(0, 100, 0));
+  worldLightPosition = terrain.center.add(new Vector3(0, 100 * scaler.y, 0));
 
   // Place the hovercraft
   player.hovercraft.position = terrain.center;
@@ -163,7 +165,7 @@ function resizeCanvas() {
   canvas.height = canvas.clientHeight;
   const aspectRatio = canvas.clientWidth / canvas.clientHeight;
 
-  clipFromEye = Matrix4.perspective(70, aspectRatio, 1, 3000);
+  clipFromEye = Matrix4.perspective(70, aspectRatio, 1, 50000);
   render();
 }
 
@@ -178,6 +180,7 @@ function animate() {
   }
 
   // Use the controller if connected
+  const superSpeed = playerControls.controller?.buttons[1].value == 1;
   const forward = playerControls.controller
     ? playerControls.controller.buttons[7].value -
       playerControls.controller.buttons[6].value
@@ -187,8 +190,9 @@ function animate() {
     : playerControls.turn;
 
   // Apply acceleration
+  const acceleration = superSpeed ? -5000 : -500;
   player.hovercraft.linearAcceleration =
-    player.hovercraft.direction.scalarMultiply(forward * -100);
+    player.hovercraft.direction.scalarMultiply(forward * acceleration);
   player.hovercraft.rotationalAcceleration = new Vector3(0, turn * 0.1, 0);
 
   // Update the hovercraft
@@ -214,7 +218,7 @@ function renderCameraPerspective(
   gl.enable(gl.DEPTH_TEST);
 
   // Create the renderer
-  const renderer = new Renderer(worldLightPosition, clipFromEye);
+  const renderer = new Renderer(clipFromEye, worldLightPosition);
 
   // Terrain
   renderer.render(terrain.shader, terrain.vao, camera, undefined, 0);
@@ -237,6 +241,44 @@ function renderCameraPerspective(
     hovercraftVao,
     camera,
     worldFromHovercraftModel
+  );
+
+  const orb = new OrbVisualizer(0.5);
+  renderer.render(
+    orb.shader,
+    orb.vao,
+    camera,
+    Matrix4.translate(
+      player.hovercraft.frontPoint.position.x,
+      player.hovercraft.frontPoint.position.y,
+      player.hovercraft.frontPoint.position.z
+    ),
+    undefined,
+    false
+  );
+  renderer.render(
+    orb.shader,
+    orb.vao,
+    camera,
+    Matrix4.translate(
+      player.hovercraft.leftPoint.position.x,
+      player.hovercraft.leftPoint.position.y,
+      player.hovercraft.leftPoint.position.z
+    ),
+    undefined,
+    false
+  );
+  renderer.render(
+    orb.shader,
+    orb.vao,
+    camera,
+    Matrix4.translate(
+      player.hovercraft.rightPoint.position.x,
+      player.hovercraft.rightPoint.position.y,
+      player.hovercraft.rightPoint.position.z
+    ),
+    undefined,
+    false
   );
 }
 
@@ -273,7 +315,7 @@ function createRgbaTexture2d(
 }
 
 async function loadTexture() {
-  const image = await fetchImage("/textures/grass.png");
+  const image = await fetchImage("/textures/dirt.png");
   createRgbaTexture2d(image.width, image.height, image);
 }
 

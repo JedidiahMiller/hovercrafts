@@ -16,12 +16,12 @@ export class Hovercraft {
   private lastPhysicsUpdate: number;
   private airResistance = 0.2;
   private gravity = 15;
-  private physicPointRadius = 5;
+  private physicPointRadius = 2;
 
   // Three sampling points for height + slope detection
-  private frontPoint: HoverPoint;
-  private leftPoint: HoverPoint;
-  private rightPoint: HoverPoint;
+  frontPoint: HoverPoint;
+  leftPoint: HoverPoint;
+  rightPoint: HoverPoint;
 
   constructor(position: Vector3, direction: Vector3, terrain: Terrain) {
     this.terrain = terrain;
@@ -48,32 +48,6 @@ export class Hovercraft {
     const now = performance.now() / 1000;
     const elapsedSeconds = now - this.lastPhysicsUpdate;
 
-    // Update the hoverpoints
-    this.frontPoint.position = this.position.add(
-      this.direction.scalarMultiply(this.physicPointRadius)
-    );
-    this.leftPoint.position = this.position.add(
-      Matrix4.rotateY(120).multiplyVector3(
-        this.direction.scalarMultiply(this.physicPointRadius)
-      )
-    );
-    this.rightPoint.position = this.position.add(
-      Matrix4.rotateY(-120).multiplyVector3(
-        this.direction.scalarMultiply(this.physicPointRadius)
-      )
-    );
-
-    this.frontPoint.updatePhysics();
-    this.leftPoint.updatePhysics();
-    this.rightPoint.updatePhysics();
-
-    // Update height
-    this.position.y =
-      (this.frontPoint.position.y +
-        this.leftPoint.position.y +
-        this.rightPoint.position.y) /
-      3;
-
     // Drag
     this.linearAcceleration = this.linearAcceleration.add(
       this.linearVelocity.scalarMultiply(-this.airResistance)
@@ -99,6 +73,44 @@ export class Hovercraft {
     const rotation = this.rotationalVelocity.y * elapsedSeconds * 10;
     this.direction = Matrix4.rotateY(rotation).multiplyVector3(this.direction);
     this.rotation.y = this.rotation.y += rotation;
+
+    // Update the hoverpoints
+
+    // Front
+    const frontHeight = this.frontPoint.position.y;
+    this.frontPoint.position = this.position.add(
+      this.direction.scalarMultiply(this.physicPointRadius)
+    );
+    this.frontPoint.position.y = frontHeight;
+
+    // Left
+    const leftHeight = this.leftPoint.position.y;
+    this.leftPoint.position = this.position.add(
+      Matrix4.rotateY(120).multiplyVector3(
+        this.direction.scalarMultiply(this.physicPointRadius)
+      )
+    );
+    this.leftPoint.position.y = leftHeight;
+
+    // Right
+    const rightHeight = this.rightPoint.position.y;
+    this.rightPoint.position = this.position.add(
+      Matrix4.rotateY(-120).multiplyVector3(
+        this.direction.scalarMultiply(this.physicPointRadius)
+      )
+    );
+    this.rightPoint.position.y = rightHeight;
+
+    this.frontPoint.updatePhysics();
+    this.leftPoint.updatePhysics();
+    this.rightPoint.updatePhysics();
+
+    // Update height
+    this.position.y =
+      (this.frontPoint.position.y +
+        this.leftPoint.position.y +
+        this.rightPoint.position.y) /
+      3;
 
     // Update the orientation
     const a = this.frontPoint.position;
@@ -131,7 +143,7 @@ class HoverPoint {
   private hoverSpring = 3;
   private hoverDamping = 4.0;
   private hoverTargetHeight = 3;
-  private groundCollisionHeight = 0.5;
+  private groundCollisionHeight = 1;
   private maxHeight = 300;
   private gravity;
 
@@ -159,13 +171,13 @@ class HoverPoint {
       this.position.z
     );
 
-    // const distanceToGround = this.position.y - groundHeight;
-    // const heightError = this.hoverTargetHeight - distanceToGround;
+    const distanceToGround = this.position.y - groundHeight;
+    const heightError = this.hoverTargetHeight - distanceToGround;
 
-    // const springForce = heightError * this.hoverSpring;
-    // const dampingForce = -this.velocity * this.hoverDamping;
+    const springForce = heightError * this.hoverSpring;
+    const dampingForce = -this.velocity * this.hoverDamping;
 
-    // this.acceleration += springForce + dampingForce;
+    this.acceleration += springForce + dampingForce;
 
     // Apply movement
     this.velocity += this.acceleration * elapsedSeconds;
@@ -179,7 +191,7 @@ class HoverPoint {
 
     if (this.position.y < groundHeight + this.groundCollisionHeight) {
       this.position.y = groundHeight + this.groundCollisionHeight;
-      if (this.velocity < 0) this.velocity = 0;
+      if (this.velocity < 0) this.velocity = Math.abs(this.velocity) * 0.3;
     }
 
     // Done
