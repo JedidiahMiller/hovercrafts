@@ -18,7 +18,7 @@ export class Hovercraft {
 
   private lastPhysicsUpdate: number;
   private airResistance = 0.2;
-  private gravity = 25;
+  private gravity = 50;
   private groundCollisionDistance = 0.75;
   private groundHoverDistance = 5;
   private scale = new Vector3(1, 0.75, 1);

@@ -1,8 +1,6 @@
 import { Camera } from "./lib/camera.js";
 import { Matrix4 } from "./lib/matrix.js";
-import { ShaderProgram } from "./lib/shader-program.js";
 import { Vector3 } from "./lib/vector.js";
-import { VertexArray } from "./lib/vertex-array.js";
 import { Mesh } from "./mesh.js";
 import { TerrainMesh } from "./terrain.js";
 
@@ -30,26 +28,12 @@ export class Scene {
   render(camera: Camera, includeWorldLight: boolean = true) {
     // Terrain
     for (const terrainMesh of this.groundMeshes) {
-      this.renderMesh(
-        terrainMesh.mesh.shader,
-        terrainMesh.mesh.getVao(),
-        camera,
-        terrainMesh.mesh.worldFromModel,
-        terrainMesh.mesh.textureNumber,
-        includeWorldLight
-      );
+      this.renderMesh(terrainMesh.mesh, camera, includeWorldLight);
     }
 
     // Scene objects
     for (const mesh of this.meshes) {
-      this.renderMesh(
-        mesh.shader,
-        mesh.getVao(),
-        camera,
-        mesh.worldFromModel,
-        mesh.textureNumber,
-        includeWorldLight
-      );
+      this.renderMesh(mesh, camera, includeWorldLight);
     }
   }
 
@@ -63,28 +47,35 @@ export class Scene {
    * @param texture The texture to use
    */
   private renderMesh(
-    shader: ShaderProgram,
-    vao: VertexArray,
+    mesh: Mesh,
     camera: Camera,
-    worldFromModel: Matrix4 = Matrix4.identity(),
-    texture: undefined | number = undefined,
     includeWorldLight: boolean = true
   ) {
-    shader.bind();
-    shader.setUniformMatrix4fv("clipFromEye", this.clipFromEye.elements);
-    shader.setUniformMatrix4fv("eyeFromWorld", camera.eyeFromWorld.elements);
-    shader.setUniformMatrix4fv(
-      "worldFromModel",
-      worldFromModel ? worldFromModel.elements : Matrix4.identity().elements
+    mesh.shader.bind();
+    mesh.shader.setUniformMatrix4fv("clipFromEye", this.clipFromEye.elements);
+    mesh.shader.setUniformMatrix4fv(
+      "eyeFromWorld",
+      camera.eyeFromWorld.elements
     );
-    if (texture !== undefined) {
-      shader.setUniform1i("textureSource", texture);
+    mesh.shader.setUniformMatrix4fv(
+      "worldFromModel",
+      mesh.worldFromModel
+        ? mesh.worldFromModel.elements
+        : Matrix4.identity().elements
+    );
+    if (mesh.textureNumber !== undefined) {
+      mesh.shader.setUniform1i("textureSource", mesh.textureNumber);
+      mesh.shader.setUniform2f(
+        "textureScale",
+        mesh.textureScale![0],
+        mesh.textureScale![1]
+      );
     }
     if (includeWorldLight && this.worldLightPosition) {
       const eyeLightPosition = camera.eyeFromWorld.multiplyPosition(
         this.worldLightPosition
       );
-      shader.setUniform3f(
+      mesh.shader.setUniform3f(
         "lightPosition",
         eyeLightPosition.x,
         eyeLightPosition.y,
@@ -92,9 +83,10 @@ export class Scene {
       );
     }
 
+    const vao = mesh.getVao();
     vao.bind();
     vao.drawIndexed(gl.TRIANGLES);
     vao.unbind();
-    shader.unbind();
+    mesh.shader.unbind();
   }
 }

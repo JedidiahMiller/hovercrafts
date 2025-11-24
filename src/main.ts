@@ -2,10 +2,6 @@ import { ShaderProgram } from "@/lib/shader-program.js";
 import { Matrix4 } from "@/lib/matrix.js";
 import hovercraftVertexSource from "@/shaders/hovercraft-vertex.glsl?raw";
 import hovercraftFragmentSource from "@/shaders/hovercraft-fragment.glsl?raw";
-import trackVertexSource from "@/shaders/track-vertex.glsl?raw";
-import trackFragmentSource from "@/shaders/track-fragment.glsl?raw";
-import grassVertexSource from "@/shaders/grass-vertex.glsl?raw";
-import grassFragmentSource from "@/shaders/grass-fragment.glsl?raw";
 import { Vector3 } from "@/lib/vector.js";
 import { Mesh } from "./mesh.js";
 import { ThirdPersonCamera } from "./lib/camera.js";
@@ -14,6 +10,8 @@ import { TerrainMesh } from "./terrain.js";
 import { Hovercraft } from "./hovercraft.js";
 import { Controls } from "./controls.js";
 import { loadTextures } from "./textures.js";
+import terrainFragmentSource from "@/shaders/terrain-fragment.glsl?raw";
+import terrainVertexSource from "@/shaders/terrain-vertex.glsl?raw";
 
 let canvas: HTMLCanvasElement;
 let clipFromEye: Matrix4;
@@ -45,19 +43,24 @@ async function initialize() {
 
   // Load track meshes
   let trackMeshes = await Mesh.load("/models/track.gltf");
-  const trackTransform = Matrix4.scale(1000, 1000, 1000);
+  const trackTransform = Matrix4.scale(800, 800, 800);
   trackMeshes["track"].worldFromModel = trackTransform;
   trackMeshes["track"].shader = new ShaderProgram(
-    trackVertexSource,
-    trackFragmentSource
+    terrainVertexSource,
+    terrainFragmentSource
   );
-  trackMeshes["track"].textureNumber = 0;
+  trackMeshes["track"].textureNumber = 2;
+  trackMeshes["track"].applyUniformTextureCoordinates();
+  trackMeshes["track"].textureScale = [100, 100];
 
   trackMeshes["grass"].worldFromModel = trackTransform;
   trackMeshes["grass"].shader = new ShaderProgram(
-    grassVertexSource,
-    grassFragmentSource
+    terrainVertexSource,
+    terrainFragmentSource
   );
+  trackMeshes["grass"].textureNumber = 1;
+  trackMeshes["grass"].applyUniformTextureCoordinates();
+  trackMeshes["grass"].textureScale = [500, 500];
 
   scene.groundMeshes.push(new TerrainMesh(trackMeshes["track"], 0));
   scene.groundMeshes.push(new TerrainMesh(trackMeshes["grass"], 0));

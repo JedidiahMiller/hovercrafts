@@ -9,7 +9,8 @@
 			"name":"Scene",
 			"nodes":[
 				0,
-				1
+				1,
+				2
 			]
 		}
 	],
@@ -21,11 +22,25 @@
 		{
 			"mesh":1,
 			"name":"grass"
+		},
+		{
+			"mesh":2,
+			"name":"tower",
+			"scale":[
+				0.11118485778570175,
+				0.6700606942176819,
+				0.11118485778570175
+			],
+			"translation":[
+				1.748579978942871,
+				0.7783589363098145,
+				0.27731239795684814
+			]
 		}
 	],
 	"meshes":[
 		{
-			"name":"track",
+			"name":"t",
 			"primitives":[
 				{
 					"attributes":{
@@ -46,6 +61,19 @@
 						"NORMAL":5
 					},
 					"indices":6
+				}
+			]
+		},
+		{
+			"name":"Cube.001",
+			"primitives":[
+				{
+					"attributes":{
+						"POSITION":7,
+						"NORMAL":8,
+						"TEXCOORD_0":9
+					},
+					"indices":10
 				}
 			]
 		}
@@ -88,7 +116,7 @@
 		{
 			"bufferView":4,
 			"componentType":5126,
-			"count":1154,
+			"count":1161,
 			"max":[
 				5.122404098510742,
 				0.7334928512573242,
@@ -104,13 +132,47 @@
 		{
 			"bufferView":5,
 			"componentType":5126,
-			"count":1154,
+			"count":1161,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":6,
 			"componentType":5123,
-			"count":1818,
+			"count":1851,
+			"type":"SCALAR"
+		},
+		{
+			"bufferView":7,
+			"componentType":5126,
+			"count":24,
+			"max":[
+				1,
+				1,
+				1
+			],
+			"min":[
+				-1,
+				-1,
+				-1
+			],
+			"type":"VEC3"
+		},
+		{
+			"bufferView":8,
+			"componentType":5126,
+			"count":24,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":9,
+			"componentType":5126,
+			"count":24,
+			"type":"VEC2"
+		},
+		{
+			"bufferView":10,
+			"componentType":5123,
+			"count":36,
 			"type":"SCALAR"
 		}
 	],
@@ -141,26 +203,50 @@
 		},
 		{
 			"buffer":0,
-			"byteLength":13848,
+			"byteLength":13932,
 			"byteOffset":27352,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":13848,
-			"byteOffset":41200,
+			"byteLength":13932,
+			"byteOffset":41284,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":3636,
-			"byteOffset":55048,
+			"byteLength":3702,
+			"byteOffset":55216,
+			"target":34963
+		},
+		{
+			"buffer":0,
+			"byteLength":288,
+			"byteOffset":58920,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":288,
+			"byteOffset":59208,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":192,
+			"byteOffset":59496,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":72,
+			"byteOffset":59688,
 			"target":34963
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":58684,
+			"byteLength":59760,
 			"uri":"track.bin"
 		}
 	]

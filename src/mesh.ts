@@ -16,6 +16,8 @@ export class Mesh {
   indices: IntBuffer;
   normals: any;
   colors: any;
+  textureCoordinates?: Float32Array;
+  textureScale?: [number, number] = [1, 1];
 
   textureNumber?: number;
   shader!: ShaderProgram;
@@ -41,11 +43,36 @@ export class Mesh {
 
       mesh.colors = rawMesh.colors;
       mesh.normals = rawMesh.normals;
+      mesh.textureCoordinates = rawMesh.texCoord?.buffer;
 
       meshes[gltf.nodes[i].name] = mesh;
     }
 
     return meshes;
+  }
+
+  applyUniformTextureCoordinates() {
+    this.textureCoordinates = new Float32Array(this.positions.count * 2);
+    let minX = Infinity,
+      maxX = -Infinity;
+    let minZ = Infinity,
+      maxZ = -Infinity;
+
+    for (let i = 0; i < this.positions.count; i++) {
+      const x = this.positions.buffer[i * 3];
+      const z = this.positions.buffer[i * 3 + 2];
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      if (z < minZ) minZ = z;
+      if (z > maxZ) maxZ = z;
+    }
+
+    for (let i = 0; i < this.positions.count; i++) {
+      const x = this.positions.buffer[i * 3];
+      const z = this.positions.buffer[i * 3 + 2];
+      this.textureCoordinates[i * 2] = (x - minX) / (maxX - minX);
+      this.textureCoordinates[i * 2 + 1] = (z - minZ) / (maxZ - minZ);
+    }
   }
 
   getVao() {
@@ -75,6 +102,16 @@ export class Mesh {
         this.colors!.count,
         3,
         this.colors!.buffer
+      );
+    }
+
+    // Add texture coordinates if they exist
+    if (this.textureCoordinates) {
+      attributes.addAttribute(
+        "texPosition",
+        this.textureCoordinates!.length / 2,
+        2,
+        this.textureCoordinates!
       );
     }
 
