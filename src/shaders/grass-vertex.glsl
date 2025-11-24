@@ -14,7 +14,7 @@ out float height;
 void main() {
   gl_Position = clipFromEye * eyeFromWorld * worldFromModel * vec4(position, 1.0);
   height = (worldFromModel * vec4(position, 1.0)).y;
-  mixNormal = (eyeFromWorld * worldFromModel * vec4(normal, 0.0)).xyz;
+  mixNormal = normalize((eyeFromWorld * worldFromModel * vec4(normal, 0.0)).xyz);
 
   mixEyePosition = (eyeFromWorld * worldFromModel * vec4(position, 1.0)).xyz;
   mixTexPosition = texPosition;

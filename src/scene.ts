@@ -3,13 +3,15 @@ import { Matrix4 } from "./lib/matrix.js";
 import { ShaderProgram } from "./lib/shader-program.js";
 import { Vector3 } from "./lib/vector.js";
 import { VertexArray } from "./lib/vertex-array.js";
+import { Mesh } from "./mesh.js";
+import { TerrainMesh } from "./terrain.js";
 
-/**
- * Contains the common render parameters for a scene
- */
-export class Renderer {
+export class Scene {
   worldLightPosition?: Vector3;
   clipFromEye: Matrix4;
+
+  groundMeshes: TerrainMesh[] = [];
+  meshes: Mesh[] = [];
 
   constructor(clipFromEye: Matrix4, worldLightPosition?: Vector3) {
     this.worldLightPosition = worldLightPosition;
@@ -17,7 +19,7 @@ export class Renderer {
   }
 
   /**
-   * Render an object with the standard uniforms
+   * Render the scene
    *
    * @param shader The shader program to use
    * @param vao The vertex array to use
@@ -25,7 +27,42 @@ export class Renderer {
    * @param worldFromModel The world-from-model matrix
    * @param texture The texture to use
    */
-  render(
+  render(camera: Camera, includeWorldLight: boolean = true) {
+    // Terrain
+    for (const terrainMesh of this.groundMeshes) {
+      this.renderMesh(
+        terrainMesh.mesh.shader,
+        terrainMesh.mesh.getVao(),
+        camera,
+        terrainMesh.mesh.worldFromModel,
+        terrainMesh.mesh.textureNumber,
+        includeWorldLight
+      );
+    }
+
+    // Scene objects
+    for (const mesh of this.meshes) {
+      this.renderMesh(
+        mesh.shader,
+        mesh.getVao(),
+        camera,
+        mesh.worldFromModel,
+        mesh.textureNumber,
+        includeWorldLight
+      );
+    }
+  }
+
+  /**
+   * Private helper to render a single mesh
+   *
+   * @param shader The shader program to use
+   * @param vao The vertex array to use
+   * @param camera The camera to use
+   * @param worldFromModel The world-from-model matrix
+   * @param texture The texture to use
+   */
+  private renderMesh(
     shader: ShaderProgram,
     vao: VertexArray,
     camera: Camera,
@@ -40,7 +77,7 @@ export class Renderer {
       "worldFromModel",
       worldFromModel ? worldFromModel.elements : Matrix4.identity().elements
     );
-    if (texture) {
+    if (texture !== undefined) {
       shader.setUniform1i("textureSource", texture);
     }
     if (includeWorldLight && this.worldLightPosition) {

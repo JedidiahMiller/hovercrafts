@@ -8,6 +8,12 @@ export class Matrix4 {
     this.elements = new Float32Array(16);
   }
 
+  static fromArray(elements: Float32Array) {
+    const m = new Matrix4();
+    m.elements = elements;
+    return m;
+  }
+
   get(r: number, c: number) {
     return this.elements[c * 4 + r];
   }

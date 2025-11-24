@@ -35,4 +35,5 @@ void main() {
 
     vec3 rgb = textureColor * ambientFactor + (1.0 - ambientFactor) * lighting;
     fragmentColor = vec4(rgb, 1.0);
+    fragmentColor = vec4(vec3(0.0, 0.8, 0.0), 1.0);
 }

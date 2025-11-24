@@ -119,6 +119,10 @@ export class Vector4 {
     return this.xyzw[3];
   }
 
+  get xyz() {
+    return new Vector3(this.x, this.y, this.z);
+  }
+
   set x(value: number) {
     this.xyzw[0] = value;
   }
