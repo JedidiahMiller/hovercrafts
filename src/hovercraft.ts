@@ -50,17 +50,14 @@ export class Hovercraft {
     this.linearAcceleration = this.linearAcceleration.add(
       this.linearVelocity.scalarMultiply(-this.airResistance)
     );
-    this.rotationalVelocity = this.rotationalVelocity.scalarMultiply(
-      1 - elapsedSeconds * 0.75
-    );
+    this.rotationalVelocity = this.rotationalVelocity.scalarMultiply(1 - elapsedSeconds * 0.75);
     // TODO: Slow do sideways drift
 
     // Velocity
     this.linearVelocity = this.linearVelocity.add(
       this.linearAcceleration.scalarMultiply(elapsedSeconds)
     );
-    this.rotationalVelocity.y +=
-      this.rotationalAcceleration.y * elapsedSeconds * 100;
+    this.rotationalVelocity.y += this.rotationalAcceleration.y * elapsedSeconds * 100;
 
     // Apply collisions
 
@@ -68,10 +65,7 @@ export class Hovercraft {
     let terrainSpeed = 0;
     let distanceToGround = Infinity;
     for (const terrainMesh of terrainMeshes) {
-      const hit = terrainMesh.mesh.raycastMesh(
-        this.position,
-        new Vector3(0, -1, 0)
-      );
+      const hit = terrainMesh.mesh.raycastMesh(this.position, new Vector3(0, -1, 0));
       if (hit) {
         terrainSpeed = terrainMesh.speed;
         distanceToGround = hit.distance;
@@ -79,18 +73,13 @@ export class Hovercraft {
         // Align to the ground if on the ground
         if (distanceToGround < this.groundHoverDistance) {
           // Get the ground normal in world space
-          let groundNormal = terrainMesh.mesh.getTriangleNormal(
-            hit.triangle,
-            true
-          )!;
+          let groundNormal = terrainMesh.mesh.getTriangleNormal(hit.triangle, true)!;
 
           const degreeConversion = 180 / Math.PI;
 
-          this.rotation.x =
-            Math.atan2(groundNormal.z, groundNormal.y) * degreeConversion;
+          this.rotation.x = Math.atan2(groundNormal.z, groundNormal.y) * degreeConversion;
 
-          this.rotation.z =
-            Math.atan2(-groundNormal.x, groundNormal.y) * degreeConversion;
+          this.rotation.z = Math.atan2(-groundNormal.x, groundNormal.y) * degreeConversion;
         }
 
         break;
@@ -114,34 +103,23 @@ export class Hovercraft {
     }
 
     // Hard ground collision limit
-    if (
-      distanceToGround < this.groundCollisionDistance &&
-      this.linearVelocity.y < 0
-    ) {
+    if (distanceToGround < this.groundCollisionDistance && this.linearVelocity.y < 0) {
       this.linearVelocity.y = Math.abs(this.linearVelocity.y) * 0.3;
     }
 
     // Apply the movements
-    this.position = this.position.add(
-      this.linearVelocity.scalarMultiply(elapsedSeconds)
-    );
+    this.position = this.position.add(this.linearVelocity.scalarMultiply(elapsedSeconds));
 
     // Rotational movement
     const rotation = this.rotationalVelocity.y * elapsedSeconds * 10;
-    this.direction = Matrix4.rotateY(rotation)
-      .multiplyVector3(this.direction)
-      .normalize();
+    this.direction = Matrix4.rotateY(rotation).multiplyVector3(this.direction).normalize();
     this.rotation.y += rotation;
 
     // Done with physics
     this.lastPhysicsUpdate = now;
 
     // Update the mesh
-    this.mesh.worldFromModel = Matrix4.translate(
-      this.position.x,
-      this.position.y,
-      this.position.z
-    )
+    this.mesh.worldFromModel = Matrix4.translate(this.position.x, this.position.y, this.position.z)
       .multiplyMatrix(Matrix4.scale(this.scale.x, this.scale.y, this.scale.z))
       .multiplyMatrix(Matrix4.rotateX(this.rotation.x))
       .multiplyMatrix(Matrix4.rotateZ(this.rotation.z))

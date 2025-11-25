@@ -24,13 +24,18 @@ let camera: ThirdPersonCamera;
 let scene: Scene;
 let hovercraft: Hovercraft;
 
+let timeElement: HTMLElement | null;
+
 let lastUpdate = 0;
+let elapsedTime = 0;
 
 async function initialize() {
   canvas = document.getElementById("canvas") as HTMLCanvasElement;
   window.gl = canvas.getContext("webgl2") as WebGL2RenderingContext;
 
   window.addEventListener("resize", resizeCanvas);
+  timeElement = document.getElementById("time");
+  elapsedTime = 0;
   resizeCanvas();
 
   controls = new Controls();
@@ -81,21 +86,56 @@ async function initialize() {
 }
 
 function update() {
-  controls.update();
+  let totalSeconds = elapsedTime;
 
-  const moveSpeed = 100;
-  const turnSpeed = 0.15;
+  // If countdown is finished, allow the player to control the hovercraft.
+  if (totalSeconds > 5) {
+    controls.update();
+    const moveSpeed = 100;
+    const turnSpeed = 0.15;
 
-  hovercraft.linearAcceleration = hovercraft.direction.scalarMultiply(
-    controls.player1Move * moveSpeed
-  );
-  hovercraft.rotationalAcceleration.y = controls.player1Turn * turnSpeed;
+    hovercraft.linearAcceleration = hovercraft.direction.scalarMultiply(
+      controls.player1Move * moveSpeed
+    );
+    hovercraft.rotationalAcceleration.y = controls.player1Turn * turnSpeed;
+  }
 
   // Update the hovercraft
   hovercraft.updatePhysics(scene.groundMeshes);
 
   // Update the camera
   camera.updateTarget(hovercraft.position, hovercraft.direction);
+
+  // Update time
+  if (timeElement) {
+    // Race countdown
+    if (totalSeconds < 1) {
+      timeElement.textContent = "5";
+      return;
+    } else if (totalSeconds < 2) {
+      timeElement.textContent = "4";
+      return;
+    } else if (totalSeconds < 3) {
+      timeElement.textContent = "3";
+      return;
+    } else if (totalSeconds < 4) {
+      timeElement.textContent = "2";
+      return;
+    } else if (totalSeconds < 5) {
+      timeElement.textContent = "1";
+      return;
+    }
+
+    totalSeconds = totalSeconds - 5; // Take away 5 seconds so time starts at 0.
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = Math.floor(totalSeconds % 60);
+    const milliseconds = Math.floor((totalSeconds % 1) * 100);
+
+    // Update and format the timer.
+    const formatted = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.${String(milliseconds).padStart(2, "0")}`;
+    timeElement.textContent = formatted;
+  }
 }
 
 function render() {
@@ -114,6 +154,8 @@ function animate(now: number) {
   const t = now / 1000;
   const dt = t - lastUpdate;
   lastUpdate = t;
+
+  elapsedTime += dt;
 
   update();
   render();
