@@ -45,19 +45,13 @@ async function initialize() {
   let trackMeshes = await Mesh.load("/models/track.gltf");
   const trackTransform = Matrix4.scale(800, 800, 800);
   trackMeshes["track"].worldFromModel = trackTransform;
-  trackMeshes["track"].shader = new ShaderProgram(
-    terrainVertexSource,
-    terrainFragmentSource
-  );
+  trackMeshes["track"].shader = new ShaderProgram(terrainVertexSource, terrainFragmentSource);
   trackMeshes["track"].textureNumber = 2;
   trackMeshes["track"].applyUniformTextureCoordinates();
   trackMeshes["track"].textureScale = [100, 100];
 
   trackMeshes["grass"].worldFromModel = trackTransform;
-  trackMeshes["grass"].shader = new ShaderProgram(
-    terrainVertexSource,
-    terrainFragmentSource
-  );
+  trackMeshes["grass"].shader = new ShaderProgram(terrainVertexSource, terrainFragmentSource);
   trackMeshes["grass"].textureNumber = 1;
   trackMeshes["grass"].applyUniformTextureCoordinates();
   trackMeshes["grass"].textureScale = [500, 500];
@@ -68,18 +62,11 @@ async function initialize() {
   // Load hovercraft meshes
   let hovercraftMesh = (await Mesh.load("/models/hovercraft.gltf"))["Cube"];
   hovercraftMesh.worldFromModel = Matrix4.scale(1, 1, 1);
-  hovercraftMesh.shader = new ShaderProgram(
-    hovercraftVertexSource,
-    hovercraftFragmentSource
-  );
+  hovercraftMesh.shader = new ShaderProgram(hovercraftVertexSource, hovercraftFragmentSource);
   scene.meshes.push(hovercraftMesh);
 
   // Create the hovercraft
-  hovercraft = new Hovercraft(
-    new Vector3(0, 50, -350),
-    new Vector3(0, 0, -1),
-    hovercraftMesh
-  );
+  hovercraft = new Hovercraft(new Vector3(0, 50, -350), new Vector3(0, 0, -1), hovercraftMesh);
 
   // Create the camera
   camera = new ThirdPersonCamera(
@@ -118,6 +105,9 @@ function render() {
 
   // Render
   scene.render(camera, true);
+  if (controls.resetGame) {
+    initialize();
+  }
 }
 
 function animate(now: number) {
@@ -133,12 +123,7 @@ function animate(now: number) {
 function resizeCanvas() {
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
-  clipFromEye = Matrix4.perspective(
-    70,
-    canvas.clientWidth / canvas.clientHeight,
-    1,
-    50000
-  );
+  clipFromEye = Matrix4.perspective(70, canvas.clientWidth / canvas.clientHeight, 1, 50000);
 }
 
 window.addEventListener("load", initialize);

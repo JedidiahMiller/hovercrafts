@@ -5,6 +5,8 @@ export class Controls {
   player2Turn = 0;
   player2Move = 0;
 
+  resetGame = false;
+
   useGamepad = false;
 
   constructor() {
@@ -42,6 +44,11 @@ export class Controls {
         case "d":
           this.player1Turn = 1;
           break;
+        case "r":
+          if (!this.resetGame) {
+            this.resetGame = !this.resetGame;
+          }
+          break;
       }
     });
 
@@ -75,6 +82,7 @@ export class Controls {
     const rt = pad.buttons[7];
     const lt = pad.buttons[6];
 
+    // TODO: Add a way to reset the stage using a button?
     const forward = rt.value ?? (rt.pressed ? 1 : 0);
     const backward = lt.value ?? (lt.pressed ? 1 : 0);
 
