@@ -21,7 +21,7 @@ export class Hovercraft {
   private gravity = 50;
   private groundCollisionDistance = 0.75;
   private groundHoverDistance = 5;
-  private scale = new Vector3(1, 0.75, 1);
+  private scale = new Vector3(1, 0.6, 1);
 
   constructor(position: Vector3, direction: Vector3, mesh: Mesh) {
     this.direction = direction;
@@ -142,9 +142,9 @@ export class Hovercraft {
       this.position.y,
       this.position.z
     )
-      .multiplyMatrix(Matrix4.scale(this.scale.x, this.scale.y, this.scale.z))
       .multiplyMatrix(Matrix4.rotateX(this.rotation.x))
       .multiplyMatrix(Matrix4.rotateZ(this.rotation.z))
-      .multiplyMatrix(Matrix4.rotateY(this.rotation.y));
+      .multiplyMatrix(Matrix4.rotateY(this.rotation.y))
+      .multiplyMatrix(Matrix4.scale(this.scale.x, this.scale.y, this.scale.z));
   }
 }

@@ -1,7 +1,7 @@
 import { ShaderProgram } from "@/lib/shader-program.js";
 import { Matrix4 } from "@/lib/matrix.js";
-import hovercraftVertexSource from "@/shaders/hovercraft-vertex.glsl?raw";
-import hovercraftFragmentSource from "@/shaders/hovercraft-fragment.glsl?raw";
+import simpleVertexSource from "@/shaders/simple-vertex.glsl?raw";
+import simpleFragmentSource from "@/shaders/simple-fragment.glsl?raw";
 import { Vector3 } from "@/lib/vector.js";
 import { Mesh } from "./mesh.js";
 import { ThirdPersonCamera } from "./lib/camera.js";
@@ -36,7 +36,7 @@ async function initialize() {
   controls = new Controls();
 
   // Start building the scene
-  scene = new Scene(clipFromEye, new Vector3(0, 500, 0));
+  scene = new Scene(clipFromEye, new Vector3(200, 500, 200));
 
   // Load textures
   await loadTextures();
@@ -52,6 +52,7 @@ async function initialize() {
   trackMeshes["track"].textureNumber = 2;
   trackMeshes["track"].applyUniformTextureCoordinates();
   trackMeshes["track"].textureScale = [100, 100];
+  scene.groundMeshes.push(new TerrainMesh(trackMeshes["track"], 0));
 
   trackMeshes["grass"].worldFromModel = trackTransform;
   trackMeshes["grass"].shader = new ShaderProgram(
@@ -61,16 +62,21 @@ async function initialize() {
   trackMeshes["grass"].textureNumber = 1;
   trackMeshes["grass"].applyUniformTextureCoordinates();
   trackMeshes["grass"].textureScale = [500, 500];
-
-  scene.groundMeshes.push(new TerrainMesh(trackMeshes["track"], 0));
   scene.groundMeshes.push(new TerrainMesh(trackMeshes["grass"], 0));
+
+  trackMeshes["decor"].worldFromModel = trackTransform;
+  trackMeshes["decor"].shader = new ShaderProgram(
+    simpleVertexSource,
+    simpleFragmentSource
+  );
+  scene.meshes.push(trackMeshes["decor"]);
 
   // Load hovercraft meshes
   let hovercraftMesh = (await Mesh.load("/models/hovercraft.gltf"))["Cube"];
   hovercraftMesh.worldFromModel = Matrix4.scale(1, 1, 1);
   hovercraftMesh.shader = new ShaderProgram(
-    hovercraftVertexSource,
-    hovercraftFragmentSource
+    simpleVertexSource,
+    simpleFragmentSource
   );
   scene.meshes.push(hovercraftMesh);
 
@@ -139,6 +145,9 @@ function resizeCanvas() {
     1,
     50000
   );
+  if (scene) {
+    scene.clipFromEye = clipFromEye;
+  }
 }
 
 window.addEventListener("load", initialize);
