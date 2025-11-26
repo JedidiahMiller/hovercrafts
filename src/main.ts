@@ -23,6 +23,7 @@ let camera: ThirdPersonCamera;
 
 let scene: Scene;
 let hovercraft: Hovercraft;
+let barrierMesh: Mesh;
 
 let timeElement: HTMLElement | null;
 
@@ -76,12 +77,13 @@ async function initialize() {
   );
   scene.meshes.push(trackMeshes["decor"]);
 
-  trackMeshes["barrier"].worldFromModel = trackTransform;
-  trackMeshes["barrier"].shader = new ShaderProgram(
+  barrierMesh = trackMeshes["barrier"];
+  barrierMesh.worldFromModel = trackTransform;
+  barrierMesh.shader = new ShaderProgram(
     simpleVertexSource,
     simpleFragmentSource
   );
-  scene.meshes.push(trackMeshes["barrier"]);
+  scene.meshes.push(barrierMesh);
 
   // Load hovercraft meshes
   let hovercraftMesh = (await Mesh.load("/models/hovercraft.gltf"))["Cube"];
@@ -127,7 +129,7 @@ function update() {
   }
 
   // Update the hovercraft
-  hovercraft.updatePhysics(scene.groundMeshes);
+  hovercraft.updatePhysics(scene.groundMeshes, barrierMesh);
 
   // Update the camera
   camera.updateTarget(hovercraft.position, hovercraft.direction);
