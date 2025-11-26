@@ -51,6 +51,7 @@ export class Scene {
     camera: Camera,
     includeWorldLight: boolean = true
   ) {
+    console.log(mesh.name);
     mesh.shader.bind();
     mesh.shader.setUniformMatrix4fv("clipFromEye", this.clipFromEye.elements);
     mesh.shader.setUniformMatrix4fv(

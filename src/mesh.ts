@@ -12,6 +12,7 @@ type Hit = {
 };
 
 export class Mesh {
+  name: string;
   positions: FloatBuffer;
   indices: IntBuffer;
   normals: any;
@@ -24,7 +25,12 @@ export class Mesh {
 
   worldFromModel?: Matrix4;
 
-  private constructor(positions: FloatBuffer, indices: IntBuffer) {
+  private constructor(
+    name: string,
+    positions: FloatBuffer,
+    indices: IntBuffer
+  ) {
+    this.name = name;
     this.positions = positions;
     this.indices = indices;
   }
@@ -38,14 +44,15 @@ export class Mesh {
     const meshes: Record<string, Mesh> = {};
 
     for (let i = 0; i < gltf.nodes.length; i++) {
+      const meshName = gltf.nodes[i].name;
       const rawMesh = gltf.meshes[i];
-      const mesh = new Mesh(rawMesh.positions, rawMesh.indices!);
+      const mesh = new Mesh(meshName, rawMesh.positions, rawMesh.indices!);
 
       mesh.colors = rawMesh.colors;
       mesh.normals = rawMesh.normals;
       mesh.textureCoordinates = rawMesh.texCoord?.buffer;
 
-      meshes[gltf.nodes[i].name] = mesh;
+      meshes[meshName] = mesh;
     }
 
     return meshes;

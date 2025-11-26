@@ -50,31 +50,54 @@ async function initialize() {
   let trackMeshes = await Mesh.load("/models/track.gltf");
   const trackTransform = Matrix4.scale(800, 800, 800);
   trackMeshes["track"].worldFromModel = trackTransform;
-  trackMeshes["track"].shader = new ShaderProgram(terrainVertexSource, terrainFragmentSource);
+  trackMeshes["track"].shader = new ShaderProgram(
+    terrainVertexSource,
+    terrainFragmentSource
+  );
   trackMeshes["track"].textureNumber = 2;
   trackMeshes["track"].applyUniformTextureCoordinates();
   trackMeshes["track"].textureScale = [100, 100];
   scene.groundMeshes.push(new TerrainMesh(trackMeshes["track"], 0));
 
   trackMeshes["grass"].worldFromModel = trackTransform;
-  trackMeshes["grass"].shader = new ShaderProgram(terrainVertexSource, terrainFragmentSource);
+  trackMeshes["grass"].shader = new ShaderProgram(
+    terrainVertexSource,
+    terrainFragmentSource
+  );
   trackMeshes["grass"].textureNumber = 1;
   trackMeshes["grass"].applyUniformTextureCoordinates();
   trackMeshes["grass"].textureScale = [500, 500];
   scene.groundMeshes.push(new TerrainMesh(trackMeshes["grass"], 0));
 
   trackMeshes["decor"].worldFromModel = trackTransform;
-  trackMeshes["decor"].shader = new ShaderProgram(simpleVertexSource, simpleFragmentSource);
+  trackMeshes["decor"].shader = new ShaderProgram(
+    simpleVertexSource,
+    simpleFragmentSource
+  );
   scene.meshes.push(trackMeshes["decor"]);
+
+  trackMeshes["barrier"].worldFromModel = trackTransform;
+  trackMeshes["barrier"].shader = new ShaderProgram(
+    simpleVertexSource,
+    simpleFragmentSource
+  );
+  scene.meshes.push(trackMeshes["barrier"]);
 
   // Load hovercraft meshes
   let hovercraftMesh = (await Mesh.load("/models/hovercraft.gltf"))["Cube"];
   hovercraftMesh.worldFromModel = Matrix4.scale(1, 1, 1);
-  hovercraftMesh.shader = new ShaderProgram(simpleVertexSource, simpleFragmentSource);
+  hovercraftMesh.shader = new ShaderProgram(
+    simpleVertexSource,
+    simpleFragmentSource
+  );
   scene.meshes.push(hovercraftMesh);
 
   // Create the hovercraft
-  hovercraft = new Hovercraft(new Vector3(0, 50, -350), new Vector3(0, 0, -1), hovercraftMesh);
+  hovercraft = new Hovercraft(
+    new Vector3(0, 50, -350),
+    new Vector3(0, 0, -1),
+    hovercraftMesh
+  );
 
   // Create the camera
   camera = new ThirdPersonCamera(
@@ -130,13 +153,12 @@ function update() {
     }
 
     totalSeconds = totalSeconds - 5; // Take away 5 seconds so time starts at 0.
-    const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = Math.floor(totalSeconds % 60);
     const milliseconds = Math.floor((totalSeconds % 1) * 100);
 
     // Update and format the timer.
-    const formatted = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.${String(milliseconds).padStart(2, "0")}`;
+    const formatted = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.${String(milliseconds).padStart(2, "0")}`;
     timeElement.textContent = formatted;
   }
 }
@@ -168,8 +190,18 @@ function animate(now: number) {
 function resizeCanvas() {
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
-  clipFromEye = Matrix4.perspective(70, canvas.clientWidth / canvas.clientHeight, 1, 50000);
-  clipFromEye = Matrix4.perspective(70, canvas.clientWidth / canvas.clientHeight, 1, 50000);
+  clipFromEye = Matrix4.perspective(
+    70,
+    canvas.clientWidth / canvas.clientHeight,
+    1,
+    50000
+  );
+  clipFromEye = Matrix4.perspective(
+    70,
+    canvas.clientWidth / canvas.clientHeight,
+    1,
+    50000
+  );
   if (scene) {
     scene.clipFromEye = clipFromEye;
   }
