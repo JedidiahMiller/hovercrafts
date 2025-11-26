@@ -19,13 +19,16 @@ let clipFromEye: Matrix4;
 let controls: Controls;
 
 // Camera
-let camera: ThirdPersonCamera;
+let camera1: ThirdPersonCamera;
+let camera2: ThirdPersonCamera;
 
 let scene: Scene;
-let hovercraft: Hovercraft;
+let hovercraft1: Hovercraft;
+let hovercraft2: Hovercraft;
 let barrierMesh: Mesh;
 
-let timeElement: HTMLElement | null;
+let player1Timer: HTMLElement | null;
+let player2Timer: HTMLElement | null;
 
 let lastUpdate = 0;
 let elapsedTime = 0;
@@ -35,7 +38,8 @@ async function initialize() {
   window.gl = canvas.getContext("webgl2") as WebGL2RenderingContext;
 
   window.addEventListener("resize", resizeCanvas);
-  timeElement = document.getElementById("time");
+  player2Timer = document.getElementById("player2time");
+  player1Timer = document.getElementById("player1time");
   elapsedTime = 0;
   resizeCanvas();
 
@@ -51,60 +55,55 @@ async function initialize() {
   let trackMeshes = await Mesh.load("/models/track.gltf");
   const trackTransform = Matrix4.scale(800, 800, 800);
   trackMeshes["track"].worldFromModel = trackTransform;
-  trackMeshes["track"].shader = new ShaderProgram(
-    terrainVertexSource,
-    terrainFragmentSource
-  );
+  trackMeshes["track"].shader = new ShaderProgram(terrainVertexSource, terrainFragmentSource);
   trackMeshes["track"].textureNumber = 2;
   trackMeshes["track"].applyUniformTextureCoordinates();
   trackMeshes["track"].textureScale = [100, 100];
   scene.groundMeshes.push(new TerrainMesh(trackMeshes["track"], 0));
 
   trackMeshes["grass"].worldFromModel = trackTransform;
-  trackMeshes["grass"].shader = new ShaderProgram(
-    terrainVertexSource,
-    terrainFragmentSource
-  );
+  trackMeshes["grass"].shader = new ShaderProgram(terrainVertexSource, terrainFragmentSource);
   trackMeshes["grass"].textureNumber = 1;
   trackMeshes["grass"].applyUniformTextureCoordinates();
   trackMeshes["grass"].textureScale = [500, 500];
   scene.groundMeshes.push(new TerrainMesh(trackMeshes["grass"], 0));
 
   trackMeshes["decor"].worldFromModel = trackTransform;
-  trackMeshes["decor"].shader = new ShaderProgram(
-    simpleVertexSource,
-    simpleFragmentSource
-  );
+  trackMeshes["decor"].shader = new ShaderProgram(simpleVertexSource, simpleFragmentSource);
   scene.meshes.push(trackMeshes["decor"]);
 
   barrierMesh = trackMeshes["barrier"];
   barrierMesh.worldFromModel = trackTransform;
-  barrierMesh.shader = new ShaderProgram(
-    simpleVertexSource,
-    simpleFragmentSource
-  );
+  barrierMesh.shader = new ShaderProgram(simpleVertexSource, simpleFragmentSource);
   scene.meshes.push(barrierMesh);
 
   // Load hovercraft meshes
-  let hovercraftMesh = (await Mesh.load("/models/hovercraft.gltf"))["Cube"];
-  hovercraftMesh.worldFromModel = Matrix4.scale(1, 1, 1);
-  hovercraftMesh.shader = new ShaderProgram(
-    simpleVertexSource,
-    simpleFragmentSource
-  );
-  scene.meshes.push(hovercraftMesh);
+  let hovercraftMesh1 = (await Mesh.load("/models/hovercraft.gltf"))["Cube"];
+  hovercraftMesh1.worldFromModel = Matrix4.scale(1, 1, 1);
+  hovercraftMesh1.shader = new ShaderProgram(simpleVertexSource, simpleFragmentSource);
+  scene.meshes.push(hovercraftMesh1);
+
+  let hovercraftMesh2 = (await Mesh.load("/models/hovercraft.gltf"))["Cube"];
+  hovercraftMesh2.worldFromModel = Matrix4.scale(1, 1, 1);
+  hovercraftMesh2.shader = new ShaderProgram(simpleVertexSource, simpleFragmentSource);
+  scene.meshes.push(hovercraftMesh2);
 
   // Create the hovercraft
-  hovercraft = new Hovercraft(
-    new Vector3(0, 50, -350),
-    new Vector3(0, 0, -1),
-    hovercraftMesh
-  );
+  hovercraft1 = new Hovercraft(new Vector3(0, 50, -350), new Vector3(0, 0, -1), hovercraftMesh1);
+  hovercraft2 = new Hovercraft(new Vector3(10, 50, -350), new Vector3(0, 0, -1), hovercraftMesh2);
 
   // Create the camera
-  camera = new ThirdPersonCamera(
-    hovercraft.position,
-    hovercraft.direction,
+  camera1 = new ThirdPersonCamera(
+    hovercraft1.position,
+    hovercraft1.direction,
+    new Vector3(0, 1, 0),
+    new Vector3(0, 3, 15),
+    new Vector3(-15, 0, 0)
+  );
+
+  camera2 = new ThirdPersonCamera(
+    hovercraft2.position,
+    hovercraft2.direction,
     new Vector3(0, 1, 0),
     new Vector3(0, 3, 15),
     new Vector3(-15, 0, 0)
@@ -122,35 +121,47 @@ function update() {
     const moveSpeed = 100;
     const turnSpeed = 0.15;
 
-    hovercraft.linearAcceleration = hovercraft.direction.scalarMultiply(
+    hovercraft1.linearAcceleration = hovercraft1.direction.scalarMultiply(
       controls.player1Move * moveSpeed
     );
-    hovercraft.rotationalAcceleration.y = controls.player1Turn * turnSpeed;
+    hovercraft1.rotationalAcceleration.y = controls.player1Turn * turnSpeed;
+
+    hovercraft2.linearAcceleration = hovercraft2.direction.scalarMultiply(
+      controls.player2Move * moveSpeed
+    );
+    hovercraft2.rotationalAcceleration.y = controls.player2Turn * turnSpeed;
   }
 
   // Update the hovercraft
-  hovercraft.updatePhysics(scene.groundMeshes, barrierMesh);
+  hovercraft1.updatePhysics(scene.groundMeshes, barrierMesh);
+  hovercraft2.updatePhysics(scene.groundMeshes, barrierMesh);
 
   // Update the camera
-  camera.updateTarget(hovercraft.position, hovercraft.direction);
+  camera1.updateTarget(hovercraft1.position, hovercraft1.direction);
+  camera2.updateTarget(hovercraft2.position, hovercraft2.direction);
 
   // Update time
-  if (timeElement) {
+  if (player2Timer && player1Timer) {
     // Race countdown
     if (totalSeconds < 1) {
-      timeElement.textContent = "5";
+      player2Timer.textContent = "5";
+      player1Timer.textContent = "5";
       return;
     } else if (totalSeconds < 2) {
-      timeElement.textContent = "4";
+      player2Timer.textContent = "4";
+      player1Timer.textContent = "4";
       return;
     } else if (totalSeconds < 3) {
-      timeElement.textContent = "3";
+      player2Timer.textContent = "3";
+      player1Timer.textContent = "3";
       return;
     } else if (totalSeconds < 4) {
-      timeElement.textContent = "2";
+      player2Timer.textContent = "2";
+      player1Timer.textContent = "2";
       return;
     } else if (totalSeconds < 5) {
-      timeElement.textContent = "1";
+      player2Timer.textContent = "1";
+      player1Timer.textContent = "1";
       return;
     }
 
@@ -161,17 +172,28 @@ function update() {
 
     // Update and format the timer.
     const formatted = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.${String(milliseconds).padStart(2, "0")}`;
-    timeElement.textContent = formatted;
+    player2Timer.textContent = formatted;
+    player1Timer.textContent = formatted;
   }
 }
 
 function render() {
-  gl.viewport(0, 0, canvas.width, canvas.height);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.enable(gl.DEPTH_TEST);
+  gl.enable(gl.SCISSOR_TEST);
+  gl.viewport(0, 0, canvas.width, canvas.height / 2);
+  gl.scissor(0, 0, canvas.width, canvas.height / 2);
 
   // Render
-  scene.render(camera, true);
+  scene.render(camera1, true);
+  if (controls.resetGame) {
+    initialize();
+  }
+
+  gl.viewport(0, canvas.height / 2, canvas.width, canvas.height / 2);
+  gl.scissor(0, canvas.height / 2, canvas.width, canvas.height / 2);
+
+  scene.render(camera2, true);
   if (controls.resetGame) {
     initialize();
   }
@@ -192,18 +214,7 @@ function animate(now: number) {
 function resizeCanvas() {
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
-  clipFromEye = Matrix4.perspective(
-    70,
-    canvas.clientWidth / canvas.clientHeight,
-    1,
-    50000
-  );
-  clipFromEye = Matrix4.perspective(
-    70,
-    canvas.clientWidth / canvas.clientHeight,
-    1,
-    50000
-  );
+  clipFromEye = Matrix4.perspective(60, canvas.clientWidth / (canvas.clientHeight / 2), 1, 50000);
   if (scene) {
     scene.clipFromEye = clipFromEye;
   }

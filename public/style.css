@@ -11,15 +11,6 @@ body {
   z-index: 0;
 }
 
-.overlay {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
-  pointer-events: none;
-}
-
 .controls {
   position: absolute;
   top: 5px;
@@ -31,12 +22,20 @@ body {
   z-index: 10;
 }
 
-#time {
+#player2time,
+#player1time {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
   font-family: "Press Start 2P", system-ui;
-  font-weight: 400;
-  font-style: normal;
   font-size: 20px;
   color: white;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-  margin: 0;
+  pointer-events: none;
+  z-index: 10;
+  margin-top: 20px;
+}
+
+#player1time {
+  top: 50%;
 }

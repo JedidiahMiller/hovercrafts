@@ -44,6 +44,18 @@ export class Controls {
         case "d":
           this.player1Turn = 1;
           break;
+        case "i":
+          this.player2Move = 1;
+          break;
+        case "k":
+          this.player2Move = -1;
+          break;
+        case "j":
+          this.player2Turn = -1;
+          break;
+        case "l":
+          this.player2Turn = 1;
+          break;
         case "r":
           if (!this.resetGame) {
             this.resetGame = !this.resetGame;
@@ -64,6 +76,14 @@ export class Controls {
         case "d":
           this.player1Turn = 0;
           break;
+        case "i":
+        case "k":
+          this.player2Move = 0;
+          break;
+        case "j":
+        case "l":
+          this.player2Turn = 0;
+          break;
       }
     });
   }
@@ -72,21 +92,41 @@ export class Controls {
     if (!this.useGamepad) return;
 
     const pads = navigator.getGamepads();
-    const pad = pads[0];
-    if (!pad) return;
+    const player1Pad = pads[0];
+    const player2Pad = pads[1];
 
-    // left stick X for steering
-    const lx = pad.axes[0];
+    // Player 1 controller.
+    if (player1Pad) {
+      // left stick X for steering
+      const player1lx = player1Pad.axes[0];
 
-    // triggers (analog on most controllers)
-    const rt = pad.buttons[7];
-    const lt = pad.buttons[6];
+      // triggers (analog on most controllers)
+      const player1rt = player1Pad.buttons[7];
+      const player1lt = player1Pad.buttons[6];
 
-    // TODO: Add a way to reset the stage using a button?
-    const forward = rt.value ?? (rt.pressed ? 1 : 0);
-    const backward = lt.value ?? (lt.pressed ? 1 : 0);
+      // TODO: Add a way to reset the stage using a button?
+      const player1Forward = player1rt.value ?? (player1rt.pressed ? 1 : 0);
+      const player1Backward = player1lt.value ?? (player1lt.pressed ? 1 : 0);
 
-    this.player1Turn = lx;
-    this.player1Move = forward - backward;
+      this.player1Turn = player1lx;
+      this.player1Move = player1Forward - player1Backward;
+    }
+
+    // Player 2 controller
+    if (player2Pad) {
+      // left stick X for steering
+      const player2lx = player2Pad.axes[0];
+
+      // triggers (analog on most controllers)
+      const player2rt = player2Pad.buttons[7];
+      const player2lt = player2Pad.buttons[6];
+
+      // TODO: Add a way to reset the stage using a button?
+      const player2Forward = player2rt.value ?? (player2rt.pressed ? 1 : 0);
+      const player2Backward = player2lt.value ?? (player2lt.pressed ? 1 : 0);
+
+      this.player2Turn = player2lx;
+      this.player2Move = player2Forward - player2Backward;
+    }
   }
 }
