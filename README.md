@@ -4,7 +4,6 @@ A hovercraft racing game
 
 TODO:
 
-- Add second player/hovercraft
-- Implement finish logic
+- Implement finishing logic
 - Implement resetting the race via controller
 - Add skybox
