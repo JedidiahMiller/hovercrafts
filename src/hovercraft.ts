@@ -22,6 +22,7 @@ export class Hovercraft {
   private groundCollisionDistance = 0.75;
   private groundHoverDistance = 5;
   private scale = new Vector3(1, 0.6, 1);
+  private lastSoundTime;
 
   constructor(position: Vector3, direction: Vector3, mesh: Mesh) {
     this.direction = direction;
@@ -35,6 +36,7 @@ export class Hovercraft {
     this.rotationalAcceleration = new Vector3(0, 0, 0);
 
     this.lastPhysicsUpdate = performance.now() / 1000;
+    this.lastSoundTime = performance.now() / 1000;
 
     this.mesh = mesh;
   }
@@ -215,6 +217,12 @@ export class Hovercraft {
 
     // If we found a collision, push back and adjust velocity
     if (closestNormal && closestPenetration > 0) {
+      if (performance.now() / 1000 - this.lastSoundTime > 1) {
+        this.lastSoundTime = performance.now() / 1000;
+        const audio = new Audio("/sound.mp3");
+        audio.play();
+      }
+
       // Transform normal to world space
       const worldNormal = M.multiplyVector3(closestNormal).normalize();
 

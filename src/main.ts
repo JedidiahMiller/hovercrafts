@@ -55,42 +55,68 @@ async function initialize() {
   let trackMeshes = await Mesh.load("/models/track.gltf");
   const trackTransform = Matrix4.scale(800, 800, 800);
   trackMeshes["track"].worldFromModel = trackTransform;
-  trackMeshes["track"].shader = new ShaderProgram(terrainVertexSource, terrainFragmentSource);
+  trackMeshes["track"].shader = new ShaderProgram(
+    terrainVertexSource,
+    terrainFragmentSource
+  );
   trackMeshes["track"].textureNumber = 2;
   trackMeshes["track"].applyUniformTextureCoordinates();
   trackMeshes["track"].textureScale = [100, 100];
   scene.groundMeshes.push(new TerrainMesh(trackMeshes["track"], 0));
 
   trackMeshes["grass"].worldFromModel = trackTransform;
-  trackMeshes["grass"].shader = new ShaderProgram(terrainVertexSource, terrainFragmentSource);
+  trackMeshes["grass"].shader = new ShaderProgram(
+    terrainVertexSource,
+    terrainFragmentSource
+  );
   trackMeshes["grass"].textureNumber = 1;
   trackMeshes["grass"].applyUniformTextureCoordinates();
   trackMeshes["grass"].textureScale = [500, 500];
   scene.groundMeshes.push(new TerrainMesh(trackMeshes["grass"], 0));
 
   trackMeshes["decor"].worldFromModel = trackTransform;
-  trackMeshes["decor"].shader = new ShaderProgram(simpleVertexSource, simpleFragmentSource);
+  trackMeshes["decor"].shader = new ShaderProgram(
+    simpleVertexSource,
+    simpleFragmentSource
+  );
   scene.meshes.push(trackMeshes["decor"]);
 
   barrierMesh = trackMeshes["barrier"];
   barrierMesh.worldFromModel = trackTransform;
-  barrierMesh.shader = new ShaderProgram(simpleVertexSource, simpleFragmentSource);
+  barrierMesh.shader = new ShaderProgram(
+    simpleVertexSource,
+    simpleFragmentSource
+  );
   scene.meshes.push(barrierMesh);
 
   // Load hovercraft meshes
   let hovercraftMesh1 = (await Mesh.load("/models/hovercraft.gltf"))["Cube"];
   hovercraftMesh1.worldFromModel = Matrix4.scale(1, 1, 1);
-  hovercraftMesh1.shader = new ShaderProgram(simpleVertexSource, simpleFragmentSource);
+  hovercraftMesh1.shader = new ShaderProgram(
+    simpleVertexSource,
+    simpleFragmentSource
+  );
   scene.meshes.push(hovercraftMesh1);
 
   let hovercraftMesh2 = (await Mesh.load("/models/hovercraft.gltf"))["Cube"];
   hovercraftMesh2.worldFromModel = Matrix4.scale(1, 1, 1);
-  hovercraftMesh2.shader = new ShaderProgram(simpleVertexSource, simpleFragmentSource);
+  hovercraftMesh2.shader = new ShaderProgram(
+    simpleVertexSource,
+    simpleFragmentSource
+  );
   scene.meshes.push(hovercraftMesh2);
 
   // Create the hovercraft
-  hovercraft1 = new Hovercraft(new Vector3(0, 50, -350), new Vector3(0, 0, -1), hovercraftMesh1);
-  hovercraft2 = new Hovercraft(new Vector3(10, 50, -350), new Vector3(0, 0, -1), hovercraftMesh2);
+  hovercraft1 = new Hovercraft(
+    new Vector3(0, 50, -350),
+    new Vector3(0, 0, -1),
+    hovercraftMesh1
+  );
+  hovercraft2 = new Hovercraft(
+    new Vector3(10, 50, -350),
+    new Vector3(0, 0, -1),
+    hovercraftMesh2
+  );
 
   // Create the camera
   camera1 = new ThirdPersonCamera(
@@ -214,7 +240,12 @@ function animate(now: number) {
 function resizeCanvas() {
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
-  clipFromEye = Matrix4.perspective(60, canvas.clientWidth / (canvas.clientHeight / 2), 1, 50000);
+  clipFromEye = Matrix4.perspective(
+    60,
+    canvas.clientWidth / (canvas.clientHeight / 2),
+    1,
+    50000
+  );
   if (scene) {
     scene.clipFromEye = clipFromEye;
   }
