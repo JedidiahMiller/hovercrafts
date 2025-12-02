@@ -134,6 +134,8 @@ async function initialize() {
     new Vector3(0, 3, 15),
     new Vector3(-15, 0, 0)
   );
+  const audio = new Audio("/audio/Start.wav");
+  audio.play();
 
   requestAnimationFrame(animate);
 }
