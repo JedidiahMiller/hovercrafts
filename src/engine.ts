@@ -9,9 +9,9 @@ export class HovercraftAudioEngine {
 
   // Audio parameters
   private minPitch: number = 0.5;  // Pitch when stationary
-  private maxPitch: number = 2.5;  // Pitch at max speed
+  private maxPitch: number = 3.0;  // Pitch at max speed
   private minSpeed: number = 0;
-  private maxSpeed: number = 350;
+  private maxSpeed: number = 500;
 
   constructor() {
     this.audioContext = new AudioContext();
