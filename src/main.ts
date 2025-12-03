@@ -10,6 +10,7 @@ import { TerrainMesh } from "./terrain.js";
 import { Hovercraft } from "./hovercraft.js";
 import { Controls } from "./controls.js";
 import { loadTextures } from "./textures.js";
+import { HovercraftAudioEngine } from "./engine.js";
 import terrainFragmentSource from "@/shaders/terrain-fragment.glsl?raw";
 import terrainVertexSource from "@/shaders/terrain-vertex.glsl?raw";
 
@@ -29,6 +30,10 @@ let barrierMesh: Mesh;
 
 let player1Timer: HTMLElement | null;
 let player2Timer: HTMLElement | null;
+
+const countdownTimerAudio = new Audio("/audio/Start.mp3");
+const engineAudio1 = new HovercraftAudioEngine();
+const engineAudio2 = new HovercraftAudioEngine();
 
 let lastUpdate = 0;
 let elapsedTime = 0;
@@ -134,8 +139,17 @@ async function initialize() {
     new Vector3(0, 3, 15),
     new Vector3(-15, 0, 0)
   );
-  const audio = new Audio("/audio/Start.wav");
-  audio.play();
+
+  countdownTimerAudio.play();
+
+  // Initialize and load audio
+  await engineAudio1.loadAudio("/audio/Engine.mp3");
+  engineAudio1.setVolume(0.8);
+  engineAudio1.start();
+
+  await engineAudio2.loadAudio("/audio/Engine2.mp3");
+  engineAudio2.setVolume(1);
+  engineAudio2.start();
 
   requestAnimationFrame(animate);
 }
@@ -163,6 +177,9 @@ function update() {
   // Update the hovercraft
   hovercraft1.updatePhysics(scene.groundMeshes, barrierMesh);
   hovercraft2.updatePhysics(scene.groundMeshes, barrierMesh);
+
+  engineAudio1.updatePitch(hovercraft1.linearVelocity);
+  engineAudio2.updatePitch(hovercraft2.linearVelocity);
 
   // Update the camera
   camera1.updateTarget(hovercraft1.position, hovercraft1.direction);
