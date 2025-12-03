@@ -30,6 +30,8 @@ let barrierMesh: Mesh;
 
 let player1Timer: HTMLElement | null;
 let player2Timer: HTMLElement | null;
+let player1Speed: HTMLElement | null;
+let player2Speed: HTMLElement | null;
 
 const countdownTimerAudio = new Audio("/audio/Start.mp3");
 const engineAudio1 = new HovercraftAudioEngine();
@@ -45,6 +47,8 @@ async function initialize() {
   window.addEventListener("resize", resizeCanvas);
   player2Timer = document.getElementById("player2time");
   player1Timer = document.getElementById("player1time");
+  player2Speed = document.getElementById("speed2");
+  player1Speed = document.getElementById("speed1");
   elapsedTime = 0;
   resizeCanvas();
 
@@ -140,8 +144,16 @@ async function initialize() {
     new Vector3(-15, 0, 0)
   );
 
-  countdownTimerAudio.play();
 
+  if (engineAudio1) {
+    engineAudio1.stop();
+  }
+  if (engineAudio2) {
+    engineAudio2.stop();
+  }
+
+  countdownTimerAudio.volume = 0.5;
+  countdownTimerAudio.play();
   // Initialize and load audio
   await engineAudio1.loadAudio("/audio/Engine.mp3");
   engineAudio1.setVolume(0.8);
@@ -184,6 +196,11 @@ function update() {
   // Update the camera
   camera1.updateTarget(hovercraft1.position, hovercraft1.direction);
   camera2.updateTarget(hovercraft2.position, hovercraft2.direction);
+
+  if (player1Speed && player2Speed) {
+    player1Speed.textContent = Math.round(hovercraft1.linearVelocity.magnitude / 4).toString().padStart(3, "0") + " MPH";
+    player2Speed.textContent = Math.round(hovercraft2.linearVelocity.magnitude / 4).toString().padStart(3, "0") + " MPH";
+  }
 
   // Update time
   if (player2Timer && player1Timer) {

@@ -23,7 +23,9 @@ body {
 }
 
 #player2time,
-#player1time {
+#player1time,
+#speed2,
+#speed1 {
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
@@ -38,4 +40,14 @@ body {
 
 #player1time {
   top: 50%;
+}
+
+#speed2 {
+  bottom: 50%;
+  margin-top: 0px;
+}
+
+#speed1 {
+  bottom: 0%;
+  margin-top: 0px;
 }
