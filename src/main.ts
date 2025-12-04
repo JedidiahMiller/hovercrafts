@@ -95,25 +95,27 @@ async function initialize() {
   );
   scene.meshes.push(trackMeshes["decor"]);
 
-  barrierMesh = trackMeshes["barrier"];
-  barrierMesh.worldFromModel = trackTransform;
-  barrierMesh.shader = new ShaderProgram(
+  trackMeshes["finish"].worldFromModel = trackTransform;
+  trackMeshes["finish"].shader = new ShaderProgram(
     simpleVertexSource,
     simpleFragmentSource
   );
-  scene.meshes.push(barrierMesh);
+  scene.meshes.push(trackMeshes["finish"]);
+
+  barrierMesh = trackMeshes["barrier"];
+  barrierMesh.worldFromModel = trackTransform;
 
   // Load hovercraft meshes
-  let hovercraftMesh1 = (await Mesh.load("/models/hovercraft.gltf"))["Cube"];
-  hovercraftMesh1.worldFromModel = Matrix4.scale(1, 1, 1);
+  const hovercraftMeshes = await Mesh.load("/models/hovercraft.gltf");
+
+  let hovercraftMesh1 = hovercraftMeshes["hovercraft1"];
   hovercraftMesh1.shader = new ShaderProgram(
     simpleVertexSource,
     simpleFragmentSource
   );
   scene.meshes.push(hovercraftMesh1);
 
-  let hovercraftMesh2 = (await Mesh.load("/models/hovercraft.gltf"))["Cube"];
-  hovercraftMesh2.worldFromModel = Matrix4.scale(1, 1, 1);
+  let hovercraftMesh2 = hovercraftMeshes["hovercraft2"];
   hovercraftMesh2.shader = new ShaderProgram(
     simpleVertexSource,
     simpleFragmentSource
@@ -137,7 +139,7 @@ async function initialize() {
     hovercraft1.position,
     hovercraft1.direction,
     new Vector3(0, 1, 0),
-    new Vector3(0, 3, 15),
+    new Vector3(0, 8, 30),
     new Vector3(-15, 0, 0)
   );
 
@@ -145,11 +147,10 @@ async function initialize() {
     hovercraft2.position,
     hovercraft2.direction,
     new Vector3(0, 1, 0),
-    new Vector3(0, 3, 15),
+    new Vector3(0, 8, 30),
     new Vector3(-15, 0, 0)
   );
 
-  // This essentially clears the audio cache to ensure the audio plays after reloading the game.
   if (engineAudio1) {
     engineAudio1.stop();
   }
@@ -191,15 +192,26 @@ function update() {
     hovercraft2.rotationalAcceleration.y = controls.player2Turn * turnSpeed;
   }
 
-  // Open the pause menu and stop rendering.
-  if (controls.gamePaused && !wasPaused) {
-    pauseMenu();
-    wasPaused = true;
-  } else if (!controls.gamePaused && wasPaused) {
-    // Reset the physics timer so hovercrafts don't go haywire when you continue the game.
-    hovercraft1.resetPhysicsTimestamp();
-    hovercraft2.resetPhysicsTimestamp();
-    wasPaused = false;
+  // Update the hovercraft
+  hovercraft1.updatePhysics(scene.groundMeshes, barrierMesh);
+  hovercraft2.updatePhysics(scene.groundMeshes, barrierMesh);
+
+  engineAudio1.updatePitch(hovercraft1.linearVelocity);
+  engineAudio2.updatePitch(hovercraft2.linearVelocity);
+
+  // Update the camera
+  camera1.updateTarget(hovercraft1.position, hovercraft1.direction);
+  camera2.updateTarget(hovercraft2.position, hovercraft2.direction);
+
+  if (player1Speed && player2Speed) {
+    player1Speed.textContent =
+      Math.round(hovercraft1.linearVelocity.magnitude / 4)
+        .toString()
+        .padStart(3, "0") + " MPH";
+    player2Speed.textContent =
+      Math.round(hovercraft2.linearVelocity.magnitude / 4)
+        .toString()
+        .padStart(3, "0") + " MPH";
   }
 
   if (!controls.gamePaused) {
@@ -215,8 +227,14 @@ function update() {
     camera2.updateTarget(hovercraft2.position, hovercraft2.direction);
 
     if (player1Speed && player2Speed) {
-      player1Speed.textContent = Math.round(hovercraft1.linearVelocity.magnitude / 4).toString().padStart(3, "0") + " MPH";
-      player2Speed.textContent = Math.round(hovercraft2.linearVelocity.magnitude / 4).toString().padStart(3, "0") + " MPH";
+      player1Speed.textContent =
+        Math.round(hovercraft1.linearVelocity.magnitude / 4)
+          .toString()
+          .padStart(3, "0") + " MPH";
+      player2Speed.textContent =
+        Math.round(hovercraft2.linearVelocity.magnitude / 4)
+          .toString()
+          .padStart(3, "0") + " MPH";
     }
     // Update time
     if (player2Timer && player1Timer) {
@@ -298,7 +316,7 @@ function resizeCanvas() {
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
   clipFromEye = Matrix4.perspective(
-    60,
+    50,
     canvas.clientWidth / (canvas.clientHeight / 2),
     1,
     50000
@@ -314,17 +332,17 @@ function startMenu() {
   player2Speed = document.getElementById("speed2");
   player1Speed = document.getElementById("speed1");
 
-  startButton?.addEventListener('click', () => {
+  startButton?.addEventListener("click", () => {
     hideMenu();
     initialize();
   });
 
-  restartButton?.addEventListener('click', () => {
+  restartButton?.addEventListener("click", () => {
     hideMenu();
     initialize();
   });
 
-  continueButton?.addEventListener('click', () => {
+  continueButton?.addEventListener("click", () => {
     hideMenu();
     controls.gamePaused = false;
   });
