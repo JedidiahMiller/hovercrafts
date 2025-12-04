@@ -19,9 +19,9 @@ export class Hovercraft {
   private lastPhysicsUpdate: number;
   private airResistance = 0.2;
   private gravity = 50;
-  private groundCollisionDistance = 0.75;
-  private groundHoverDistance = 5;
-  private scale = new Vector3(1, 0.6, 1);
+  private groundCollisionDistance = 1;
+  private groundHoverDistance = 7;
+  private scale = new Vector3(2.5, 1.2, 2.5);
   private lastSoundTime;
 
   constructor(position: Vector3, direction: Vector3, mesh: Mesh) {
@@ -160,7 +160,7 @@ export class Hovercraft {
   }
 
   private checkBarrierCollision(barrierMesh: Mesh) {
-    const collisionRadius = 0.01; // Collision threshold
+    const collisionRadius = 0.03; // Collision threshold
 
     const M = barrierMesh.worldFromModel!;
     const invM = M.inverse();
