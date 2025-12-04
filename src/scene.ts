@@ -1,8 +1,16 @@
 import { Camera } from "./lib/camera.js";
 import { Matrix4 } from "./lib/matrix.js";
+import { Trimesh } from "./lib/trimesh.js";
 import { Vector3 } from "./lib/vector.js";
+import { VertexArray } from "./lib/vertex-array.js";
+import { VertexAttributes } from "./lib/vertex-attributes.js";
 import { Mesh } from "./mesh.js";
 import { TerrainMesh } from "./terrain.js";
+import skyboxFragmentSource from "@/shaders/skybox-vertex.glsl?raw";
+import skyboxVertexSource from "@/shaders/skybox-fragment.glsl?raw";
+import { ShaderProgram } from "./lib/shader-program.js";
+import { loadCubemap } from "./lib/web-utilities.js";
+import { Prefab } from "./lib/prefab.js";
 
 export class Scene {
   worldLightPosition?: Vector3;
@@ -10,6 +18,7 @@ export class Scene {
 
   groundMeshes: TerrainMesh[] = [];
   meshes: Mesh[] = [];
+  skybox!: Trimesh;
 
   constructor(clipFromEye: Matrix4, worldLightPosition?: Vector3) {
     this.worldLightPosition = worldLightPosition;
@@ -35,6 +44,8 @@ export class Scene {
     for (const mesh of this.meshes) {
       this.renderMesh(mesh, camera, includeWorldLight);
     }
+
+    this.renderSkybox(camera);
   }
 
   /**
@@ -51,7 +62,7 @@ export class Scene {
     camera: Camera,
     includeWorldLight: boolean = true
   ) {
-    console.log(mesh.name);
+    // console.log(mesh.name);
     mesh.shader.bind();
     mesh.shader.setUniformMatrix4fv("clipFromEye", this.clipFromEye.elements);
     mesh.shader.setUniformMatrix4fv(
@@ -89,5 +100,33 @@ export class Scene {
     vao.drawIndexed(gl.TRIANGLES);
     vao.unbind();
     mesh.shader.unbind();
+  }
+
+  async renderSkybox(camera: Camera) {
+    this.skybox = Prefab.skybox();
+    const texture = await loadCubemap("/textures/cubemap", ".png", gl.TEXTURE3);
+    const attributes = new VertexAttributes();
+    attributes.addAttribute(
+      "position",
+      this.skybox.vertexCount,
+      3,
+      this.skybox.positionBuffer()
+    );
+
+    attributes.addIndices(new Uint32Array(this.skybox.faceBuffer()));
+
+    const shader = new ShaderProgram(skyboxVertexSource, skyboxFragmentSource);
+    const vao = new VertexArray(shader, attributes);
+
+    shader.bind();
+    shader.setUniformMatrix4fv("clipFromEye", this.clipFromEye.elements);
+    shader.setUniformMatrix4fv("eyeFromWorld", camera.eyeFromWorld.elements);
+    shader.setUniformMatrix4fv("worldFromModel", Matrix4.identity().elements);
+    shader.setUniform1i("skybox", 3);
+
+    vao.bind();
+    vao.drawIndexed(gl.TRIANGLES);
+    vao.unbind();
+    shader.unbind();
   }
 }
