@@ -37,19 +37,24 @@ const countdownTimerAudio = new Audio("/audio/Start.mp3");
 const engineAudio1 = new HovercraftAudioEngine();
 const engineAudio2 = new HovercraftAudioEngine();
 
-let lastUpdate = 0;
-let elapsedTime = 0;
+let lastUpdate: number;
+let elapsedTime: number;
+let wasPaused = false;
+
+const background = document.getElementById("menu");
+const gameTitle = document.getElementById("gameTitle");
+const startButton = document.getElementById("start");
+const restartButton = document.getElementById("restart");
+const continueButton = document.getElementById("continue");
 
 async function initialize() {
   canvas = document.getElementById("canvas") as HTMLCanvasElement;
   window.gl = canvas.getContext("webgl2") as WebGL2RenderingContext;
 
   window.addEventListener("resize", resizeCanvas);
-  player2Timer = document.getElementById("player2time");
-  player1Timer = document.getElementById("player1time");
-  player2Speed = document.getElementById("speed2");
-  player1Speed = document.getElementById("speed1");
   elapsedTime = 0;
+  wasPaused = false;
+  lastUpdate = performance.now() / 1000;
   resizeCanvas();
 
   controls = new Controls();
@@ -144,7 +149,7 @@ async function initialize() {
     new Vector3(-15, 0, 0)
   );
 
-
+  // This essentially clears the audio cache to ensure the audio plays after reloading the game.
   if (engineAudio1) {
     engineAudio1.stop();
   }
@@ -170,7 +175,7 @@ function update() {
   let totalSeconds = elapsedTime;
 
   // If countdown is finished, allow the player to control the hovercraft.
-  if (totalSeconds > 5) {
+  if (totalSeconds > 5 && !controls.gamePaused) {
     controls.update();
     const moveSpeed = 100;
     const turnSpeed = 0.15;
@@ -186,56 +191,68 @@ function update() {
     hovercraft2.rotationalAcceleration.y = controls.player2Turn * turnSpeed;
   }
 
-  // Update the hovercraft
-  hovercraft1.updatePhysics(scene.groundMeshes, barrierMesh);
-  hovercraft2.updatePhysics(scene.groundMeshes, barrierMesh);
-
-  engineAudio1.updatePitch(hovercraft1.linearVelocity);
-  engineAudio2.updatePitch(hovercraft2.linearVelocity);
-
-  // Update the camera
-  camera1.updateTarget(hovercraft1.position, hovercraft1.direction);
-  camera2.updateTarget(hovercraft2.position, hovercraft2.direction);
-
-  if (player1Speed && player2Speed) {
-    player1Speed.textContent = Math.round(hovercraft1.linearVelocity.magnitude / 4).toString().padStart(3, "0") + " MPH";
-    player2Speed.textContent = Math.round(hovercraft2.linearVelocity.magnitude / 4).toString().padStart(3, "0") + " MPH";
+  // Open the pause menu and stop rendering.
+  if (controls.gamePaused && !wasPaused) {
+    pauseMenu();
+    wasPaused = true;
+  } else if (!controls.gamePaused && wasPaused) {
+    // Reset the physics timer so hovercrafts don't go haywire when you continue the game.
+    hovercraft1.resetPhysicsTimestamp();
+    hovercraft2.resetPhysicsTimestamp();
+    wasPaused = false;
   }
 
-  // Update time
-  if (player2Timer && player1Timer) {
-    // Race countdown
-    if (totalSeconds < 1) {
-      player2Timer.textContent = "5";
-      player1Timer.textContent = "5";
-      return;
-    } else if (totalSeconds < 2) {
-      player2Timer.textContent = "4";
-      player1Timer.textContent = "4";
-      return;
-    } else if (totalSeconds < 3) {
-      player2Timer.textContent = "3";
-      player1Timer.textContent = "3";
-      return;
-    } else if (totalSeconds < 4) {
-      player2Timer.textContent = "2";
-      player1Timer.textContent = "2";
-      return;
-    } else if (totalSeconds < 5) {
-      player2Timer.textContent = "1";
-      player1Timer.textContent = "1";
-      return;
+  if (!controls.gamePaused) {
+    // Update the hovercraft
+    hovercraft1.updatePhysics(scene.groundMeshes, barrierMesh);
+    hovercraft2.updatePhysics(scene.groundMeshes, barrierMesh);
+
+    engineAudio1.updatePitch(hovercraft1.linearVelocity);
+    engineAudio2.updatePitch(hovercraft2.linearVelocity);
+
+    // Update the camera
+    camera1.updateTarget(hovercraft1.position, hovercraft1.direction);
+    camera2.updateTarget(hovercraft2.position, hovercraft2.direction);
+
+    if (player1Speed && player2Speed) {
+      player1Speed.textContent = Math.round(hovercraft1.linearVelocity.magnitude / 4).toString().padStart(3, "0") + " MPH";
+      player2Speed.textContent = Math.round(hovercraft2.linearVelocity.magnitude / 4).toString().padStart(3, "0") + " MPH";
     }
+    // Update time
+    if (player2Timer && player1Timer) {
+      // Race countdown
+      if (totalSeconds < 1) {
+        player2Timer.textContent = "5";
+        player1Timer.textContent = "5";
+        return;
+      } else if (totalSeconds < 2) {
+        player2Timer.textContent = "4";
+        player1Timer.textContent = "4";
+        return;
+      } else if (totalSeconds < 3) {
+        player2Timer.textContent = "3";
+        player1Timer.textContent = "3";
+        return;
+      } else if (totalSeconds < 4) {
+        player2Timer.textContent = "2";
+        player1Timer.textContent = "2";
+        return;
+      } else if (totalSeconds < 5) {
+        player2Timer.textContent = "1";
+        player1Timer.textContent = "1";
+        return;
+      }
 
-    totalSeconds = totalSeconds - 5; // Take away 5 seconds so time starts at 0.
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = Math.floor(totalSeconds % 60);
-    const milliseconds = Math.floor((totalSeconds % 1) * 100);
+      totalSeconds = totalSeconds - 5; // Take away 5 seconds so time starts at 0.
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = Math.floor(totalSeconds % 60);
+      const milliseconds = Math.floor((totalSeconds % 1) * 100);
 
-    // Update and format the timer.
-    const formatted = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.${String(milliseconds).padStart(2, "0")}`;
-    player2Timer.textContent = formatted;
-    player1Timer.textContent = formatted;
+      // Update and format the timer.
+      const formatted = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.${String(milliseconds).padStart(2, "0")}`;
+      player2Timer.textContent = formatted;
+      player1Timer.textContent = formatted;
+    }
   }
 }
 
@@ -263,10 +280,14 @@ function render() {
 
 function animate(now: number) {
   const t = now / 1000;
-  const dt = t - lastUpdate;
-  lastUpdate = t;
-
-  elapsedTime += dt;
+  // Only update when not in pause menu since phsyics/timers are based on these variables.
+  if (!controls.gamePaused) {
+    const dt = t - lastUpdate;
+    lastUpdate = t;
+    elapsedTime += dt;
+  } else {
+    lastUpdate = t;
+  }
 
   update();
   render();
@@ -287,4 +308,45 @@ function resizeCanvas() {
   }
 }
 
-window.addEventListener("load", initialize);
+function startMenu() {
+  player2Timer = document.getElementById("player2time");
+  player1Timer = document.getElementById("player1time");
+  player2Speed = document.getElementById("speed2");
+  player1Speed = document.getElementById("speed1");
+
+  startButton?.addEventListener('click', () => {
+    hideMenu();
+    initialize();
+  });
+
+  restartButton?.addEventListener('click', () => {
+    hideMenu();
+    initialize();
+  });
+
+  continueButton?.addEventListener('click', () => {
+    hideMenu();
+    controls.gamePaused = false;
+  });
+}
+
+function hideMenu() {
+  if (background) background.style.display = "none";
+  if (gameTitle) gameTitle.style.display = "none";
+  if (startButton) startButton.style.display = "none";
+  if (restartButton) restartButton.style.display = "none";
+  if (continueButton) continueButton.style.display = "none";
+  if (player1Speed) player1Speed.style.display = "block";
+  if (player2Speed) player2Speed.style.display = "block";
+  if (player1Timer) player1Timer.style.display = "block";
+  if (player2Timer) player2Timer.style.display = "block";
+}
+
+function pauseMenu() {
+  if (background) background.style.display = "block";
+  if (gameTitle) gameTitle.style.display = "block";
+  if (restartButton) restartButton.style.display = "block";
+  if (continueButton) continueButton.style.display = "block";
+}
+
+window.addEventListener("load", startMenu);

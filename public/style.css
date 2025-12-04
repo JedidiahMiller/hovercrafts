@@ -26,6 +26,7 @@ body {
 #player1time,
 #speed2,
 #speed1 {
+  display: none;
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
@@ -50,4 +51,63 @@ body {
 #speed1 {
   bottom: 0%;
   margin-top: 0px;
+}
+
+#menu {
+  display: block;
+  position: fixed;
+  background-color: white;
+  height: 100vh;
+  width: 100vw;
+  opacity: 0.5;
+  backdrop-filter: blur(20px);
+  z-index: 11;
+}
+
+#gameTitle {
+  display: block;
+  width: 100vw;
+  position: fixed;
+  text-align: center;
+  font-family: "Press Start 2P", system-ui;
+  font-size: 30px;
+  color: white;
+  text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.8);
+  z-index: 12
+}
+
+#start,
+#restart,
+#continue {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 180px;
+  height: 8vh;
+  font-family: "Press Start 2P", system-ui;
+  font-size: 18px;
+  color: white;
+  border-color: white;
+  background-color: black;
+  z-index: 12;
+}
+
+#continue, #restart {
+  display: none;
+}
+
+#start:hover,
+#restart:hover,
+#continue:hover {
+  color: gray;
+  border-color: gray;
+  transition: ease-in-out 0.1s;
+}
+
+#start, #continue {
+  top: 40%;
+}
+
+#restart {
+  top: 50%;
 }

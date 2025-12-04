@@ -6,7 +6,7 @@ export class Controls {
   player2Move = 0;
 
   resetGame = false;
-
+  gamePaused = false;
   useGamepad = false;
 
   constructor() {
@@ -55,6 +55,9 @@ export class Controls {
           break;
         case "l":
           this.player2Turn = 1;
+          break;
+        case "Escape":
+          this.gamePaused = !this.gamePaused;
           break;
         case "r":
           if (!this.resetGame) {

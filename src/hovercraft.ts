@@ -41,6 +41,10 @@ export class Hovercraft {
     this.mesh = mesh;
   }
 
+  resetPhysicsTimestamp() {
+    this.lastPhysicsUpdate = performance.now() / 1000;
+  }
+
   updatePhysics(terrainMeshes: TerrainMesh[], barrierMesh?: Mesh) {
     const now = performance.now() / 1000;
     const elapsedSeconds = now - this.lastPhysicsUpdate;
