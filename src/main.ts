@@ -15,7 +15,8 @@ import terrainFragmentSource from "@/shaders/terrain-fragment.glsl?raw";
 import terrainVertexSource from "@/shaders/terrain-vertex.glsl?raw";
 
 let canvas: HTMLCanvasElement;
-let clipFromEye: Matrix4;
+let clipFromEye1: Matrix4;
+let clipFromEye2: Matrix4;
 
 let controls: Controls;
 
@@ -61,7 +62,7 @@ async function initialize() {
   controls = new Controls();
 
   // Start building the scene
-  scene = new Scene(clipFromEye, new Vector3(200, 500, 200));
+  scene = new Scene(clipFromEye1, new Vector3(200, 500, 200));
 
   // Load textures
   await loadTextures();
@@ -276,10 +277,31 @@ function update() {
   }
 }
 
+function updateFOV(velocity: number): number {
+  const baseFOV = 50;
+  const maxFOV = 75;
+  const maxVelocity = 500;
+  
+  // Clamp velocity and calculate FOV increase
+  const normalizedVelocity = Math.min(velocity, maxVelocity) / maxVelocity;
+  return baseFOV + (maxFOV - baseFOV) * normalizedVelocity;
+}
+
 function render() {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.SCISSOR_TEST);
+  
+  // Update FOV for player 1 based on velocity
+  const fov1 = updateFOV(hovercraft1.linearVelocity.magnitude);
+  clipFromEye1 = Matrix4.perspective(
+    fov1,
+    canvas.clientWidth / (canvas.clientHeight / 2),
+    1,
+    50000
+  );
+  scene.clipFromEye = clipFromEye1;
+  
   gl.viewport(0, 0, canvas.width, canvas.height / 2);
   gl.scissor(0, 0, canvas.width, canvas.height / 2);
 
@@ -289,6 +311,16 @@ function render() {
     initialize();
   }
 
+  // Update FOV for player 2 based on velocity
+  const fov2 = updateFOV(hovercraft2.linearVelocity.magnitude);
+  clipFromEye2 = Matrix4.perspective(
+    fov2,
+    canvas.clientWidth / (canvas.clientHeight / 2),
+    1,
+    50000
+  );
+  scene.clipFromEye = clipFromEye2;
+  
   gl.viewport(0, canvas.height / 2, canvas.width, canvas.height / 2);
   gl.scissor(0, canvas.height / 2, canvas.width, canvas.height / 2);
 
@@ -317,15 +349,6 @@ function animate(now: number) {
 function resizeCanvas() {
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
-  clipFromEye = Matrix4.perspective(
-    50,
-    canvas.clientWidth / (canvas.clientHeight / 2),
-    1,
-    50000
-  );
-  if (scene) {
-    scene.clipFromEye = clipFromEye;
-  }
 }
 
 function startMenu() {
