@@ -40,6 +40,7 @@ const engineAudio2 = new HovercraftAudioEngine();
 let lastUpdate: number;
 let elapsedTime: number;
 let wasPaused = false;
+let countdownAudioWasPlaying = false;
 
 const background = document.getElementById("menu");
 const gameTitle = document.getElementById("gameTitle");
@@ -151,6 +152,7 @@ async function initialize() {
     new Vector3(-15, 0, 0)
   );
 
+  // This essentially clears the audio cache to ensure the audio plays after reloading the game.
   if (engineAudio1) {
     engineAudio1.stop();
   }
@@ -158,7 +160,7 @@ async function initialize() {
     engineAudio2.stop();
   }
 
-  countdownTimerAudio.volume = 0.5;
+  countdownTimerAudio.volume = 0.3;
   countdownTimerAudio.play();
   // Initialize and load audio
   await engineAudio1.loadAudio("/audio/Engine.mp3");
@@ -192,26 +194,26 @@ function update() {
     hovercraft2.rotationalAcceleration.y = controls.player2Turn * turnSpeed;
   }
 
-  // Update the hovercraft
-  hovercraft1.updatePhysics(scene.groundMeshes, barrierMesh);
-  hovercraft2.updatePhysics(scene.groundMeshes, barrierMesh);
-
-  engineAudio1.updatePitch(hovercraft1.linearVelocity);
-  engineAudio2.updatePitch(hovercraft2.linearVelocity);
-
-  // Update the camera
-  camera1.updateTarget(hovercraft1.position, hovercraft1.direction);
-  camera2.updateTarget(hovercraft2.position, hovercraft2.direction);
-
-  if (player1Speed && player2Speed) {
-    player1Speed.textContent =
-      Math.round(hovercraft1.linearVelocity.magnitude / 4)
-        .toString()
-        .padStart(3, "0") + " MPH";
-    player2Speed.textContent =
-      Math.round(hovercraft2.linearVelocity.magnitude / 4)
-        .toString()
-        .padStart(3, "0") + " MPH";
+  // Open the pause menu and stop rendering.
+  if (controls.gamePaused && !wasPaused) {
+    // Just became paused - pause all audio
+    countdownAudioWasPlaying = !countdownTimerAudio.paused;
+    countdownTimerAudio.pause();
+    engineAudio1.pause();
+    engineAudio2.pause();
+    pauseMenu();
+    wasPaused = true;
+  } else if (!controls.gamePaused && wasPaused) {
+    // Just became unpaused - resume audio
+    if (countdownAudioWasPlaying) {
+      countdownTimerAudio.play();
+    }
+    engineAudio1.resume();
+    engineAudio2.resume();
+    // Reset the physics timer so hovercrafts don't go haywire when you continue the game.
+    hovercraft1.resetPhysicsTimestamp();
+    hovercraft2.resetPhysicsTimestamp();
+    wasPaused = false;
   }
 
   if (!controls.gamePaused) {

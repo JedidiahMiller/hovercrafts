@@ -6,6 +6,8 @@ export class HovercraftAudioEngine {
   private sourceNode: AudioBufferSourceNode | null = null;
   private gainNode: GainNode;
   private isPlaying: boolean = false;
+  private isPaused: boolean = false;
+  private pauseTime: number = 0;
 
   // Audio parameters
   private minPitch: number = 0.5;  // Pitch when stationary
@@ -45,6 +47,22 @@ export class HovercraftAudioEngine {
     this.sourceNode.connect(this.gainNode);
     this.sourceNode.start(0);
     this.isPlaying = true;
+    this.isPaused = false;
+  }
+
+  pause(): void {
+    if (!this.sourceNode || !this.isPlaying || this.isPaused) return;
+
+    this.audioContext.suspend();
+    this.isPaused = true;
+    this.pauseTime = this.audioContext.currentTime;
+  }
+
+  resume(): void {
+    if (!this.sourceNode || !this.isPlaying || !this.isPaused) return;
+
+    this.audioContext.resume();
+    this.isPaused = false;
   }
 
   updatePitch(linearVelocity: Vector3): void {
@@ -71,6 +89,7 @@ export class HovercraftAudioEngine {
       this.sourceNode.disconnect();
       this.sourceNode = null;
       this.isPlaying = false;
+      this.isPaused = false;
     }
   }
 
@@ -81,5 +100,9 @@ export class HovercraftAudioEngine {
 
   get playing(): boolean {
     return this.isPlaying;
+  }
+
+  get paused(): boolean {
+    return this.isPaused;
   }
 }
