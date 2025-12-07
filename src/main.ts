@@ -33,6 +33,8 @@ let player1Timer: HTMLElement | null;
 let player2Timer: HTMLElement | null;
 let player1Speed: HTMLElement | null;
 let player2Speed: HTMLElement | null;
+let player1LapsDisplay: HTMLElement | null;
+let player2LapsDisplay: HTMLElement | null;
 
 const countdownTimerAudio = new Audio("/audio/Start.mp3");
 const engineAudio1 = new HovercraftAudioEngine();
@@ -42,6 +44,14 @@ let lastUpdate: number;
 let elapsedTime: number;
 let wasPaused = false;
 let countdownAudioWasPlaying = false;
+let player1PassedCheckpoint = false;
+let player1Laps = 0;
+let player1PreviousX = 0;
+let player1FinishedRace = false;
+let player2PassedCheckpoint = false;
+let player2Laps = 0;
+let player2PreviousX = 0;
+let player2FinishedRace = false;
 
 const background = document.getElementById("menu");
 const gameTitle = document.getElementById("gameTitle");
@@ -56,6 +66,12 @@ async function initialize() {
   window.addEventListener("resize", resizeCanvas);
   elapsedTime = 0;
   wasPaused = false;
+  player1PassedCheckpoint = false;
+  player1Laps = 0;
+  player1FinishedRace = false;
+  player2PassedCheckpoint = false;
+  player2Laps = 0;
+  player2FinishedRace = false;
   lastUpdate = performance.now() / 1000;
   resizeCanvas();
 
@@ -184,15 +200,29 @@ function update() {
     const moveSpeed = 100;
     const turnSpeed = 0.15;
 
-    hovercraft1.linearAcceleration = hovercraft1.direction.scalarMultiply(
-      controls.player1Move * moveSpeed
-    );
-    hovercraft1.rotationalAcceleration.y = controls.player1Turn * turnSpeed;
+    // Only apply input to player1 if they haven't finished the race
+    if (!player1FinishedRace) {
+      hovercraft1.linearAcceleration = hovercraft1.direction.scalarMultiply(
+        controls.player1Move * moveSpeed
+      );
+      hovercraft1.rotationalAcceleration.y = controls.player1Turn * turnSpeed;
+    } else {
+      // When finished, zero out acceleration to let physics naturally slow down
+      hovercraft1.linearAcceleration = new Vector3(0, 0, 0);
+      hovercraft1.rotationalAcceleration.y = 0;
+    }
 
-    hovercraft2.linearAcceleration = hovercraft2.direction.scalarMultiply(
-      controls.player2Move * moveSpeed
-    );
-    hovercraft2.rotationalAcceleration.y = controls.player2Turn * turnSpeed;
+    // Only apply input to player2 if they haven't finished the race
+    if (!player2FinishedRace) {
+      hovercraft2.linearAcceleration = hovercraft2.direction.scalarMultiply(
+        controls.player2Move * moveSpeed
+      );
+      hovercraft2.rotationalAcceleration.y = controls.player2Turn * turnSpeed;
+    } else {
+      // When finished, zero out acceleration to let physics naturally slow down
+      hovercraft2.linearAcceleration = new Vector3(0, 0, 0);
+      hovercraft2.rotationalAcceleration.y = 0;
+    }
   }
 
   // Open the pause menu and stop rendering.
@@ -224,6 +254,72 @@ function update() {
 
     engineAudio1.updatePitch(hovercraft1.linearVelocity);
     engineAudio2.updatePitch(hovercraft2.linearVelocity);
+
+    // Check if player 1 passed the checkpoint
+    if (!player1PassedCheckpoint && hovercraft1.position.z > 1500) {
+      console.log("Player 1 passed checkpoint!");
+      player1PassedCheckpoint = true;
+    }
+
+    // Check if player 1 crossed the finish line
+    const finishLineX = 1300;
+    const finishLineZMin = -460;
+    const finishLineZMax = -190;
+    
+    if (!player1FinishedRace &&
+        player1PassedCheckpoint &&
+        player1PreviousX < finishLineX &&
+        hovercraft1.position.x >= finishLineX &&
+        hovercraft1.position.z >= finishLineZMin &&
+        hovercraft1.position.z <= finishLineZMax) {
+      player1Laps++;
+      console.log(`Player 1 completed lap ${player1Laps}!`);
+      if (player1LapsDisplay) {
+        player1LapsDisplay.textContent = `${player1Laps}/3 LAPS`;
+      }
+      
+      // Reset checkpoint for next lap
+      player1PassedCheckpoint = false;
+      
+      // Check if player finished 3 laps
+      if (player1Laps >= 3) {
+        console.log("Player 1 finished the race!");
+        player1FinishedRace = true;
+      }
+    }
+    
+    player1PreviousX = hovercraft1.position.x;
+
+    // Check if player 2 passed the checkpoint
+    if (!player2PassedCheckpoint && hovercraft2.position.z > 1500) {
+      console.log("Player 2 passed checkpoint!");
+      player2PassedCheckpoint = true;
+    }
+
+    // Check if player 2 crossed the finish line
+    if (!player2FinishedRace &&
+        player2PassedCheckpoint &&
+        player2PreviousX < finishLineX &&
+        hovercraft2.position.x >= finishLineX &&
+        hovercraft2.position.z >= finishLineZMin &&
+        hovercraft2.position.z <= finishLineZMax) {
+      player2Laps++;
+      console.log(`Player 2 completed lap ${player2Laps}!`);
+      if (player2LapsDisplay) {
+        player2LapsDisplay.textContent = `${player2Laps}/3 LAPS`;
+      }
+      
+      // Reset checkpoint for next lap
+      player2PassedCheckpoint = false;
+      
+      // Check if player finished 3 laps
+      if (player2Laps >= 3) {
+        console.log("Player 2 finished the race!");
+        player2FinishedRace = true;
+      }
+    }
+    
+    player2PreviousX = hovercraft2.position.x;
 
     // Update the camera
     camera1.updateTarget(hovercraft1.position, hovercraft1.direction);
@@ -271,8 +367,16 @@ function update() {
 
       // Update and format the timer.
       const formatted = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.${String(milliseconds).padStart(2, "0")}`;
-      player2Timer.textContent = formatted;
-      player1Timer.textContent = formatted;
+      
+      // Only update player2 timer if they haven't finished the race
+      if (!player2FinishedRace) {
+        player2Timer.textContent = formatted;
+      }
+      
+      // Only update player1 timer if they haven't finished the race
+      if (!player1FinishedRace) {
+        player1Timer.textContent = formatted;
+      }
     }
   }
 }
@@ -356,6 +460,8 @@ function startMenu() {
   player1Timer = document.getElementById("player1time");
   player2Speed = document.getElementById("speed2");
   player1Speed = document.getElementById("speed1");
+  player2LapsDisplay = document.getElementById("player2laps");
+  player1LapsDisplay = document.getElementById("player1laps");
 
   startButton?.addEventListener("click", () => {
     hideMenu();
@@ -383,6 +489,8 @@ function hideMenu() {
   if (player2Speed) player2Speed.style.display = "block";
   if (player1Timer) player1Timer.style.display = "block";
   if (player2Timer) player2Timer.style.display = "block";
+  if (player1LapsDisplay) player1LapsDisplay.style.display = "block";
+  if (player2LapsDisplay) player2LapsDisplay.style.display = "block";
 }
 
 function pauseMenu() {

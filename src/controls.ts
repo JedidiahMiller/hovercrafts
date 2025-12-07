@@ -29,7 +29,6 @@ export class Controls {
 
     // WASD + QE
     window.addEventListener("keydown", (e) => {
-      if (this.useGamepad) return;
 
       switch (e.key) {
         case "w":
@@ -57,7 +56,7 @@ export class Controls {
           this.player2Turn = 1;
           break;
         case "Escape":
-          this.gamePaused = !this.gamePaused;
+          this.gamePaused = true;
           break;
         case "r":
           if (!this.resetGame) {
@@ -68,7 +67,6 @@ export class Controls {
     });
 
     window.addEventListener("keyup", (e) => {
-      if (this.useGamepad) return;
 
       switch (e.key) {
         case "w":
@@ -92,9 +90,13 @@ export class Controls {
   }
 
   update() {
-    if (!this.useGamepad) return;
-
+    // Check if any gamepad is currently connected
     const pads = navigator.getGamepads();
+    if (pads.length > 0 && (pads[0] || pads[1])) {
+      this.useGamepad = true;
+    }
+
+    if (!this.useGamepad) return;
     const player1Pad = pads[0];
     const player2Pad = pads[1];
 
@@ -102,6 +104,13 @@ export class Controls {
     if (player1Pad) {
       // left stick X for steering
       const player1lx = player1Pad.axes[0];
+      const player1reset = player1Pad.buttons[1]; // B on Xbox
+
+      if (player1reset.pressed) {
+          if (!this.resetGame) {
+            this.resetGame = !this.resetGame;
+          }
+      }
 
       // triggers (analog on most controllers)
       const player1rt = player1Pad.buttons[7];

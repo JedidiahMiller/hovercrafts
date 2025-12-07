@@ -36,7 +36,7 @@ export class Scene {
       
       try {
         await loadCubemap("/textures/cubemap", "png", gl.TEXTURE3);
-        console.log("Cubemap loaded successfully");
+        // console.log("Cubemap loaded successfully");
       } catch (cubemapError) {
         console.error("Cubemap loading error:", cubemapError);
         throw cubemapError;
@@ -58,7 +58,7 @@ export class Scene {
       );
       this.skyboxVAO = new VertexArray(this.skyboxShader, attributes);
       this.skyboxInitialized = true;
-      console.log("Skybox successfully created.")
+      // console.log("Skybox successfully created.")
     } catch (error) {
       console.error("Failed to initialize skybox:", error);
     }
@@ -171,6 +171,6 @@ export class Scene {
     this.skyboxVAO.unbind();
     this.skyboxShader.unbind();
 
-    console.log("Skybox succesfully rendered.")
+    // console.log("Skybox succesfully rendered.")
   }
 }

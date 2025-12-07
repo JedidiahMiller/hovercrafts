@@ -111,3 +111,17 @@ body {
 #restart {
   top: 50%;
 }
+
+#player2laps, #player1laps {
+  position: fixed;
+  margin: 10px;
+  z-index: 11;
+  font-family: "Press Start 2P", system-ui;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  color: white;
+  display: none;
+}
+
+#player1laps {
+  top: 50%;
+}
