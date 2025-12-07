@@ -6,8 +6,8 @@ import { VertexArray } from "./lib/vertex-array.js";
 import { VertexAttributes } from "./lib/vertex-attributes.js";
 import { Mesh } from "./mesh.js";
 import { TerrainMesh } from "./terrain.js";
-import skyboxFragmentSource from "@/shaders/skybox-vertex.glsl?raw";
-import skyboxVertexSource from "@/shaders/skybox-fragment.glsl?raw";
+import skyboxVertexSource from "@/shaders/skybox-vertex.glsl?raw";
+import skyboxFragmentSource from "@/shaders/skybox-fragment.glsl?raw";
 import { ShaderProgram } from "./lib/shader-program.js";
 import { loadCubemap } from "./lib/web-utilities.js";
 import { Prefab } from "./lib/prefab.js";
@@ -19,10 +19,49 @@ export class Scene {
   groundMeshes: TerrainMesh[] = [];
   meshes: Mesh[] = [];
   skybox!: Trimesh;
+  skyboxShader?: ShaderProgram;
+  skyboxVAO?: VertexArray;
+  skyboxInitialized = false;
 
   constructor(clipFromEye: Matrix4, worldLightPosition?: Vector3) {
     this.worldLightPosition = worldLightPosition;
     this.clipFromEye = clipFromEye;
+    this.initializeSkybox();
+  }
+
+  async initializeSkybox() {
+    try {
+      this.skybox = Prefab.skybox();
+      console.log("Skybox geometry created");
+      
+      try {
+        await loadCubemap("/textures/cubemap", "png", gl.TEXTURE3);
+        console.log("Cubemap loaded successfully");
+      } catch (cubemapError) {
+        console.error("Cubemap loading error:", cubemapError);
+        throw cubemapError;
+      }
+
+      const attributes = new VertexAttributes();
+      attributes.addAttribute(
+        "position",
+        this.skybox.vertexCount,
+        3,
+        this.skybox.positionBuffer()
+      );
+
+      attributes.addIndices(new Uint32Array(this.skybox.faceBuffer()));
+
+      this.skyboxShader = new ShaderProgram(
+        skyboxVertexSource,
+        skyboxFragmentSource
+      );
+      this.skyboxVAO = new VertexArray(this.skyboxShader, attributes);
+      this.skyboxInitialized = true;
+      console.log("Skybox successfully created.")
+    } catch (error) {
+      console.error("Failed to initialize skybox:", error);
+    }
   }
 
   /**
@@ -35,6 +74,13 @@ export class Scene {
    * @param texture The texture to use
    */
   render(camera: Camera, includeWorldLight: boolean = true) {
+    // Render skybox first (background) without writing to depth buffer
+    if (this.skyboxInitialized) {
+      gl.depthMask(false);
+      this.renderSkybox(camera);
+      gl.depthMask(true);
+    }
+
     // Terrain
     for (const terrainMesh of this.groundMeshes) {
       this.renderMesh(terrainMesh.mesh, camera, includeWorldLight);
@@ -44,8 +90,6 @@ export class Scene {
     for (const mesh of this.meshes) {
       this.renderMesh(mesh, camera, includeWorldLight);
     }
-
-    this.renderSkybox(camera);
   }
 
   /**
@@ -102,31 +146,31 @@ export class Scene {
     mesh.shader.unbind();
   }
 
-  async renderSkybox(camera: Camera) {
-    this.skybox = Prefab.skybox();
-    const texture = await loadCubemap("/textures/cubemap", ".png", gl.TEXTURE3);
-    const attributes = new VertexAttributes();
-    attributes.addAttribute(
-      "position",
-      this.skybox.vertexCount,
-      3,
-      this.skybox.positionBuffer()
-    );
+  private renderSkybox(camera: Camera) {
+    if (!this.skyboxShader || !this.skyboxVAO) return;
 
-    attributes.addIndices(new Uint32Array(this.skybox.faceBuffer()));
+    // Cast to ThirdPersonCamera to access position
+    const thirdPersonCamera = camera as any;
+    const cameraPosition = thirdPersonCamera.position;
 
-    const shader = new ShaderProgram(skyboxVertexSource, skyboxFragmentSource);
-    const vao = new VertexArray(shader, attributes);
+    this.skyboxShader.bind();
+    this.skyboxShader.setUniformMatrix4fv("clipFromEye", this.clipFromEye.elements);
+    this.skyboxShader.setUniformMatrix4fv("eyeFromWorld", camera.eyeFromWorld.elements);
+    
+    // Position skybox at camera location and scale it up
+    const worldFromModel = Matrix4.translate(
+      cameraPosition.x,
+      cameraPosition.y,
+      cameraPosition.z
+    ).multiplyMatrix(Matrix4.scale(1000, 1000, 1000));
+    this.skyboxShader.setUniformMatrix4fv("worldFromModel", worldFromModel.elements);
+    this.skyboxShader.setUniform1i("skybox", 3); // Bind to texture unit 3
 
-    shader.bind();
-    shader.setUniformMatrix4fv("clipFromEye", this.clipFromEye.elements);
-    shader.setUniformMatrix4fv("eyeFromWorld", camera.eyeFromWorld.elements);
-    shader.setUniformMatrix4fv("worldFromModel", Matrix4.identity().elements);
-    shader.setUniform1i("skybox", 3);
+    this.skyboxVAO.bind();
+    this.skyboxVAO.drawIndexed(gl.TRIANGLES);
+    this.skyboxVAO.unbind();
+    this.skyboxShader.unbind();
 
-    vao.bind();
-    vao.drawIndexed(gl.TRIANGLES);
-    vao.unbind();
-    shader.unbind();
+    console.log("Skybox succesfully rendered.")
   }
 }
