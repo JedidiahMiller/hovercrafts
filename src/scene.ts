@@ -33,7 +33,7 @@ export class Scene {
     try {
       this.skybox = Prefab.skybox();
       console.log("Skybox geometry created");
-      
+
       try {
         await loadCubemap("/textures/cubemap", "png", gl.TEXTURE3);
         // console.log("Cubemap loaded successfully");
@@ -47,14 +47,14 @@ export class Scene {
         "position",
         this.skybox.vertexCount,
         3,
-        this.skybox.positionBuffer()
+        this.skybox.positionBuffer(),
       );
 
       attributes.addIndices(new Uint32Array(this.skybox.faceBuffer()));
 
       this.skyboxShader = new ShaderProgram(
         skyboxVertexSource,
-        skyboxFragmentSource
+        skyboxFragmentSource,
       );
       this.skyboxVAO = new VertexArray(this.skyboxShader, attributes);
       this.skyboxInitialized = true;
@@ -104,38 +104,38 @@ export class Scene {
   private renderMesh(
     mesh: Mesh,
     camera: Camera,
-    includeWorldLight: boolean = true
+    includeWorldLight: boolean = true,
   ) {
     // console.log(mesh.name);
     mesh.shader.bind();
     mesh.shader.setUniformMatrix4fv("clipFromEye", this.clipFromEye.elements);
     mesh.shader.setUniformMatrix4fv(
       "eyeFromWorld",
-      camera.eyeFromWorld.elements
+      camera.eyeFromWorld.elements,
     );
     mesh.shader.setUniformMatrix4fv(
       "worldFromModel",
       mesh.worldFromModel
         ? mesh.worldFromModel.elements
-        : Matrix4.identity().elements
+        : Matrix4.identity().elements,
     );
     if (mesh.textureNumber !== undefined) {
       mesh.shader.setUniform1i("textureSource", mesh.textureNumber);
       mesh.shader.setUniform2f(
         "textureScale",
         mesh.textureScale![0],
-        mesh.textureScale![1]
+        mesh.textureScale![1],
       );
     }
     if (includeWorldLight && this.worldLightPosition) {
       const eyeLightPosition = camera.eyeFromWorld.multiplyPosition(
-        this.worldLightPosition
+        this.worldLightPosition,
       );
       mesh.shader.setUniform3f(
         "lightPosition",
         eyeLightPosition.x,
         eyeLightPosition.y,
-        eyeLightPosition.z
+        eyeLightPosition.z,
       );
     }
 
@@ -154,16 +154,25 @@ export class Scene {
     const cameraPosition = thirdPersonCamera.position;
 
     this.skyboxShader.bind();
-    this.skyboxShader.setUniformMatrix4fv("clipFromEye", this.clipFromEye.elements);
-    this.skyboxShader.setUniformMatrix4fv("eyeFromWorld", camera.eyeFromWorld.elements);
-    
+    this.skyboxShader.setUniformMatrix4fv(
+      "clipFromEye",
+      this.clipFromEye.elements,
+    );
+    this.skyboxShader.setUniformMatrix4fv(
+      "eyeFromWorld",
+      camera.eyeFromWorld.elements,
+    );
+
     // Position skybox at camera location and scale it up
     const worldFromModel = Matrix4.translate(
       cameraPosition.x,
       cameraPosition.y,
-      cameraPosition.z
+      cameraPosition.z,
     ).multiplyMatrix(Matrix4.scale(1000, 1000, 1000));
-    this.skyboxShader.setUniformMatrix4fv("worldFromModel", worldFromModel.elements);
+    this.skyboxShader.setUniformMatrix4fv(
+      "worldFromModel",
+      worldFromModel.elements,
+    );
     this.skyboxShader.setUniform1i("skybox", 3); // Bind to texture unit 3
 
     this.skyboxVAO.bind();

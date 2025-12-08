@@ -1,224 +1,197 @@
 {
-	"asset":{
-		"generator":"Khronos glTF Blender I/O v4.5.47",
-		"version":"2.0"
-	},
-	"scene":0,
-	"scenes":[
-		{
-			"name":"Scene",
-			"nodes":[
-				0,
-				1
-			]
-		}
-	],
-	"nodes":[
-		{
-			"mesh":0,
-			"name":"hovercraft1",
-			"scale":[
-				1,
-				0.35426604747772217,
-				1
-			]
-		},
-		{
-			"mesh":1,
-			"name":"hovercraft2",
-			"scale":[
-				1,
-				0.35426604747772217,
-				1
-			]
-		}
-	],
-	"materials":[
-		{
-			"doubleSided":true,
-			"name":"Material",
-			"pbrMetallicRoughness":{
-				"metallicFactor":0,
-				"roughnessFactor":0.5
-			}
-		},
-		{
-			"doubleSided":true,
-			"name":"Material.001",
-			"pbrMetallicRoughness":{
-				"metallicFactor":0,
-				"roughnessFactor":0.5
-			}
-		}
-	],
-	"meshes":[
-		{
-			"name":"Cube.001",
-			"primitives":[
-				{
-					"attributes":{
-						"POSITION":0,
-						"NORMAL":1,
-						"TEXCOORD_0":2,
-						"COLOR_0":3
-					},
-					"indices":4,
-					"material":0
-				}
-			]
-		},
-		{
-			"name":"Cube.002",
-			"primitives":[
-				{
-					"attributes":{
-						"POSITION":5,
-						"NORMAL":6,
-						"TEXCOORD_0":7,
-						"COLOR_0":8
-					},
-					"indices":4,
-					"material":1
-				}
-			]
-		}
-	],
-	"accessors":[
-		{
-			"bufferView":0,
-			"componentType":5126,
-			"count":734,
-			"max":[
-				2.8399434089660645,
-				2.6968142986297607,
-				6.285682201385498
-			],
-			"min":[
-				-2.8399434089660645,
-				-1.457421898841858,
-				-2.0299744606018066
-			],
-			"type":"VEC3"
-		},
-		{
-			"bufferView":1,
-			"componentType":5126,
-			"count":734,
-			"type":"VEC3"
-		},
-		{
-			"bufferView":2,
-			"componentType":5126,
-			"count":734,
-			"type":"VEC2"
-		},
-		{
-			"bufferView":3,
-			"componentType":5126,
-			"count":734,
-			"type":"VEC3"
-		},
-		{
-			"bufferView":4,
-			"componentType":5123,
-			"count":1134,
-			"type":"SCALAR"
-		},
-		{
-			"bufferView":5,
-			"componentType":5126,
-			"count":734,
-			"max":[
-				2.8399434089660645,
-				2.6968142986297607,
-				6.285682201385498
-			],
-			"min":[
-				-2.8399434089660645,
-				-1.457421898841858,
-				-2.0299744606018066
-			],
-			"type":"VEC3"
-		},
-		{
-			"bufferView":6,
-			"componentType":5126,
-			"count":734,
-			"type":"VEC3"
-		},
-		{
-			"bufferView":7,
-			"componentType":5126,
-			"count":734,
-			"type":"VEC2"
-		},
-		{
-			"bufferView":8,
-			"componentType":5126,
-			"count":734,
-			"type":"VEC3"
-		}
-	],
-	"bufferViews":[
-		{
-			"buffer":0,
-			"byteLength":8808,
-			"byteOffset":0,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":8808,
-			"byteOffset":8808,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":5872,
-			"byteOffset":17616,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":8808,
-			"byteOffset":23488,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":2268,
-			"byteOffset":32296,
-			"target":34963
-		},
-		{
-			"buffer":0,
-			"byteLength":8808,
-			"byteOffset":34564,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":8808,
-			"byteOffset":43372,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":5872,
-			"byteOffset":52180,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":8808,
-			"byteOffset":58052,
-			"target":34962
-		}
-	],
-	"buffers":[
-		{
-			"byteLength":66860,
-			"uri":"hovercraft.bin"
-		}
-	]
+  "asset": {
+    "generator": "Khronos glTF Blender I/O v4.5.47",
+    "version": "2.0"
+  },
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Scene",
+      "nodes": [0, 1]
+    }
+  ],
+  "nodes": [
+    {
+      "mesh": 0,
+      "name": "hovercraft1",
+      "scale": [1, 0.35426604747772217, 1]
+    },
+    {
+      "mesh": 1,
+      "name": "hovercraft2",
+      "scale": [1, 0.35426604747772217, 1]
+    }
+  ],
+  "materials": [
+    {
+      "doubleSided": true,
+      "name": "Material",
+      "pbrMetallicRoughness": {
+        "metallicFactor": 0,
+        "roughnessFactor": 0.5
+      }
+    },
+    {
+      "doubleSided": true,
+      "name": "Material.001",
+      "pbrMetallicRoughness": {
+        "metallicFactor": 0,
+        "roughnessFactor": 0.5
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "name": "Cube.001",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 0,
+            "NORMAL": 1,
+            "TEXCOORD_0": 2,
+            "COLOR_0": 3
+          },
+          "indices": 4,
+          "material": 0
+        }
+      ]
+    },
+    {
+      "name": "Cube.002",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 5,
+            "NORMAL": 6,
+            "TEXCOORD_0": 7,
+            "COLOR_0": 8
+          },
+          "indices": 4,
+          "material": 1
+        }
+      ]
+    }
+  ],
+  "accessors": [
+    {
+      "bufferView": 0,
+      "componentType": 5126,
+      "count": 734,
+      "max": [2.8399434089660645, 2.6968142986297607, 6.285682201385498],
+      "min": [-2.8399434089660645, -1.457421898841858, -2.0299744606018066],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 734,
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 734,
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 3,
+      "componentType": 5126,
+      "count": 734,
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 4,
+      "componentType": 5123,
+      "count": 1134,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 5,
+      "componentType": 5126,
+      "count": 734,
+      "max": [2.8399434089660645, 2.6968142986297607, 6.285682201385498],
+      "min": [-2.8399434089660645, -1.457421898841858, -2.0299744606018066],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 6,
+      "componentType": 5126,
+      "count": 734,
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 7,
+      "componentType": 5126,
+      "count": 734,
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 8,
+      "componentType": 5126,
+      "count": 734,
+      "type": "VEC3"
+    }
+  ],
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 8808,
+      "byteOffset": 0,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 8808,
+      "byteOffset": 8808,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 5872,
+      "byteOffset": 17616,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 8808,
+      "byteOffset": 23488,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 2268,
+      "byteOffset": 32296,
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteLength": 8808,
+      "byteOffset": 34564,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 8808,
+      "byteOffset": 43372,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 5872,
+      "byteOffset": 52180,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 8808,
+      "byteOffset": 58052,
+      "target": 34962
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 66860,
+      "uri": "hovercraft.bin"
+    }
+  ]
 }

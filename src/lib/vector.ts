@@ -75,7 +75,7 @@ export class Vector3 {
     return new Vector3(
       this.y * that.z - this.z * that.y,
       this.z * that.x - this.x * that.z,
-      this.x * that.y - this.y * that.x
+      this.x * that.y - this.y * that.x,
     );
   }
 
@@ -88,7 +88,7 @@ export class Vector3 {
     return new Vector3(
       lerp(this.x, that.x, blend),
       lerp(this.y, that.y, blend),
-      lerp(this.z, that.z, blend)
+      lerp(this.z, that.z, blend),
     );
   }
 
@@ -145,7 +145,7 @@ export class Vector4 {
 
   get magnitude() {
     return Math.sqrt(
-      this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w
+      this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w,
     );
   }
 
@@ -162,7 +162,7 @@ export class Vector4 {
       this.x + that.x,
       this.y + that.y,
       this.z + that.z,
-      this.w + that.w
+      this.w + that.w,
     );
   }
 
@@ -171,7 +171,7 @@ export class Vector4 {
       this.x - that.x,
       this.y - that.y,
       this.z - that.z,
-      this.w - that.w
+      this.w - that.w,
     );
   }
 
@@ -180,7 +180,7 @@ export class Vector4 {
       this.x * factor,
       this.y * factor,
       this.z * factor,
-      this.w * factor
+      this.w * factor,
     );
   }
 
@@ -189,7 +189,7 @@ export class Vector4 {
       this.x * that.x,
       this.y * that.y,
       this.z * that.z,
-      this.w * that.w
+      this.w * that.w,
     );
   }
 
@@ -203,7 +203,7 @@ export class Vector4 {
       lerp(this.x, that.x, blend),
       lerp(this.y, that.y, blend),
       lerp(this.z, that.z, blend),
-      lerp(this.w, that.w, blend)
+      lerp(this.w, that.w, blend),
     );
   }
 }

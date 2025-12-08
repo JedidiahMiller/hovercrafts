@@ -10,8 +10,8 @@ export class HovercraftAudioEngine {
   private pauseTime: number = 0;
 
   // Audio parameters
-  private minPitch: number = 0.5;  // Pitch when stationary
-  private maxPitch: number = 3.0;  // Pitch at max speed
+  private minPitch: number = 0.5; // Pitch when stationary
+  private maxPitch: number = 3.0; // Pitch at max speed
   private minSpeed: number = 0;
   private maxSpeed: number = 500;
 
@@ -37,7 +37,7 @@ export class HovercraftAudioEngine {
     if (!this.audioBuffer || this.isPlaying) return;
 
     // Resume audio context if it's suspended (browser autoplay policy)
-    if (this.audioContext.state === 'suspended') {
+    if (this.audioContext.state === "suspended") {
       this.audioContext.resume();
     }
 
@@ -72,13 +72,15 @@ export class HovercraftAudioEngine {
     const speed = linearVelocity.magnitude;
 
     // Normalize speed to 0-1 range
-    const normalizedSpeed = Math.max(0, Math.min(1, 
-      (speed - this.minSpeed) / (this.maxSpeed - this.minSpeed)
-    ));
+    const normalizedSpeed = Math.max(
+      0,
+      Math.min(1, (speed - this.minSpeed) / (this.maxSpeed - this.minSpeed)),
+    );
 
     // Calculate pitch with slight easing for smoother transitions.
-    const pitch = this.minPitch + (this.maxPitch - this.minPitch) * normalizedSpeed;
-    
+    const pitch =
+      this.minPitch + (this.maxPitch - this.minPitch) * normalizedSpeed;
+
     this.sourceNode.playbackRate.value = pitch;
   }
 

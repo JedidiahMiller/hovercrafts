@@ -12,7 +12,7 @@ export class Field2 {
     width: number,
     height: number,
     values: number[],
-    textureScale: number = 1
+    textureScale: number = 1,
   ) {
     this.width = width;
     this.height = height;
@@ -26,7 +26,7 @@ export class Field2 {
 
   static readFromImage(
     image: HTMLImageElement,
-    textureScale: number = 1
+    textureScale: number = 1,
   ): Field2 {
     // Go through canvas to get the pixel data.
     const canvas = document.createElement("canvas");

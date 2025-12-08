@@ -9,7 +9,7 @@ export async function loadTextures() {
 async function createRgbaTexture2d(
   source: string,
   gl: WebGL2RenderingContext,
-  textureUnit: GLenum = gl.TEXTURE0
+  textureUnit: GLenum = gl.TEXTURE0,
 ) {
   const image = await fetchImage(source);
 

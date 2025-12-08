@@ -73,7 +73,7 @@ body {
   font-size: 30px;
   color: white;
   text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.8);
-  z-index: 12
+  z-index: 12;
 }
 
 #start,
@@ -92,7 +92,8 @@ body {
   z-index: 12;
 }
 
-#continue, #restart {
+#continue,
+#restart {
   display: none;
 }
 
@@ -104,7 +105,8 @@ body {
   transition: ease-in-out 0.1s;
 }
 
-#start, #continue {
+#start,
+#continue {
   top: 40%;
 }
 
@@ -112,7 +114,8 @@ body {
   top: 50%;
 }
 
-#player2laps, #player1laps {
+#player2laps,
+#player1laps {
   position: fixed;
   margin: 10px;
   z-index: 11;

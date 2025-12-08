@@ -89,7 +89,7 @@ async function initialize() {
   trackMeshes["track"].worldFromModel = trackTransform;
   trackMeshes["track"].shader = new ShaderProgram(
     terrainVertexSource,
-    terrainFragmentSource
+    terrainFragmentSource,
   );
   trackMeshes["track"].textureNumber = 2;
   trackMeshes["track"].applyUniformTextureCoordinates();
@@ -99,7 +99,7 @@ async function initialize() {
   trackMeshes["grass"].worldFromModel = trackTransform;
   trackMeshes["grass"].shader = new ShaderProgram(
     terrainVertexSource,
-    terrainFragmentSource
+    terrainFragmentSource,
   );
   trackMeshes["grass"].textureNumber = 1;
   trackMeshes["grass"].applyUniformTextureCoordinates();
@@ -109,14 +109,14 @@ async function initialize() {
   trackMeshes["decor"].worldFromModel = trackTransform;
   trackMeshes["decor"].shader = new ShaderProgram(
     simpleVertexSource,
-    simpleFragmentSource
+    simpleFragmentSource,
   );
   scene.meshes.push(trackMeshes["decor"]);
 
   trackMeshes["finish"].worldFromModel = trackTransform;
   trackMeshes["finish"].shader = new ShaderProgram(
     simpleVertexSource,
-    simpleFragmentSource
+    simpleFragmentSource,
   );
   scene.meshes.push(trackMeshes["finish"]);
 
@@ -129,14 +129,14 @@ async function initialize() {
   let hovercraftMesh1 = hovercraftMeshes["hovercraft1"];
   hovercraftMesh1.shader = new ShaderProgram(
     simpleVertexSource,
-    simpleFragmentSource
+    simpleFragmentSource,
   );
   scene.meshes.push(hovercraftMesh1);
 
   let hovercraftMesh2 = hovercraftMeshes["hovercraft2"];
   hovercraftMesh2.shader = new ShaderProgram(
     simpleVertexSource,
-    simpleFragmentSource
+    simpleFragmentSource,
   );
   scene.meshes.push(hovercraftMesh2);
 
@@ -144,12 +144,12 @@ async function initialize() {
   hovercraft1 = new Hovercraft(
     new Vector3(0, 50, -350),
     new Vector3(0, 0, -1),
-    hovercraftMesh1
+    hovercraftMesh1,
   );
   hovercraft2 = new Hovercraft(
     new Vector3(10, 50, -350),
     new Vector3(0, 0, -1),
-    hovercraftMesh2
+    hovercraftMesh2,
   );
 
   // Create the camera
@@ -158,7 +158,7 @@ async function initialize() {
     hovercraft1.direction,
     new Vector3(0, 1, 0),
     new Vector3(0, 8, 30),
-    new Vector3(-15, 0, 0)
+    new Vector3(-15, 0, 0),
   );
 
   camera2 = new ThirdPersonCamera(
@@ -166,7 +166,7 @@ async function initialize() {
     hovercraft2.direction,
     new Vector3(0, 1, 0),
     new Vector3(0, 8, 30),
-    new Vector3(-15, 0, 0)
+    new Vector3(-15, 0, 0),
   );
 
   // This essentially clears the audio cache to ensure the audio plays after reloading the game.
@@ -203,7 +203,7 @@ function update() {
     // Only apply input to player1 if they haven't finished the race
     if (!player1FinishedRace) {
       hovercraft1.linearAcceleration = hovercraft1.direction.scalarMultiply(
-        controls.player1Move * moveSpeed
+        controls.player1Move * moveSpeed,
       );
       hovercraft1.rotationalAcceleration.y = controls.player1Turn * turnSpeed;
     } else {
@@ -215,7 +215,7 @@ function update() {
     // Only apply input to player2 if they haven't finished the race
     if (!player2FinishedRace) {
       hovercraft2.linearAcceleration = hovercraft2.direction.scalarMultiply(
-        controls.player2Move * moveSpeed
+        controls.player2Move * moveSpeed,
       );
       hovercraft2.rotationalAcceleration.y = controls.player2Turn * turnSpeed;
     } else {
@@ -265,29 +265,31 @@ function update() {
     const finishLineX = 1300;
     const finishLineZMin = -460;
     const finishLineZMax = -190;
-    
-    if (!player1FinishedRace &&
-        player1PassedCheckpoint &&
-        player1PreviousX < finishLineX &&
-        hovercraft1.position.x >= finishLineX &&
-        hovercraft1.position.z >= finishLineZMin &&
-        hovercraft1.position.z <= finishLineZMax) {
+
+    if (
+      !player1FinishedRace &&
+      player1PassedCheckpoint &&
+      player1PreviousX < finishLineX &&
+      hovercraft1.position.x >= finishLineX &&
+      hovercraft1.position.z >= finishLineZMin &&
+      hovercraft1.position.z <= finishLineZMax
+    ) {
       player1Laps++;
       console.log(`Player 1 completed lap ${player1Laps}!`);
       if (player1LapsDisplay) {
         player1LapsDisplay.textContent = `${player1Laps}/3 LAPS`;
       }
-      
+
       // Reset checkpoint for next lap
       player1PassedCheckpoint = false;
-      
+
       // Check if player finished 3 laps
       if (player1Laps >= 3) {
         console.log("Player 1 finished the race!");
         player1FinishedRace = true;
       }
     }
-    
+
     player1PreviousX = hovercraft1.position.x;
 
     // Check if player 2 passed the checkpoint
@@ -297,28 +299,30 @@ function update() {
     }
 
     // Check if player 2 crossed the finish line
-    if (!player2FinishedRace &&
-        player2PassedCheckpoint &&
-        player2PreviousX < finishLineX &&
-        hovercraft2.position.x >= finishLineX &&
-        hovercraft2.position.z >= finishLineZMin &&
-        hovercraft2.position.z <= finishLineZMax) {
+    if (
+      !player2FinishedRace &&
+      player2PassedCheckpoint &&
+      player2PreviousX < finishLineX &&
+      hovercraft2.position.x >= finishLineX &&
+      hovercraft2.position.z >= finishLineZMin &&
+      hovercraft2.position.z <= finishLineZMax
+    ) {
       player2Laps++;
       console.log(`Player 2 completed lap ${player2Laps}!`);
       if (player2LapsDisplay) {
         player2LapsDisplay.textContent = `${player2Laps}/3 LAPS`;
       }
-      
+
       // Reset checkpoint for next lap
       player2PassedCheckpoint = false;
-      
+
       // Check if player finished 3 laps
       if (player2Laps >= 3) {
         console.log("Player 2 finished the race!");
         player2FinishedRace = true;
       }
     }
-    
+
     player2PreviousX = hovercraft2.position.x;
 
     // Update the camera
@@ -367,12 +371,12 @@ function update() {
 
       // Update and format the timer.
       const formatted = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.${String(milliseconds).padStart(2, "0")}`;
-      
+
       // Only update player2 timer if they haven't finished the race
       if (!player2FinishedRace) {
         player2Timer.textContent = formatted;
       }
-      
+
       // Only update player1 timer if they haven't finished the race
       if (!player1FinishedRace) {
         player1Timer.textContent = formatted;
@@ -385,7 +389,7 @@ function updateFOV(velocity: number): number {
   const baseFOV = 50;
   const maxFOV = 75;
   const maxVelocity = 500;
-  
+
   // Clamp velocity and calculate FOV increase
   const normalizedVelocity = Math.min(velocity, maxVelocity) / maxVelocity;
   return baseFOV + (maxFOV - baseFOV) * normalizedVelocity;
@@ -395,17 +399,17 @@ function render() {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.SCISSOR_TEST);
-  
+
   // Update FOV for player 1 based on velocity
   const fov1 = updateFOV(hovercraft1.linearVelocity.magnitude);
   clipFromEye1 = Matrix4.perspective(
     fov1,
     canvas.clientWidth / (canvas.clientHeight / 2),
     1,
-    50000
+    50000,
   );
   scene.clipFromEye = clipFromEye1;
-  
+
   gl.viewport(0, 0, canvas.width, canvas.height / 2);
   gl.scissor(0, 0, canvas.width, canvas.height / 2);
 
@@ -421,10 +425,10 @@ function render() {
     fov2,
     canvas.clientWidth / (canvas.clientHeight / 2),
     1,
-    50000
+    50000,
   );
   scene.clipFromEye = clipFromEye2;
-  
+
   gl.viewport(0, canvas.height / 2, canvas.width, canvas.height / 2);
   gl.scissor(0, canvas.height / 2, canvas.width, canvas.height / 2);
 

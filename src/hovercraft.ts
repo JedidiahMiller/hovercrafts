@@ -54,16 +54,16 @@ export class Hovercraft {
 
     // Drag
     this.linearAcceleration = this.linearAcceleration.add(
-      this.linearVelocity.scalarMultiply(-this.airResistance)
+      this.linearVelocity.scalarMultiply(-this.airResistance),
     );
     this.rotationalVelocity = this.rotationalVelocity.scalarMultiply(
-      1 - elapsedSeconds * 0.75
+      1 - elapsedSeconds * 0.75,
     );
     // TODO: Slow do sideways drift
 
     // Velocity
     this.linearVelocity = this.linearVelocity.add(
-      this.linearAcceleration.scalarMultiply(elapsedSeconds)
+      this.linearAcceleration.scalarMultiply(elapsedSeconds),
     );
     this.rotationalVelocity.y +=
       this.rotationalAcceleration.y * elapsedSeconds * 100;
@@ -76,7 +76,7 @@ export class Hovercraft {
     for (const terrainMesh of terrainMeshes) {
       const hit = terrainMesh.mesh.raycastMesh(
         this.position,
-        new Vector3(0, -1, 0)
+        new Vector3(0, -1, 0),
       );
       if (hit) {
         terrainSpeed = terrainMesh.speed;
@@ -87,7 +87,7 @@ export class Hovercraft {
           // Get the ground normal in world space
           let groundNormal = terrainMesh.mesh.getTriangleNormal(
             hit.triangle,
-            true
+            true,
           )!;
 
           const degreeConversion = 180 / Math.PI;
@@ -129,7 +129,7 @@ export class Hovercraft {
 
     // Apply the movements
     this.position = this.position.add(
-      this.linearVelocity.scalarMultiply(elapsedSeconds)
+      this.linearVelocity.scalarMultiply(elapsedSeconds),
     );
 
     // Barrier collision detection
@@ -151,7 +151,7 @@ export class Hovercraft {
     this.mesh.worldFromModel = Matrix4.translate(
       this.position.x,
       this.position.y,
-      this.position.z
+      this.position.z,
     )
       .multiplyMatrix(Matrix4.rotateX(this.rotation.x))
       .multiplyMatrix(Matrix4.rotateZ(this.rotation.z))
@@ -233,7 +233,7 @@ export class Hovercraft {
 
       // Push position back onto the correct side
       this.position = this.position.add(
-        worldNormal.scalarMultiply(closestPenetration * 1.1)
+        worldNormal.scalarMultiply(closestPenetration * 1.1),
       );
 
       // Dampen velocity component that's going into the wall
@@ -241,7 +241,7 @@ export class Hovercraft {
       if (velocityDotNormal < 0) {
         // Remove the component going into the wall
         this.linearVelocity = this.linearVelocity.subtract(
-          worldNormal.scalarMultiply(velocityDotNormal * 1.1)
+          worldNormal.scalarMultiply(velocityDotNormal * 1.1),
         );
       }
     }
@@ -251,7 +251,7 @@ export class Hovercraft {
     p: Vector3,
     a: Vector3,
     b: Vector3,
-    c: Vector3
+    c: Vector3,
   ): Vector3 {
     // Compute vectors
     const ab = b.subtract(a);

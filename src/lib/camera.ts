@@ -22,7 +22,7 @@ export class ThirdPersonCamera implements Camera {
     targetForward: Vector3,
     worldUp: Vector3,
     offset: Vector3,
-    cameraRotation: Vector3 = new Vector3(0, 0, 0)
+    cameraRotation: Vector3 = new Vector3(0, 0, 0),
   ) {
     this.target = target;
     this.targetForward = targetForward.normalize();
@@ -52,14 +52,14 @@ export class ThirdPersonCamera implements Camera {
     // Apply rotation offsets
     direction = Matrix4.rotateAround(
       this.worldUp.cross(direction),
-      this.cameraRotation.x
+      this.cameraRotation.x,
     ).multiplyVector3(direction);
     direction = Matrix4.rotateY(this.cameraRotation.y).multiplyVector3(
-      direction
+      direction,
     );
     direction = Matrix4.rotateAround(
       direction,
-      this.cameraRotation.z
+      this.cameraRotation.z,
     ).multiplyVector3(direction);
 
     this.forward = direction.normalize();

@@ -395,7 +395,7 @@ interface ActiveAnimation {
 
 const getPreviousAndNextKeyFrame = (
   keyFrames: KeyFrame[],
-  animationTime: number
+  animationTime: number,
 ) => {
   let next = keyFrames[0];
   let previous = keyFrames[0];
@@ -434,14 +434,14 @@ const getTransform = (keyFrames: KeyFrame[], duration: number) => {
     case "scale": {
       const result = (frames.previous.transform as Vector3).lerp(
         frames.next.transform as Vector3,
-        progression
+        progression,
       );
       return result;
     }
     case "rotation": {
       const result = (frames.previous.transform as Quaternion).slerp(
         frames.next.transform as Quaternion,
-        progression
+        progression,
       );
       return result;
     }
@@ -500,7 +500,7 @@ async function getTexture(gl: WebGL2RenderingContext, uri: string) {
       gl.texParameteri(
         gl.TEXTURE_2D,
         gl.TEXTURE_MIN_FILTER,
-        gl.LINEAR_MIPMAP_LINEAR
+        gl.LINEAR_MIPMAP_LINEAR,
       );
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
@@ -521,7 +521,7 @@ async function getTexture(gl: WebGL2RenderingContext, uri: string) {
 function extractBuffer(
   gltf: json.Root,
   buffers: ArrayBuffer[],
-  accessor: json.Accessor
+  accessor: json.Accessor,
 ): FloatBuffer | IntBuffer {
   const bufferView = gltf.bufferViews![accessor.bufferView as number];
   // How many numbers is each sample?
@@ -536,7 +536,7 @@ function extractBuffer(
     buffer = new Float32Array(
       buffers[bufferView.buffer],
       offset,
-      accessor.count * componentCount
+      accessor.count * componentCount,
     );
     return {
       componentCount,
@@ -549,7 +549,7 @@ function extractBuffer(
     buffer = new Uint32Array(
       buffers[bufferView.buffer],
       offset,
-      accessor.count * componentCount
+      accessor.count * componentCount,
     );
     return {
       componentCount,
@@ -562,7 +562,7 @@ function extractBuffer(
     buffer = new Uint16Array(
       buffers[bufferView.buffer],
       offset,
-      accessor.count * componentCount
+      accessor.count * componentCount,
     );
     return {
       componentCount,
@@ -575,7 +575,7 @@ function extractBuffer(
     buffer = new Uint8Array(
       buffers[bufferView.buffer],
       offset,
-      accessor.count * componentCount
+      accessor.count * componentCount,
     );
     return {
       componentCount,
@@ -598,7 +598,7 @@ function extractNamedBuffer(
   gltf: json.Root,
   buffers: ArrayBuffer[],
   mesh: json.Mesh,
-  name: string
+  name: string,
 ) {
   if (mesh.primitives[0].attributes[name] === undefined) {
     return null;
@@ -623,7 +623,7 @@ function extractNodes(index: number, node: json.Node): Node {
       transform = Matrix4.scale(
         node.scale[0],
         node.scale[1],
-        node.scale[2]
+        node.scale[2],
       ).multiplyMatrix(transform);
     }
 
@@ -632,7 +632,7 @@ function extractNodes(index: number, node: json.Node): Node {
         node.rotation[0],
         node.rotation[1],
         node.rotation[2],
-        node.rotation[3]
+        node.rotation[3],
       )
         .toMatrix4()
         .multiplyMatrix(transform);
@@ -642,7 +642,7 @@ function extractNodes(index: number, node: json.Node): Node {
       transform = Matrix4.translate(
         node.translation[0],
         node.translation[1],
-        node.translation[2]
+        node.translation[2],
       ).multiplyMatrix(transform);
     }
   }
@@ -661,7 +661,7 @@ function extractNodes(index: number, node: json.Node): Node {
 function extractAnimation(
   gltf: json.Root,
   animation: json.Animation,
-  buffers: ArrayBuffer[]
+  buffers: ArrayBuffer[],
 ) {
   const channels = animation.channels.map((c) => {
     const sampler = animation.samplers[c.sampler];
@@ -669,7 +669,7 @@ function extractAnimation(
     const buffer = extractBuffer(
       gltf,
       buffers,
-      gltf.accessors![sampler.output]
+      gltf.accessors![sampler.output],
     );
 
     return {
@@ -707,12 +707,12 @@ function extractAnimation(
               channel.buffer.buffer[i * size + offset],
               channel.buffer.buffer[i * size + offset + 1],
               channel.buffer.buffer[i * size + offset + 2],
-              channel.buffer.buffer[i * size + offset + 3]
+              channel.buffer.buffer[i * size + offset + 3],
             )
           : new Vector3(
               channel.buffer.buffer[i * size + offset],
               channel.buffer.buffer[i * size + offset + 1],
-              channel.buffer.buffer[i * size + offset + 2]
+              channel.buffer.buffer[i * size + offset + 2],
             );
 
       c[channel.node!][channel.type].push({
@@ -738,7 +738,7 @@ function extractMesh(gltf: json.Root, mesh: json.Mesh, buffers: ArrayBuffer[]) {
     const indexBuffer = extractBuffer(
       gltf,
       buffers,
-      indexAccessor
+      indexAccessor,
     ) as IntBuffer;
     indices = {
       buffer: indexBuffer.buffer,
@@ -789,7 +789,7 @@ export class Model {
 
     // Read in all external buffers, like textures.
     const bufferPromises = gltf.buffers.map((buffer) =>
-      readExternalBuffer(url, buffer.uri!)
+      readExternalBuffer(url, buffer.uri!),
     );
     const buffers = await Promise.all(bufferPromises);
 
@@ -809,7 +809,7 @@ export class Model {
         model.animations[animation.name] = extractAnimation(
           gltf,
           animation,
-          buffers
+          buffers,
         );
       }
     }
@@ -819,12 +819,12 @@ export class Model {
         const bindTransforms = extractBuffer(
           gltf,
           buffers,
-          gltf.accessors![skin.inverseBindMatrices!]
+          gltf.accessors![skin.inverseBindMatrices!],
         ) as FloatBuffer;
         const inverseBindTransforms = skin.joints.map((_, i) => {
           const matrix = new Matrix4();
           matrix.elements = new Float32Array(
-            bindTransforms.buffer.slice(i * 16, i * 16 + 16)
+            bindTransforms.buffer.slice(i * 16, i * 16 + 16),
           );
           return matrix;
         });
@@ -866,7 +866,7 @@ export class Model {
         let c = parseInt(key);
         const transform = get(
           this.animations[rootAnimation.key][c],
-          rootAnimation.elapsed
+          rootAnimation.elapsed,
         );
 
         for (let animation of this.activeAnimations) {
@@ -874,7 +874,7 @@ export class Model {
 
           const cTransform = get(
             this.animations[animation.key][c],
-            animation.elapsed
+            animation.elapsed,
           );
           transform.t = transform.t.lerp(cTransform.t, blend);
           transform.r = transform.r.slerp(cTransform.r, blend);
@@ -886,11 +886,11 @@ export class Model {
 
         localTransform = localTransform
           .multiplyMatrix(
-            Matrix4.translate(transform.t.x, transform.t.y, transform.t.z)
+            Matrix4.translate(transform.t.x, transform.t.y, transform.t.z),
           )
           .multiplyMatrix(rotTransform)
           .multiplyMatrix(
-            Matrix4.scale(transform.s.x, transform.s.y, transform.s.z)
+            Matrix4.scale(transform.s.x, transform.s.y, transform.s.z),
           );
 
         transforms[c] = localTransform;
@@ -911,7 +911,7 @@ export class Model {
         Matrix4.identity(),
         skin,
         this.rootNode,
-        inverse
+        inverse,
       );
     }
     return appliedTransforms;
@@ -923,7 +923,7 @@ export class Model {
     parentTransform: Matrix4,
     skin: Skin,
     nodeIndex: number,
-    inverse: boolean
+    inverse: boolean,
   ) {
     const node = this.nodes[nodeIndex];
     const transformIndex = skin.joints.indexOf(node.id);
@@ -950,7 +950,7 @@ export class Model {
         childTransform,
         skin,
         childNode,
-        inverse
+        inverse,
       );
     });
   }

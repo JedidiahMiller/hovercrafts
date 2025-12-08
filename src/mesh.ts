@@ -28,7 +28,7 @@ export class Mesh {
   private constructor(
     name: string,
     positions: FloatBuffer,
-    indices: IntBuffer
+    indices: IntBuffer,
   ) {
     this.name = name;
     this.positions = positions;
@@ -89,7 +89,7 @@ export class Mesh {
       "position",
       this.positions.count,
       3,
-      this.positions.buffer
+      this.positions.buffer,
     );
 
     // Add normals if they exist
@@ -98,7 +98,7 @@ export class Mesh {
         "normal",
         this.normals.count,
         3,
-        this.normals.buffer
+        this.normals.buffer,
       );
     }
 
@@ -108,7 +108,7 @@ export class Mesh {
         "color",
         this.colors!.count,
         3,
-        this.colors!.buffer
+        this.colors!.buffer,
       );
     }
 
@@ -118,7 +118,7 @@ export class Mesh {
         "texPosition",
         this.textureCoordinates!.length / 2,
         2,
-        this.textureCoordinates!
+        this.textureCoordinates!,
       );
     }
 
@@ -199,12 +199,12 @@ export class Mesh {
     const modelHit = this.vec3(
       modelRayOrigin[0] + modelRayDir[0] * bestT,
       modelRayOrigin[1] + modelRayDir[1] * bestT,
-      modelRayOrigin[2] + modelRayDir[2] * bestT
+      modelRayOrigin[2] + modelRayDir[2] * bestT,
     );
 
     // convert fully to world space
     const worldHit = M.multiplyVector3(
-      new Vector3(modelHit[0], modelHit[1], modelHit[2])
+      new Vector3(modelHit[0], modelHit[1], modelHit[2]),
     );
 
     const hit: Hit = {
@@ -222,7 +222,7 @@ export class Mesh {
     direction: Float32Array,
     a: Float32Array,
     b: Float32Array,
-    c: Float32Array
+    c: Float32Array,
   ) {
     const e1 = this.sub(b, a);
     const e2 = this.sub(c, a);
@@ -258,7 +258,7 @@ export class Mesh {
     return this.vec3(
       a[1] * b[2] - a[2] * b[1],
       a[2] * b[0] - a[0] * b[2],
-      a[0] * b[1] - a[1] * b[0]
+      a[0] * b[1] - a[1] * b[0],
     );
   }
 }

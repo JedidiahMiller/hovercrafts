@@ -29,7 +29,6 @@ export class Controls {
 
     // WASD + QE
     window.addEventListener("keydown", (e) => {
-
       switch (e.key) {
         case "w":
           this.player1Move = 1;
@@ -67,7 +66,6 @@ export class Controls {
     });
 
     window.addEventListener("keyup", (e) => {
-
       switch (e.key) {
         case "w":
         case "s":
@@ -107,9 +105,9 @@ export class Controls {
       const player1reset = player1Pad.buttons[1]; // B on Xbox
 
       if (player1reset.pressed) {
-          if (!this.resetGame) {
-            this.resetGame = !this.resetGame;
-          }
+        if (!this.resetGame) {
+          this.resetGame = !this.resetGame;
+        }
       }
 
       // triggers (analog on most controllers)
