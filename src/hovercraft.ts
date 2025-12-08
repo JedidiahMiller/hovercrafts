@@ -21,8 +21,11 @@ export class Hovercraft {
   private gravity = 50;
   private groundCollisionDistance = 1;
   private groundHoverDistance = 7;
+  private groundEffectDistance = 7;
   private scale = new Vector3(2.5, 1.2, 2.5);
   private lastSoundTime;
+  private sidewaysFriction = 0.75; // 0-1, low to high friction
+  private bounceFactor = 0.2;
 
   constructor(position: Vector3, direction: Vector3, mesh: Mesh) {
     this.direction = direction;
@@ -31,7 +34,9 @@ export class Hovercraft {
     this.linearVelocity = new Vector3(0, 0, 0);
     this.linearAcceleration = new Vector3(0, 0, 0);
 
-    this.rotation = new Vector3(0, 0, 0);
+    // Calculate initial rotation.y from direction vector
+    const rotationY = Math.atan2(direction.x, -direction.z) * (180 / Math.PI);
+    this.rotation = new Vector3(0, rotationY, 0);
     this.rotationalVelocity = new Vector3(0, 0, 0);
     this.rotationalAcceleration = new Vector3(0, 0, 0);
 
@@ -49,34 +54,13 @@ export class Hovercraft {
     const now = performance.now() / 1000;
     const elapsedSeconds = now - this.lastPhysicsUpdate;
 
-    // Gravity
-    this.linearAcceleration.y = -this.gravity;
-
-    // Drag
-    this.linearAcceleration = this.linearAcceleration.add(
-      this.linearVelocity.scalarMultiply(-this.airResistance),
-    );
-    this.rotationalVelocity = this.rotationalVelocity.scalarMultiply(
-      1 - elapsedSeconds * 0.75,
-    );
-    // TODO: Slow do sideways drift
-
-    // Velocity
-    this.linearVelocity = this.linearVelocity.add(
-      this.linearAcceleration.scalarMultiply(elapsedSeconds),
-    );
-    this.rotationalVelocity.y +=
-      this.rotationalAcceleration.y * elapsedSeconds * 100;
-
-    // Apply collisions
-
     // Find the height and the terrain type
     let terrainSpeed = 0;
     let distanceToGround = Infinity;
     for (const terrainMesh of terrainMeshes) {
       const hit = terrainMesh.mesh.raycastMesh(
         this.position,
-        new Vector3(0, -1, 0),
+        new Vector3(0, -1, 0)
       );
       if (hit) {
         terrainSpeed = terrainMesh.speed;
@@ -87,7 +71,7 @@ export class Hovercraft {
           // Get the ground normal in world space
           let groundNormal = terrainMesh.mesh.getTriangleNormal(
             hit.triangle,
-            true,
+            true
           )!;
 
           const degreeConversion = 180 / Math.PI;
@@ -105,6 +89,48 @@ export class Hovercraft {
         this.rotation.z = this.rotation.z * (1 - 0.6 * elapsedSeconds);
       }
     }
+
+    // Gravity
+    this.linearAcceleration.y = -this.gravity;
+
+    // General air drag
+    this.linearAcceleration = this.linearAcceleration.add(
+      this.linearVelocity.scalarMultiply(-this.airResistance)
+    );
+    this.rotationalVelocity = this.rotationalVelocity.scalarMultiply(
+      1 - elapsedSeconds * 0.75
+    );
+
+    // Sideways friction - converts sideways drift into forward momentum
+    if (distanceToGround < this.groundEffectDistance) {
+      const forwardSpeed = this.linearVelocity.dot(this.direction);
+      const forwardVelocity = this.direction.scalarMultiply(forwardSpeed);
+      const sidewaysVelocity = this.linearVelocity.subtract(forwardVelocity);
+
+      // Calculate how much sideways velocity is lost to friction
+      const frictionAmount = this.sidewaysFriction * elapsedSeconds;
+      const sidewaysLoss = sidewaysVelocity.scalarMultiply(frictionAmount);
+      const sidewaysLossMagnitude = sidewaysLoss.magnitude;
+
+      // Convert half of lost sideways momentum into forward speed
+      const forwardBoost = this.direction.scalarMultiply(
+        sidewaysLossMagnitude * 0.5
+      );
+
+      // Apply reduced sideways velocity + forward boost
+      this.linearVelocity = forwardVelocity
+        .add(forwardBoost)
+        .add(sidewaysVelocity.scalarMultiply(1 - frictionAmount));
+    }
+
+    // Velocity
+    this.linearVelocity = this.linearVelocity.add(
+      this.linearAcceleration.scalarMultiply(elapsedSeconds)
+    );
+    this.rotationalVelocity.y +=
+      this.rotationalAcceleration.y * elapsedSeconds * 100;
+
+    // Apply collisions
 
     // Ground spring force
     const k = 200; // Sprint constant
@@ -124,12 +150,26 @@ export class Hovercraft {
       distanceToGround < this.groundCollisionDistance &&
       this.linearVelocity.y < 0
     ) {
-      this.linearVelocity.y = Math.abs(this.linearVelocity.y) * 0.3;
+      this.linearVelocity.y =
+        Math.abs(this.linearVelocity.y) * this.bounceFactor;
+    }
+
+    // Apply terrain speed modifier (only affects horizontal velocity when on ground)
+    if (distanceToGround < this.groundHoverDistance && terrainSpeed !== 0) {
+      const horizontalVelocity = new Vector3(
+        this.linearVelocity.x,
+        0,
+        this.linearVelocity.z
+      );
+      const terrainDrag = 1 - (1 - terrainSpeed) * elapsedSeconds * 2;
+      const modifiedHorizontal = horizontalVelocity.scalarMultiply(terrainDrag);
+      this.linearVelocity.x = modifiedHorizontal.x;
+      this.linearVelocity.z = modifiedHorizontal.z;
     }
 
     // Apply the movements
     this.position = this.position.add(
-      this.linearVelocity.scalarMultiply(elapsedSeconds),
+      this.linearVelocity.scalarMultiply(elapsedSeconds)
     );
 
     // Barrier collision detection
@@ -148,14 +188,22 @@ export class Hovercraft {
     this.lastPhysicsUpdate = now;
 
     // Update the mesh
+
+    // Fancy tilts
+
+    const turn = this.rotationalVelocity.y * 0.25;
+    const lean = this.rotationalVelocity.y * 0.5;
+
     this.mesh.worldFromModel = Matrix4.translate(
       this.position.x,
       this.position.y,
-      this.position.z,
+      this.position.z
     )
       .multiplyMatrix(Matrix4.rotateX(this.rotation.x))
       .multiplyMatrix(Matrix4.rotateZ(this.rotation.z))
       .multiplyMatrix(Matrix4.rotateY(this.rotation.y))
+      .multiplyMatrix(Matrix4.rotateY(turn))
+      .multiplyMatrix(Matrix4.rotateZ(-lean))
       .multiplyMatrix(Matrix4.scale(this.scale.x, this.scale.y, this.scale.z));
   }
 
@@ -203,7 +251,6 @@ export class Hovercraft {
 
       // Check if we're close enough to this triangle
       if (distanceToTriangle < collisionRadius) {
-        console.log("Hitting barrier", distanceToTriangle);
         // Check if we're on the wrong side (behind the normal)
         const dot = toHovercraft.normalize().dot(triangleNormal);
 
@@ -233,7 +280,7 @@ export class Hovercraft {
 
       // Push position back onto the correct side
       this.position = this.position.add(
-        worldNormal.scalarMultiply(closestPenetration * 1.1),
+        worldNormal.scalarMultiply(closestPenetration * (1 + this.bounceFactor))
       );
 
       // Dampen velocity component that's going into the wall
@@ -241,7 +288,9 @@ export class Hovercraft {
       if (velocityDotNormal < 0) {
         // Remove the component going into the wall
         this.linearVelocity = this.linearVelocity.subtract(
-          worldNormal.scalarMultiply(velocityDotNormal * 1.1),
+          worldNormal.scalarMultiply(
+            velocityDotNormal * (1 + this.bounceFactor)
+          )
         );
       }
     }
@@ -251,7 +300,7 @@ export class Hovercraft {
     p: Vector3,
     a: Vector3,
     b: Vector3,
-    c: Vector3,
+    c: Vector3
   ): Vector3 {
     // Compute vectors
     const ab = b.subtract(a);

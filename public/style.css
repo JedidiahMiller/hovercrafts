@@ -2,32 +2,56 @@ body {
   margin: 0;
 }
 
-#canvas {
+#game {
+  display: none;
   position: fixed;
+  top: 0;
   left: 0;
-  right: 0;
-  width: 100%;
+  width: 100vw;
   height: 100vh;
   z-index: 0;
 }
 
-.controls {
+#canvas {
   position: absolute;
-  top: 5px;
-  right: 5px;
-  display: grid;
-  grid-template-columns: auto auto;
-  grid-gap: 2px 5px;
-  justify-items: end;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+#gameOverlays {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
   z-index: 10;
+}
+
+.playerOverlay {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  pointer-events: none;
+}
+
+#player1 {
+  top: 0;
+}
+
+#player2 {
+  bottom: 0;
 }
 
 #player2time,
 #player1time,
 #speed2,
 #speed1 {
-  display: none;
-  position: fixed;
+  position: absolute;
   left: 50%;
   transform: translateX(-50%);
   font-family: "Press Start 2P", system-ui;
@@ -35,22 +59,17 @@ body {
   color: white;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
   pointer-events: none;
-  z-index: 10;
-  margin-top: 20px;
+  margin: 0;
 }
 
-#player1time {
-  top: 50%;
+#player1time,
+#player2time {
+  top: 20px;
 }
 
+#speed1,
 #speed2 {
-  bottom: 50%;
-  margin-top: 0px;
-}
-
-#speed1 {
-  bottom: 0%;
-  margin-top: 0px;
+  bottom: 20px;
 }
 
 #menu {
@@ -92,15 +111,19 @@ body {
   z-index: 12;
 }
 
+#pauseMenu {
+  display: none;
+}
+
 #continue,
 #restart {
-  display: none;
+  display: block;
 }
 
 #start:hover,
 #restart:hover,
 #continue:hover {
-  color: gray;
+  color: lightgray;
   border-color: gray;
   transition: ease-in-out 0.1s;
 }
@@ -116,15 +139,12 @@ body {
 
 #player2laps,
 #player1laps {
-  position: fixed;
-  margin: 10px;
-  z-index: 11;
+  position: absolute;
+  top: 20px;
+  left: 20px;
   font-family: "Press Start 2P", system-ui;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
   color: white;
-  display: none;
-}
-
-#player1laps {
-  top: 50%;
+  pointer-events: none;
+  margin: 0;
 }

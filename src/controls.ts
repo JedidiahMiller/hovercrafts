@@ -10,15 +10,6 @@ export class Controls {
   useGamepad = false;
 
   constructor() {
-    // const canvas = document.getElementById("canvas") as HTMLCanvasElement;
-    // canvas.addEventListener("click", () => canvas.requestPointerLock());
-    // window.addEventListener("mousemove", (e) => {
-    //   if (document.pointerLockElement === canvas) {
-    //     input.yaw = -e.movementX * 0.15;
-    //     input.pitch = -e.movementY * 0.15; // ignored for now
-    //   }
-    // });
-
     window.addEventListener("gamepadconnected", () => {
       this.useGamepad = true;
     });

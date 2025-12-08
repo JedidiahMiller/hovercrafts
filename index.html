@@ -2,7 +2,6 @@
 <html lang="en">
   <head>
     <title>Hovercrafts</title>
-    <link rel="icon" href="data:," />
     <link rel="stylesheet" href="/style.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -10,20 +9,33 @@
       href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
       rel="stylesheet"
     />
+    <script type="module" src="src/main.ts"></script>
   </head>
   <body>
-    <canvas id="canvas"></canvas>
-    <script type="module" src="src/main.ts"></script>
-    <div id="menu"></div>
-    <h1 id="gameTitle"><em>HOVERCRAFTS</em></h1>
-    <button type="button" id="start">Start</button>
-    <button type="button" id="continue">Continue</button>
-    <button type="button" id="restart">Restart</button>
-    <p id="player2time">00:00:00.00</p>
-    <p id="player1time">00:00:00.00</p>
-    <p id="speed2">0 MPH</p>
-    <p id="speed1">0 MPH</p>
-    <p id="player2laps">0/3 LAPS</p>
-    <p id="player1laps">0/3 LAPS</p>
+    <div id="menu">
+      <h1 id="gameTitle"><em>HOVERCRAFTS</em></h1>
+      <button type="button" id="start">Start</button>
+    </div>
+
+    <div id="game">
+      <canvas id="canvas"></canvas>
+      <div id="gameOverlays">
+        <div id="player1" class="playerOverlay">
+          <p id="player1time">00:00:00.00</p>
+          <p id="speed1">0 MPH</p>
+          <p id="player1laps">0/3 LAPS</p>
+        </div>
+        <div id="player2" class="playerOverlay">
+          <p id="player2time">00:00:00.00</p>
+          <p id="speed2">0 MPH</p>
+          <p id="player2laps">0/3 LAPS</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="pauseMenu">
+      <button type="button" id="continue">Continue</button>
+      <button type="button" id="restart">Restart</button>
+    </div>
   </body>
 </html>
