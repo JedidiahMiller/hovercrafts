@@ -109,6 +109,8 @@ async function initialize() {
   trackMeshes["grass"].textureScale = [500, 500];
   scene.groundMeshes.push(new TerrainMesh(trackMeshes["grass"], 0));
 
+  await scene.initializeTallGrass();
+
   trackMeshes["decor"].worldFromModel = trackTransform;
   trackMeshes["decor"].shader = new ShaderProgram(
     simpleVertexSource,

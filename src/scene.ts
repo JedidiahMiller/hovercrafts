@@ -8,8 +8,10 @@ import { Mesh } from "./mesh.js";
 import { TerrainMesh } from "./terrain.js";
 import skyboxVertexSource from "@/shaders/skybox-vertex.glsl?raw";
 import skyboxFragmentSource from "@/shaders/skybox-fragment.glsl?raw";
+import tallgrassVertexSource from "@/shaders/tallgrass-vertex.glsl?raw";
+import tallgrassFragmentSource from "@/shaders/tallgrass-fragment.glsl?raw";
 import { ShaderProgram } from "./lib/shader-program.js";
-import { loadCubemap } from "./lib/web-utilities.js";
+import { loadCubemap, fetchImage } from "./lib/web-utilities.js";
 import { Prefab } from "./lib/prefab.js";
 
 export class Scene {
@@ -22,6 +24,11 @@ export class Scene {
   skyboxShader?: ShaderProgram;
   skyboxVAO?: VertexArray;
   skyboxInitialized = false;
+
+  tallGrassShader?: ShaderProgram;
+  tallGrassVAO?: VertexArray;
+  tallGrassTexture?: WebGLTexture;
+  tallGrassInitialized = false;
 
   constructor(clipFromEye: Matrix4, worldLightPosition?: Vector3) {
     this.worldLightPosition = worldLightPosition;
@@ -64,15 +71,124 @@ export class Scene {
     }
   }
 
-  /**
-   * Render the scene
-   *
-   * @param shader The shader program to use
-   * @param vao The vertex array to use
-   * @param camera The camera to use
-   * @param worldFromModel The world-from-model matrix
-   * @param texture The texture to use
-   */
+  async initializeTallGrass() {
+    try {
+      // Load tall grass texture
+      const grassImage = await fetchImage("/textures/tallGrass.png");
+      
+      gl.activeTexture(gl.TEXTURE4);
+      this.tallGrassTexture = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, this.tallGrassTexture);
+      gl.texImage2D(
+        gl.TEXTURE_2D,
+        0,
+        gl.RGBA,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        grassImage
+      );
+      gl.generateMipmap(gl.TEXTURE_2D);
+      
+      this.tallGrassShader = new ShaderProgram(
+        tallgrassVertexSource,
+        tallgrassFragmentSource
+      );
+      
+      // Generate random grass positions across the entire map
+      const grassCount = 1000;
+      const positions: number[] = [];
+      const texPositions: number[] = [];
+      const indices: number[] = [];
+      
+      for (let i = 0; i < grassCount; i++) {
+        let validPosition = false;
+        let x = 0, y = 0, z = 0;
+        
+        // Try to find a valid position
+        let attempts = 0;
+        while (!validPosition && attempts < 5) {
+          x = (Math.random() - 0.5) * 7000;
+          z = (Math.random() - 0.5) * 5500;
+          
+          // Make sure the grass is on the grass mesh
+          if (this.groundMeshes.length > 1) {
+            const hit = this.groundMeshes[1].mesh.raycastMesh(
+              new Vector3(x, 1000, z),
+              new Vector3(0, -1, 0)
+            );
+            if (hit) {
+              // Add 5 for more visibility
+              y = 1000 - hit.distance + 5;
+              validPosition = true;
+            }
+          }
+          attempts++;
+        }
+        
+        if (!validPosition) {
+          continue;
+        }
+        
+        positions.push(x, y, z);
+        positions.push(x, y, z);
+        positions.push(x, y, z);
+        positions.push(x, y, z);
+        
+        texPositions.push(0, 0);
+        texPositions.push(1, 0);
+        texPositions.push(0, 1);
+        texPositions.push(1, 1);
+        
+        const grassIndex = (positions.length / 3 - 4) / 4;
+        indices.push(grassIndex * 4, grassIndex * 4 + 1, grassIndex * 4 + 3);
+        indices.push(grassIndex * 4, grassIndex * 4 + 3, grassIndex * 4 + 2);
+      }
+      
+      const attributes = new VertexAttributes();
+      const actualGrassCount = positions.length / 3 / 4;
+      attributes.addAttribute("position", positions.length / 3, 3, new Float32Array(positions));
+      attributes.addAttribute("texPosition", texPositions.length / 2, 2, new Float32Array(texPositions));
+      attributes.addIndices(new Uint32Array(indices));
+      
+      this.tallGrassVAO = new VertexArray(this.tallGrassShader, attributes);
+      this.tallGrassInitialized = true;
+      console.log(`Tall grass initialized successfully with ${Math.round(actualGrassCount)} grass instances`);
+    } catch (error) {
+      console.error("Failed to initialize tall grass:", error);
+    }
+  }
+
+  // Render tall grass billboards
+  private renderTallGrass(camera: Camera) {
+    if (!this.tallGrassInitialized || !this.tallGrassShader || !this.tallGrassVAO) return;
+
+    this.tallGrassShader.bind();
+
+    const cameraRight = new Vector3(
+      camera.eyeFromWorld.get(0, 0),
+      camera.eyeFromWorld.get(0, 1),
+      camera.eyeFromWorld.get(0, 2)
+    ).normalize();
+    const cameraUp = new Vector3(
+      camera.eyeFromWorld.get(1, 0),
+      camera.eyeFromWorld.get(1, 1),
+      camera.eyeFromWorld.get(1, 2)
+    ).normalize();
+
+    this.tallGrassShader.setUniformMatrix4fv("clipFromEye", this.clipFromEye.elements);
+    this.tallGrassShader.setUniformMatrix4fv("eyeFromWorld", camera.eyeFromWorld.elements);
+    this.tallGrassShader.setUniformMatrix4fv("worldFromModel", Matrix4.identity().elements);
+    this.tallGrassShader.setUniform3f("cameraRight", cameraRight.x, cameraRight.y, cameraRight.z);
+    this.tallGrassShader.setUniform3f("cameraUp", cameraUp.x, cameraUp.y, cameraUp.z);
+    this.tallGrassShader.setUniform1f("grassScale", 10.0);
+    this.tallGrassShader.setUniform1i("tallGrassTexture", 4);
+
+    this.tallGrassVAO.bind();
+    this.tallGrassVAO.drawIndexed(gl.TRIANGLES);
+    this.tallGrassVAO.unbind();
+    this.tallGrassShader.unbind();
+  }
+
   render(camera: Camera, includeWorldLight: boolean = true) {
     // Render skybox first (background) without writing to depth buffer
     if (this.skyboxInitialized) {
@@ -90,6 +206,9 @@ export class Scene {
     for (const mesh of this.meshes) {
       this.renderMesh(mesh, camera, includeWorldLight);
     }
+
+    // Tall grass
+    this.renderTallGrass(camera);
   }
 
   /**
