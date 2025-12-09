@@ -8,6 +8,6 @@ The simplest way to run this is by cloning and run `npm run dev` from the projec
 
 ## TODO
 
-- Implement finishing logic
-- Implement resetting the race via controller
-- Add skybox
+- Add shadows?
+- Add people with armature
+- Texture finish line
