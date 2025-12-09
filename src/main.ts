@@ -160,6 +160,7 @@ async function initialize() {
   scene.meshes.push(alienMesh);
 
   alienMesh.playAnimation(alienMesh.getAvailableAnimations()[0]); // Play first animation
+
   // Create the hovercraft
   hovercraft1 = new Hovercraft(
     new Vector3(1234, 60, -310),
@@ -396,7 +397,7 @@ function updateFOV(velocity: number): number {
   return baseFOV + (maxFOV - baseFOV) * normalizedVelocity;
 }
 
-function render() {
+function render(deltaTime: number) {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.SCISSOR_TEST);
@@ -414,8 +415,8 @@ function render() {
   gl.viewport(0, canvas.height / 2, canvas.width, canvas.height / 2);
   gl.scissor(0, canvas.height / 2, canvas.width, canvas.height / 2);
 
-  // Render player 1
-  scene.render(camera1, true);
+  // Render player 1 with delta time for animations
+  scene.render(camera1, true, deltaTime);
 
   // Update FOV for player 2 based on velocity
   const fov2 = updateFOV(hovercraft2.linearVelocity.magnitude);
@@ -430,15 +431,16 @@ function render() {
   gl.viewport(0, 0, canvas.width, canvas.height / 2);
   gl.scissor(0, 0, canvas.width, canvas.height / 2);
 
-  // Render player 2
-  scene.render(camera2, true);
+  // Render player 2 with delta time for animations
+  scene.render(camera2, true, deltaTime);
 }
 
 function animate(now: number) {
   const t = now / 1000;
+  let dt = 0;
   // Only update when not in pause menu since phsyics/timers are based on these variables.
   if (!controls.gamePaused) {
-    const dt = t - lastUpdate;
+    dt = t - lastUpdate;
     lastUpdate = t;
     elapsedTime += dt;
   } else {
@@ -446,14 +448,14 @@ function animate(now: number) {
   }
 
   update();
-  
+
   // Check if reset was triggered - handle it BEFORE rendering
   if (controls.resetGame) {
     initialize();
     return; // Exit and let the next frame begin fresh
   }
-  
-  render();
+
+  render(dt);
   requestAnimationFrame(animate);
 }
 
