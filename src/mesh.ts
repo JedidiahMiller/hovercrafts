@@ -1,9 +1,10 @@
-import { FloatBuffer, IntBuffer, Gltf } from "@/lib/static-gltf.js";
+import { FloatBuffer, IntBuffer } from "@/lib/static-gltf.js";
 import { VertexAttributes } from "@/lib/vertex-attributes.js";
 import { ShaderProgram } from "@/lib/shader-program.js";
 import { VertexArray } from "@/lib/vertex-array.js";
-import { Matrix4 } from "./lib/matrix.js";
-import { Vector3 } from "./lib/vector.js";
+import { Matrix4 } from "@/lib/matrix.js";
+import { Vector3 } from "@/lib/vector.js";
+import { Model } from "@/lib/gltf.js";
 
 type Hit = {
   distance: number;
@@ -20,39 +21,63 @@ export class Mesh {
   textureCoordinates?: Float32Array;
   textureScale?: [number, number] = [1, 1];
 
+  // Animation support
+  model: Model;
+  meshIndex: number;
+  animationSpeed?: number;
+  weights?: FloatBuffer;
+  joints?: FloatBuffer;
+
   textureNumber?: number;
   shader!: ShaderProgram;
 
   worldFromModel?: Matrix4;
 
   private constructor(
+    model: Model,
+    meshIndex: number,
     name: string,
     positions: FloatBuffer,
-    indices: IntBuffer,
+    indices: IntBuffer
   ) {
+    this.model = model;
+    this.meshIndex = meshIndex;
     this.name = name;
     this.positions = positions;
     this.indices = indices;
   }
 
   /**
-   * Loads a gltf file
+   * Loads a gltf file with full animation support
    */
   static async load(source: string) {
-    const gltf = await Gltf.readFromUrl(source);
+    const model = await Model.readFromUrl(source);
 
     const meshes: Record<string, Mesh> = {};
 
-    for (let i = 0; i < gltf.nodes.length; i++) {
-      const meshName = gltf.nodes[i].name;
-      const rawMesh = gltf.meshes[i];
-      const mesh = new Mesh(meshName, rawMesh.positions, rawMesh.indices!);
+    for (let i = 0; i < model.nodes.length; i++) {
+      const node = model.nodes[i];
+      const meshName = node.name;
 
-      mesh.colors = rawMesh.colors;
-      mesh.normals = rawMesh.normals;
-      mesh.textureCoordinates = rawMesh.texCoord?.buffer;
+      // Only create Mesh wrapper if node has a mesh
+      if (node.mesh !== undefined) {
+        const rawMesh = model.meshes[node.mesh];
+        const mesh = new Mesh(
+          model,
+          node.mesh,
+          meshName,
+          rawMesh.positions,
+          rawMesh.indices!
+        );
 
-      meshes[meshName] = mesh;
+        mesh.colors = rawMesh.colors;
+        mesh.normals = rawMesh.normals;
+        mesh.textureCoordinates = rawMesh.texCoord?.buffer;
+        mesh.weights = rawMesh.weights ?? undefined;
+        mesh.joints = rawMesh.joints ?? undefined;
+
+        meshes[meshName] = mesh;
+      }
     }
 
     return meshes;
@@ -85,11 +110,12 @@ export class Mesh {
   getVao() {
     // Create the vertex attributes
     const attributes = new VertexAttributes();
+
     attributes.addAttribute(
       "position",
       this.positions.count,
       3,
-      this.positions.buffer,
+      this.positions.buffer
     );
 
     // Add normals if they exist
@@ -98,7 +124,7 @@ export class Mesh {
         "normal",
         this.normals.count,
         3,
-        this.normals.buffer,
+        this.normals.buffer
       );
     }
 
@@ -108,7 +134,7 @@ export class Mesh {
         "color",
         this.colors!.count,
         3,
-        this.colors!.buffer,
+        this.colors!.buffer
       );
     }
 
@@ -118,7 +144,23 @@ export class Mesh {
         "texPosition",
         this.textureCoordinates!.length / 2,
         2,
-        this.textureCoordinates!,
+        this.textureCoordinates!
+      );
+    }
+
+    // Add animation data if it exists (check for actual data, not just animationSpeed)
+    if (this.weights && this.joints) {
+      attributes.addAttribute(
+        "weights",
+        this.weights.count,
+        4,
+        this.weights.buffer
+      );
+      attributes.addAttribute(
+        "joints",
+        this.joints.count,
+        4,
+        new Float32Array(this.joints.buffer)
       );
     }
 
@@ -199,12 +241,12 @@ export class Mesh {
     const modelHit = this.vec3(
       modelRayOrigin[0] + modelRayDir[0] * bestT,
       modelRayOrigin[1] + modelRayDir[1] * bestT,
-      modelRayOrigin[2] + modelRayDir[2] * bestT,
+      modelRayOrigin[2] + modelRayDir[2] * bestT
     );
 
     // convert fully to world space
     const worldHit = M.multiplyVector3(
-      new Vector3(modelHit[0], modelHit[1], modelHit[2]),
+      new Vector3(modelHit[0], modelHit[1], modelHit[2])
     );
 
     const hit: Hit = {
@@ -222,7 +264,7 @@ export class Mesh {
     direction: Float32Array,
     a: Float32Array,
     b: Float32Array,
-    c: Float32Array,
+    c: Float32Array
   ) {
     const e1 = this.sub(b, a);
     const e2 = this.sub(c, a);
@@ -258,7 +300,76 @@ export class Mesh {
     return this.vec3(
       a[1] * b[2] - a[2] * b[1],
       a[2] * b[0] - a[0] * b[2],
-      a[0] * b[1] - a[1] * b[0],
+      a[0] * b[1] - a[1] * b[0]
+    );
+  }
+
+  // Animation methods - delegate to the underlying Model
+
+  /**
+   * Play an animation clip by name
+   */
+  playAnimation(clipName: string) {
+    if (this.model.animations[clipName]) {
+      this.model.play(clipName);
+    } else {
+      console.warn(
+        `Animation "${clipName}" not found. Available animations:`,
+        this.getAvailableAnimations()
+      );
+    }
+  }
+
+  /**
+   * Update animation time (call this each frame)
+   * @param deltaTime - Time elapsed since last frame in milliseconds
+   */
+  updateAnimation(deltaTime: number) {
+    const speed = this.animationSpeed ?? 1.0;
+    this.model.tick(deltaTime * speed);
+  }
+
+  /**
+   * Get skeletal animation transforms for rendering
+   * @param blendTime - Time in milliseconds for blending between animations
+   * @returns Array of transformation matrices for each joint
+   */
+  getAnimationTransforms(blendTime = 0): Matrix4[] {
+    if (this.model.skins.length > 0) {
+      return this.model.skinTransforms(blendTime);
+    }
+    return [];
+  }
+
+  /**
+   * Get list of available animation clip names
+   */
+  getAvailableAnimations(): string[] {
+    return Object.keys(this.model.animations);
+  }
+
+  /**
+   * Check if an animation is currently playing
+   */
+  isAnimationPlaying(): boolean {
+    return this.model.activeAnimations.length > 0;
+  }
+
+  /**
+   * Check if this mesh has animations
+   */
+  hasAnimations(): boolean {
+    return Object.keys(this.model.animations).length > 0;
+  }
+
+  /**
+   * Check if this mesh uses skeletal animation (skinning)
+   */
+  hasSkeleton(): boolean {
+    return (
+      this.model.skins.length > 0 &&
+      this.weights !== undefined &&
+      this.joints !== undefined
     );
   }
 }

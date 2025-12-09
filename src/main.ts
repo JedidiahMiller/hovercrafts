@@ -13,6 +13,8 @@ import { loadTextures } from "./textures.js";
 import { HovercraftAudioEngine } from "./engine.js";
 import terrainFragmentSource from "@/shaders/terrain-fragment.glsl?raw";
 import terrainVertexSource from "@/shaders/terrain-vertex.glsl?raw";
+import alienVertexSource from "@/shaders/alien-vertex.glsl?raw";
+import alienFragmentSource from "@/shaders/alien-fragment.glsl?raw";
 
 let canvas: HTMLCanvasElement;
 let clipFromEye1: Matrix4;
@@ -144,6 +146,20 @@ async function initialize() {
     simpleFragmentSource
   );
   scene.meshes.push(hovercraftMesh2);
+
+  // Load waving man (animated character)
+  const wavingManMeshes = await Mesh.load("/models/waving_man.gltf");
+  console.log("Meshs:", wavingManMeshes);
+  const alienMesh = wavingManMeshes["Plane"];
+  alienMesh.shader = new ShaderProgram(alienVertexSource, alienFragmentSource);
+  // Position 5 units ahead of hovercraft1 (in the positive X direction)
+  alienMesh.worldFromModel = Matrix4.translate(1239, 50, -170)
+    .multiplyMatrix(Matrix4.scale(0.08, 0.08, 0.08))
+    .multiplyMatrix(Matrix4.rotateY(200));
+  alienMesh.animationSpeed = 2.0;
+  scene.meshes.push(alienMesh);
+
+  alienMesh.playAnimation(alienMesh.getAvailableAnimations()[0]); // Play first animation
 
   // Create the hovercraft
   hovercraft1 = new Hovercraft(
@@ -383,7 +399,7 @@ function updateFOV(velocity: number): number {
   return baseFOV + (maxFOV - baseFOV) * normalizedVelocity;
 }
 
-function render() {
+function render(deltaTime: number) {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.SCISSOR_TEST);
@@ -401,8 +417,8 @@ function render() {
   gl.viewport(0, canvas.height / 2, canvas.width, canvas.height / 2);
   gl.scissor(0, canvas.height / 2, canvas.width, canvas.height / 2);
 
-  // Render
-  scene.render(camera1, true);
+  // Render with delta time for animations
+  scene.render(camera1, true, deltaTime);
   if (controls.resetGame) {
     initialize();
   }
@@ -420,7 +436,7 @@ function render() {
   gl.viewport(0, 0, canvas.width, canvas.height / 2);
   gl.scissor(0, 0, canvas.width, canvas.height / 2);
 
-  scene.render(camera2, true);
+  scene.render(camera2, true, deltaTime);
   if (controls.resetGame) {
     initialize();
   }
@@ -428,9 +444,10 @@ function render() {
 
 function animate(now: number) {
   const t = now / 1000;
+  let dt = 0;
   // Only update when not in pause menu since phsyics/timers are based on these variables.
   if (!controls.gamePaused) {
-    const dt = t - lastUpdate;
+    dt = t - lastUpdate;
     lastUpdate = t;
     elapsedTime += dt;
   } else {
@@ -438,7 +455,7 @@ function animate(now: number) {
   }
 
   update();
-  render();
+  render(dt);
   requestAnimationFrame(animate);
 }
 
