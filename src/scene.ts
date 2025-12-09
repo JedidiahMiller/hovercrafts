@@ -189,7 +189,14 @@ export class Scene {
     this.tallGrassShader.unbind();
   }
 
-  render(camera: Camera, includeWorldLight: boolean = true) {
+  render(camera: Camera, includeWorldLight: boolean = true, deltaTime: number = 0) {
+    // Update animations for all meshes
+    for (const mesh of this.meshes) {
+      if (mesh.hasAnimations() && deltaTime > 0) {
+        mesh.updateAnimation(deltaTime * 1000); // Convert to milliseconds
+      }
+    }
+
     // Render skybox first (background) without writing to depth buffer
     if (this.skyboxInitialized) {
       gl.depthMask(false);
@@ -238,6 +245,21 @@ export class Scene {
         ? mesh.worldFromModel.elements
         : Matrix4.identity().elements,
     );
+
+    // Pass animation transforms if this mesh has skeletal animation
+    if (mesh.hasSkeleton()) {
+      const jointMatrices = mesh.getAnimationTransforms();
+      if (jointMatrices.length > 0) {
+        // Flatten the array of Matrix4 into a single Float32Array
+        const matrixArray = new Float32Array(jointMatrices.length * 16);
+        for (let i = 0; i < jointMatrices.length; i++) {
+          matrixArray.set(jointMatrices[i].elements, i * 16);
+        }
+        // WebGL allows setting entire array at once using the [0] element
+        mesh.shader.setUniformMatrix4fv("jointMatrices[0]", matrixArray);
+      }
+    }
+
     if (mesh.textureNumber !== undefined) {
       mesh.shader.setUniform1i("textureSource", mesh.textureNumber);
       mesh.shader.setUniform2f(
