@@ -75,7 +75,7 @@ export class Scene {
     try {
       // Load tall grass texture
       const grassImage = await fetchImage("/textures/tallGrass.png");
-      
+
       gl.activeTexture(gl.TEXTURE4);
       this.tallGrassTexture = gl.createTexture();
       gl.bindTexture(gl.TEXTURE_2D, this.tallGrassTexture);
@@ -85,36 +85,38 @@ export class Scene {
         gl.RGBA,
         gl.RGBA,
         gl.UNSIGNED_BYTE,
-        grassImage
+        grassImage,
       );
       gl.generateMipmap(gl.TEXTURE_2D);
-      
+
       this.tallGrassShader = new ShaderProgram(
         tallgrassVertexSource,
-        tallgrassFragmentSource
+        tallgrassFragmentSource,
       );
-      
+
       // Generate random grass positions across the entire map
       const grassCount = 1000;
       const positions: number[] = [];
       const texPositions: number[] = [];
       const indices: number[] = [];
-      
+
       for (let i = 0; i < grassCount; i++) {
         let validPosition = false;
-        let x = 0, y = 0, z = 0;
-        
+        let x = 0,
+          y = 0,
+          z = 0;
+
         // Try to find a valid position
         let attempts = 0;
         while (!validPosition && attempts < 5) {
           x = (Math.random() - 0.5) * 7000;
           z = (Math.random() - 0.5) * 5500;
-          
+
           // Make sure the grass is on the grass mesh
           if (this.groundMeshes.length > 1) {
             const hit = this.groundMeshes[1].mesh.raycastMesh(
               new Vector3(x, 1000, z),
-              new Vector3(0, -1, 0)
+              new Vector3(0, -1, 0),
             );
             if (hit) {
               // Add 5 for more visibility
@@ -124,35 +126,47 @@ export class Scene {
           }
           attempts++;
         }
-        
+
         if (!validPosition) {
           continue;
         }
-        
+
         positions.push(x, y, z);
         positions.push(x, y, z);
         positions.push(x, y, z);
         positions.push(x, y, z);
-        
+
         texPositions.push(0, 0);
         texPositions.push(1, 0);
         texPositions.push(0, 1);
         texPositions.push(1, 1);
-        
+
         const grassIndex = (positions.length / 3 - 4) / 4;
         indices.push(grassIndex * 4, grassIndex * 4 + 1, grassIndex * 4 + 3);
         indices.push(grassIndex * 4, grassIndex * 4 + 3, grassIndex * 4 + 2);
       }
-      
+
       const attributes = new VertexAttributes();
       const actualGrassCount = positions.length / 3 / 4;
-      attributes.addAttribute("position", positions.length / 3, 3, new Float32Array(positions));
-      attributes.addAttribute("texPosition", texPositions.length / 2, 2, new Float32Array(texPositions));
+      attributes.addAttribute(
+        "position",
+        positions.length / 3,
+        3,
+        new Float32Array(positions),
+      );
+      attributes.addAttribute(
+        "texPosition",
+        texPositions.length / 2,
+        2,
+        new Float32Array(texPositions),
+      );
       attributes.addIndices(new Uint32Array(indices));
-      
+
       this.tallGrassVAO = new VertexArray(this.tallGrassShader, attributes);
       this.tallGrassInitialized = true;
-      console.log(`Tall grass initialized successfully with ${Math.round(actualGrassCount)} grass instances`);
+      console.log(
+        `Tall grass initialized successfully with ${Math.round(actualGrassCount)} grass instances`,
+      );
     } catch (error) {
       console.error("Failed to initialize tall grass:", error);
     }
@@ -160,26 +174,50 @@ export class Scene {
 
   // Render tall grass billboards
   private renderTallGrass(camera: Camera) {
-    if (!this.tallGrassInitialized || !this.tallGrassShader || !this.tallGrassVAO) return;
+    if (
+      !this.tallGrassInitialized ||
+      !this.tallGrassShader ||
+      !this.tallGrassVAO
+    )
+      return;
 
     this.tallGrassShader.bind();
 
     const cameraRight = new Vector3(
       camera.eyeFromWorld.get(0, 0),
       camera.eyeFromWorld.get(0, 1),
-      camera.eyeFromWorld.get(0, 2)
+      camera.eyeFromWorld.get(0, 2),
     ).normalize();
     const cameraUp = new Vector3(
       camera.eyeFromWorld.get(1, 0),
       camera.eyeFromWorld.get(1, 1),
-      camera.eyeFromWorld.get(1, 2)
+      camera.eyeFromWorld.get(1, 2),
     ).normalize();
 
-    this.tallGrassShader.setUniformMatrix4fv("clipFromEye", this.clipFromEye.elements);
-    this.tallGrassShader.setUniformMatrix4fv("eyeFromWorld", camera.eyeFromWorld.elements);
-    this.tallGrassShader.setUniformMatrix4fv("worldFromModel", Matrix4.identity().elements);
-    this.tallGrassShader.setUniform3f("cameraRight", cameraRight.x, cameraRight.y, cameraRight.z);
-    this.tallGrassShader.setUniform3f("cameraUp", cameraUp.x, cameraUp.y, cameraUp.z);
+    this.tallGrassShader.setUniformMatrix4fv(
+      "clipFromEye",
+      this.clipFromEye.elements,
+    );
+    this.tallGrassShader.setUniformMatrix4fv(
+      "eyeFromWorld",
+      camera.eyeFromWorld.elements,
+    );
+    this.tallGrassShader.setUniformMatrix4fv(
+      "worldFromModel",
+      Matrix4.identity().elements,
+    );
+    this.tallGrassShader.setUniform3f(
+      "cameraRight",
+      cameraRight.x,
+      cameraRight.y,
+      cameraRight.z,
+    );
+    this.tallGrassShader.setUniform3f(
+      "cameraUp",
+      cameraUp.x,
+      cameraUp.y,
+      cameraUp.z,
+    );
     this.tallGrassShader.setUniform1f("grassScale", 10.0);
     this.tallGrassShader.setUniform1i("tallGrassTexture", 4);
 
@@ -189,7 +227,11 @@ export class Scene {
     this.tallGrassShader.unbind();
   }
 
-  render(camera: Camera, includeWorldLight: boolean = true, deltaTime: number = 0) {
+  render(
+    camera: Camera,
+    includeWorldLight: boolean = true,
+    deltaTime: number = 0,
+  ) {
     // Update animations for all meshes
     for (const mesh of this.meshes) {
       if (mesh.hasAnimations() && deltaTime > 0) {

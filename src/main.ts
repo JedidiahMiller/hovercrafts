@@ -94,7 +94,7 @@ async function initialize() {
   trackMeshes["track"].worldFromModel = trackTransform;
   trackMeshes["track"].shader = new ShaderProgram(
     terrainVertexSource,
-    terrainFragmentSource
+    terrainFragmentSource,
   );
   trackMeshes["track"].textureNumber = 2;
   trackMeshes["track"].applyUniformTextureCoordinates();
@@ -104,7 +104,7 @@ async function initialize() {
   trackMeshes["grass"].worldFromModel = trackTransform;
   trackMeshes["grass"].shader = new ShaderProgram(
     terrainVertexSource,
-    terrainFragmentSource
+    terrainFragmentSource,
   );
   trackMeshes["grass"].textureNumber = 1;
   trackMeshes["grass"].applyUniformTextureCoordinates();
@@ -116,14 +116,14 @@ async function initialize() {
   trackMeshes["decor"].worldFromModel = trackTransform;
   trackMeshes["decor"].shader = new ShaderProgram(
     simpleVertexSource,
-    simpleFragmentSource
+    simpleFragmentSource,
   );
   scene.meshes.push(trackMeshes["decor"]);
 
   trackMeshes["finish"].worldFromModel = trackTransform;
   trackMeshes["finish"].shader = new ShaderProgram(
     simpleVertexSource,
-    simpleFragmentSource
+    simpleFragmentSource,
   );
   scene.meshes.push(trackMeshes["finish"]);
 
@@ -136,41 +136,46 @@ async function initialize() {
   let hovercraftMesh1 = hovercraftMeshes["hovercraft1"];
   hovercraftMesh1.shader = new ShaderProgram(
     simpleVertexSource,
-    simpleFragmentSource
+    simpleFragmentSource,
   );
   scene.meshes.push(hovercraftMesh1);
 
   let hovercraftMesh2 = hovercraftMeshes["hovercraft2"];
   hovercraftMesh2.shader = new ShaderProgram(
     simpleVertexSource,
-    simpleFragmentSource
+    simpleFragmentSource,
   );
   scene.meshes.push(hovercraftMesh2);
 
-  // Load waving man (animated character)
-  const wavingManMeshes = await Mesh.load("/models/waving_man.gltf");
-  console.log("Meshs:", wavingManMeshes);
-  const alienMesh = wavingManMeshes["Plane"];
-  alienMesh.shader = new ShaderProgram(alienVertexSource, alienFragmentSource);
-  // Position 5 units ahead of hovercraft1 (in the positive X direction)
-  alienMesh.worldFromModel = Matrix4.translate(1239, 50, -170)
-    .multiplyMatrix(Matrix4.scale(0.08, 0.08, 0.08))
-    .multiplyMatrix(Matrix4.rotateY(200));
-  alienMesh.animationSpeed = 2.0;
-  scene.meshes.push(alienMesh);
+  // Load waving men (animated character)
+  for (let i = 0; i < 5; i++) {
+    const wavingManMeshes = await Mesh.load("/models/waving_man.gltf");
+    console.log("Meshs:", wavingManMeshes);
+    const alienMesh = wavingManMeshes["Plane"];
+    alienMesh.shader = new ShaderProgram(
+      alienVertexSource,
+      alienFragmentSource,
+    );
+    // Position 5 units ahead of hovercraft1 (in the positive X direction)
+    alienMesh.worldFromModel = Matrix4.translate(1230 + i * 10, 50, -170)
+      .multiplyMatrix(Matrix4.scale(0.08, 0.08, 0.08))
+      .multiplyMatrix(Matrix4.rotateY(200));
+    alienMesh.animationSpeed = 2.0;
+    scene.meshes.push(alienMesh);
 
-  alienMesh.playAnimation(alienMesh.getAvailableAnimations()[0]); // Play first animation
+    alienMesh.playAnimation(alienMesh.getAvailableAnimations()[0]); // Play first animation
+  }
 
   // Create the hovercraft
   hovercraft1 = new Hovercraft(
     new Vector3(1234, 60, -310),
     new Vector3(1, 0, 0).normalize(),
-    hovercraftMesh1
+    hovercraftMesh1,
   );
   hovercraft2 = new Hovercraft(
     new Vector3(1234, 60, -340),
     new Vector3(1, 0, 0).normalize(),
-    hovercraftMesh2
+    hovercraftMesh2,
   );
 
   // Create the camera
@@ -179,7 +184,7 @@ async function initialize() {
     hovercraft1.direction,
     new Vector3(0, 1, 0),
     new Vector3(0, 8, 30),
-    new Vector3(-15, 0, 0)
+    new Vector3(-15, 0, 0),
   );
 
   camera2 = new ThirdPersonCamera(
@@ -187,7 +192,7 @@ async function initialize() {
     hovercraft2.direction,
     new Vector3(0, 1, 0),
     new Vector3(0, 8, 30),
-    new Vector3(-15, 0, 0)
+    new Vector3(-15, 0, 0),
   );
 
   // This essentially clears the audio cache to ensure the audio plays after reloading the game.
@@ -224,7 +229,7 @@ function update() {
     // Only apply input to player1 if they haven't finished the race
     if (!player1FinishedRace) {
       hovercraft1.linearAcceleration = hovercraft1.direction.scalarMultiply(
-        controls.player1Move * moveSpeed
+        controls.player1Move * moveSpeed,
       );
       hovercraft1.rotationalAcceleration.y = controls.player1Turn * turnSpeed;
     } else {
@@ -236,7 +241,7 @@ function update() {
     // Only apply input to player2 if they haven't finished the race
     if (!player2FinishedRace) {
       hovercraft2.linearAcceleration = hovercraft2.direction.scalarMultiply(
-        controls.player2Move * moveSpeed
+        controls.player2Move * moveSpeed,
       );
       hovercraft2.rotationalAcceleration.y = controls.player2Turn * turnSpeed;
     } else {
@@ -408,7 +413,7 @@ function render(deltaTime: number) {
     fov1,
     canvas.clientWidth / (canvas.clientHeight / 2),
     1,
-    50000
+    50000,
   );
   scene.clipFromEye = clipFromEye1;
 
@@ -424,7 +429,7 @@ function render(deltaTime: number) {
     fov2,
     canvas.clientWidth / (canvas.clientHeight / 2),
     1,
-    50000
+    50000,
   );
   scene.clipFromEye = clipFromEye2;
 
@@ -471,7 +476,6 @@ function startMenu() {
   player1Speed = document.getElementById("speed1");
   player2LapsDisplay = document.getElementById("player2laps");
   player1LapsDisplay = document.getElementById("player1laps");
-  
 
   startButton?.addEventListener("click", () => {
     hideMenu();
