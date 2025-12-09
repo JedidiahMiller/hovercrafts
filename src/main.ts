@@ -13,6 +13,8 @@ import { loadTextures } from "./textures.js";
 import { HovercraftAudioEngine } from "./engine.js";
 import terrainFragmentSource from "@/shaders/terrain-fragment.glsl?raw";
 import terrainVertexSource from "@/shaders/terrain-vertex.glsl?raw";
+import alienVertexSource from "@/shaders/alien-vertex.glsl?raw";
+import alienFragmentSource from "@/shaders/alien-fragment.glsl?raw";
 
 let canvas: HTMLCanvasElement;
 let clipFromEye1: Matrix4;
@@ -145,6 +147,19 @@ async function initialize() {
   );
   scene.meshes.push(hovercraftMesh2);
 
+  // Load waving man (animated character)
+  const wavingManMeshes = await Mesh.load("/models/waving_man.gltf");
+  console.log("Meshs:", wavingManMeshes);
+  const alienMesh = wavingManMeshes["Plane"];
+  alienMesh.shader = new ShaderProgram(alienVertexSource, alienFragmentSource);
+  // Position 5 units ahead of hovercraft1 (in the positive X direction)
+  alienMesh.worldFromModel = Matrix4.translate(1239, 50, -170)
+    .multiplyMatrix(Matrix4.scale(0.08, 0.08, 0.08))
+    .multiplyMatrix(Matrix4.rotateY(200));
+  alienMesh.animationSpeed = 2.0;
+  scene.meshes.push(alienMesh);
+
+  alienMesh.playAnimation(alienMesh.getAvailableAnimations()[0]); // Play first animation
   // Create the hovercraft
   hovercraft1 = new Hovercraft(
     new Vector3(1234, 60, -310),
