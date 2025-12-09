@@ -359,15 +359,13 @@ function update() {
       const seconds = Math.floor(totalSeconds % 60);
       const milliseconds = Math.floor((totalSeconds % 1) * 100);
 
-      // Update and format the timer.
+      // Format the timer.
       const formatted = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.${String(milliseconds).padStart(2, "0")}`;
 
-      // Only update player2 timer if they haven't finished the race
       if (!player2FinishedRace) {
         player2Timer.textContent = formatted;
       }
 
-      // Only update player1 timer if they haven't finished the race
       if (!player1FinishedRace) {
         player1Timer.textContent = formatted;
       }
@@ -380,7 +378,7 @@ function updateFOV(velocity: number): number {
   const maxFOV = 75;
   const maxVelocity = 500;
 
-  // Clamp velocity and calculate FOV increase
+  // Clamp velocity and calculate FOV
   const normalizedVelocity = Math.min(velocity, maxVelocity) / maxVelocity;
   return baseFOV + (maxFOV - baseFOV) * normalizedVelocity;
 }
