@@ -1,13 +1,7 @@
 # Hovercrafts
 
-A hovercraft racing game
+A WebGL hovercraft racing game with a custom built 3d rendering and physics engine.
 
 ## Running
 
-The simplest way to run this is by cloning and run `npm run dev` from the project root.
-
-## TODO
-
-- Add shadows?
-- Add people with armature
-- Texture finish line
+The simplest way to locally run this project is by cloning it and run `npm run dev` from the project root.
