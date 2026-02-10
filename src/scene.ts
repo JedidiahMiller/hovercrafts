@@ -42,7 +42,7 @@ export class Scene {
       console.log("Skybox geometry created");
 
       try {
-        await loadCubemap("/textures/cubemap", "png", gl.TEXTURE3);
+        await loadCubemap("textures/cubemap", "png", gl.TEXTURE3);
         // console.log("Cubemap loaded successfully");
       } catch (cubemapError) {
         console.error("Cubemap loading error:", cubemapError);
@@ -74,7 +74,7 @@ export class Scene {
   async initializeTallGrass() {
     try {
       // Load tall grass texture
-      const grassImage = await fetchImage("/textures/tallGrass.png");
+      const grassImage = await fetchImage("textures/tallGrass.png");
 
       gl.activeTexture(gl.TEXTURE4);
       this.tallGrassTexture = gl.createTexture();

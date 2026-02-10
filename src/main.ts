@@ -40,7 +40,7 @@ let player2Speed: HTMLElement | null;
 let player1LapsDisplay: HTMLElement | null;
 let player2LapsDisplay: HTMLElement | null;
 
-const countdownTimerAudio = new Audio("/audio/Start.mp3");
+const countdownTimerAudio = new Audio("audio/Start.mp3");
 const engineAudio1 = new HovercraftAudioEngine();
 const engineAudio2 = new HovercraftAudioEngine();
 
@@ -89,7 +89,7 @@ async function initialize() {
   await loadTextures();
 
   // Load track meshes
-  let trackMeshes = await Mesh.load("/models/track.gltf");
+  let trackMeshes = await Mesh.load("models/track.gltf");
   const trackTransform = Matrix4.scale(800, 800, 800);
   trackMeshes["track"].worldFromModel = trackTransform;
   trackMeshes["track"].shader = new ShaderProgram(
@@ -131,7 +131,7 @@ async function initialize() {
   barrierMesh.worldFromModel = trackTransform;
 
   // Load hovercraft meshes
-  const hovercraftMeshes = await Mesh.load("/models/hovercraft.gltf");
+  const hovercraftMeshes = await Mesh.load("models/hovercraft.gltf");
 
   let hovercraftMesh1 = hovercraftMeshes["hovercraft1"];
   hovercraftMesh1.shader = new ShaderProgram(
@@ -149,7 +149,7 @@ async function initialize() {
 
   // Load waving men (animated character)
   for (let i = 0; i < 5; i++) {
-    const wavingManMeshes = await Mesh.load("/models/waving_man.gltf");
+    const wavingManMeshes = await Mesh.load("models/waving_man.gltf");
     console.log("Meshs:", wavingManMeshes);
     const alienMesh = wavingManMeshes["Plane"];
     alienMesh.shader = new ShaderProgram(
@@ -206,11 +206,11 @@ async function initialize() {
   countdownTimerAudio.volume = 0.3;
   countdownTimerAudio.play();
   // Initialize and load audio
-  await engineAudio1.loadAudio("/audio/Engine.mp3");
+  await engineAudio1.loadAudio("audio/Engine.mp3");
   engineAudio1.setVolume(0.8);
   engineAudio1.start();
 
-  await engineAudio2.loadAudio("/audio/Engine2.mp3");
+  await engineAudio2.loadAudio("audio/Engine2.mp3");
   engineAudio2.setVolume(1);
   engineAudio2.start();
 

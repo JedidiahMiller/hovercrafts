@@ -270,7 +270,7 @@ export class Hovercraft {
     if (closestNormal && closestPenetration > 0) {
       if (performance.now() / 1000 - this.lastSoundTime > 1) {
         this.lastSoundTime = performance.now() / 1000;
-        const audio = new Audio("/sound.mp3");
+        const audio = new Audio("sound.mp3");
         audio.volume = 0.5;
         audio.play();
       }

@@ -1,9 +1,9 @@
 import { fetchImage } from "./lib/web-utilities.js";
 
 export async function loadTextures() {
-  await createRgbaTexture2d("/textures/dirt.png", gl, gl.TEXTURE0);
-  await createRgbaTexture2d("/textures/grass.png", gl, gl.TEXTURE1);
-  await createRgbaTexture2d("/textures/road.png", gl, gl.TEXTURE2);
+  await createRgbaTexture2d("textures/dirt.png", gl, gl.TEXTURE0);
+  await createRgbaTexture2d("textures/grass.png", gl, gl.TEXTURE1);
+  await createRgbaTexture2d("textures/road.png", gl, gl.TEXTURE2);
 }
 
 async function createRgbaTexture2d(
