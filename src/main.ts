@@ -55,17 +55,19 @@ let player2Laps = 0;
 let player2PreviousX = 0;
 let player2FinishedRace = false;
 
-const menuDiv = document.getElementById("menu");
+const menuDiv = document.getElementById("start-menu");
 const gameDiv = document.getElementById("game");
 const pauseMenuDiv = document.getElementById("pauseMenu");
-const startButton = document.getElementById("start");
-const restartButton = document.getElementById("restart");
-const continueButton = document.getElementById("continue");
+const startButton = document.getElementById("start") as HTMLButtonElement;
+const restartButton = document.getElementById("restart") as HTMLButtonElement;
+const continueButton = document.getElementById("continue") as HTMLButtonElement;
 
 function preloadAudio(src: string): Promise<HTMLAudioElement> {
   return new Promise((resolve, reject) => {
     const audio = new Audio(src);
-    audio.addEventListener("canplaythrough", () => resolve(audio), { once: true });
+    audio.addEventListener("canplaythrough", () => resolve(audio), {
+      once: true,
+    });
     audio.addEventListener("error", reject, { once: true });
   });
 }
@@ -92,30 +94,56 @@ async function initialize() {
   window.gl = canvas.getContext("webgl2") as WebGL2RenderingContext;
 
   window.addEventListener("resize", resizeCanvas);
-  elapsedTime = 0;
-  wasPaused = false;
-  player1PassedCheckpoint = false;
-  player1Laps = 0;
-  player1FinishedRace = false;
-  player2PassedCheckpoint = false;
-  player2Laps = 0;
-  player2FinishedRace = false;
-  lastUpdate = performance.now() / 1000;
   resizeCanvas();
+
+  player2Timer = document.getElementById("player2time");
+  player1Timer = document.getElementById("player1time");
+  player2Speed = document.getElementById("speed2");
+  player1Speed = document.getElementById("speed1");
+  player2LapsDisplay = document.getElementById("player2laps");
+  player1LapsDisplay = document.getElementById("player1laps");
+
+  startButton.disabled = true;
+  startButton.innerText = "Loading...";
+  startButton?.addEventListener("click", () => {
+    hideMenu();
+    startGame();
+  });
+  const loadingAnimation = () => {
+    if (!startButton.disabled) return;
+    switch (startButton.innerText) {
+      case "Loading.":
+        startButton.innerText = "Loading..";
+        break;
+      case "Loading..":
+        startButton.innerText = "Loading...";
+        break;
+      case "Loading...":
+        startButton.innerText = "Loading.";
+        break;
+    }
+
+    setTimeout(loadingAnimation, 500);
+  };
+  loadingAnimation();
+
+  restartButton?.addEventListener("click", () => {
+    hideMenu();
+    controls.resetGame = true;
+  });
+
+  continueButton?.addEventListener("click", () => {
+    hideMenu();
+    controls.gamePaused = false;
+  });
 
   controls = new Controls();
 
   // Start building the scene
   scene = new Scene(clipFromEye1, new Vector3(200, 500, 200));
 
-  // Clear audio cache before loading to ensure clean playback on restart
-  if (engineAudio1) engineAudio1.stop();
-  if (engineAudio2) engineAudio2.stop();
-
-  console.time("initialize");
   const { trackMeshes, hovercraftMeshes } = await loadAssets();
 
-  console.time("initialize:setupMeshes");
   const trackTransform = Matrix4.scale(800, 800, 800);
   trackMeshes["track"].worldFromModel = trackTransform;
   trackMeshes["track"].shader = new ShaderProgram(
@@ -137,11 +165,7 @@ async function initialize() {
   trackMeshes["grass"].textureScale = [500, 500];
   scene.groundMeshes.push(new TerrainMesh(trackMeshes["grass"], 0));
 
-  console.timeEnd("initialize:setupMeshes");
-
-  console.time("initialize:tallGrass");
   await scene.initializeTallGrass();
-  console.timeEnd("initialize:tallGrass");
 
   trackMeshes["decor"].worldFromModel = trackTransform;
   trackMeshes["decor"].shader = new ShaderProgram(
@@ -203,14 +227,43 @@ async function initialize() {
     new Vector3(-15, 0, 0),
   );
 
+  startButton.disabled = false;
+  startButton.innerText = "Start";
+}
+
+function resetGame() {
+  hovercraft1.reset(new Vector3(1234, 60, -310), new Vector3(1, 0, 0).normalize());
+  hovercraft2.reset(new Vector3(1234, 60, -340), new Vector3(1, 0, 0).normalize());
+  camera1.updateTarget(hovercraft1.position, hovercraft1.direction);
+  camera2.updateTarget(hovercraft2.position, hovercraft2.direction);
+  if (player1LapsDisplay) player1LapsDisplay.textContent = "0/3 LAPS";
+  if (player2LapsDisplay) player2LapsDisplay.textContent = "0/3 LAPS";
+  startGame();
+}
+
+function startGame() {
+  resizeCanvas();
+  elapsedTime = 0;
+  wasPaused = false;
+  controls.gamePaused = false;
+  player1PassedCheckpoint = false;
+  player1Laps = 0;
+  player1FinishedRace = false;
+  player2PassedCheckpoint = false;
+  player2Laps = 0;
+  player2FinishedRace = false;
+  lastUpdate = performance.now() / 1000;
+
+  // Clear audio cache before loading to ensure clean playback on restart
+  if (engineAudio1) engineAudio1.stop();
+  if (engineAudio2) engineAudio2.stop();
+
   countdownTimerAudio.volume = 0.3;
   countdownTimerAudio.play();
   engineAudio1.setVolume(0.8);
   engineAudio1.start();
   engineAudio2.setVolume(1);
   engineAudio2.start();
-
-  console.timeEnd("initialize");
 
   requestAnimationFrame(animate);
 }
@@ -454,8 +507,9 @@ function animate(now: number) {
 
   // Check if reset was triggered - handle it BEFORE rendering
   if (controls.resetGame) {
-    initialize();
-    return; // Exit and let the next frame begin fresh
+    controls.resetGame = false;
+    resetGame();
+    return;
   }
 
   render(dt);
@@ -465,30 +519,6 @@ function animate(now: number) {
 function resizeCanvas() {
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
-}
-
-function startMenu() {
-  player2Timer = document.getElementById("player2time");
-  player1Timer = document.getElementById("player1time");
-  player2Speed = document.getElementById("speed2");
-  player1Speed = document.getElementById("speed1");
-  player2LapsDisplay = document.getElementById("player2laps");
-  player1LapsDisplay = document.getElementById("player1laps");
-
-  startButton?.addEventListener("click", () => {
-    hideMenu();
-    initialize();
-  });
-
-  restartButton?.addEventListener("click", () => {
-    hideMenu();
-    controls.resetGame = true;
-  });
-
-  continueButton?.addEventListener("click", () => {
-    hideMenu();
-    controls.gamePaused = false;
-  });
 }
 
 function hideMenu() {
@@ -501,4 +531,4 @@ function pauseMenu() {
   if (pauseMenuDiv) pauseMenuDiv.style.display = "block";
 }
 
-window.addEventListener("load", startMenu);
+window.addEventListener("load", initialize);

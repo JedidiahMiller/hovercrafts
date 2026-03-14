@@ -43,6 +43,18 @@ export class Hovercraft {
     this.mesh = mesh;
   }
 
+  reset(position: Vector3, direction: Vector3) {
+    this.position = position;
+    this.direction = direction;
+    this.linearVelocity = new Vector3(0, 0, 0);
+    this.linearAcceleration = new Vector3(0, 0, 0);
+    this.rotationalVelocity = new Vector3(0, 0, 0);
+    this.rotationalAcceleration = new Vector3(0, 0, 0);
+    const rotationY = Math.atan2(direction.x, -direction.z) * (180 / Math.PI);
+    this.rotation = new Vector3(0, rotationY, 0);
+    this.lastPhysicsUpdate = performance.now() / 1000;
+  }
+
   resetPhysicsTimestamp() {
     this.lastPhysicsUpdate = performance.now() / 1000;
   }
