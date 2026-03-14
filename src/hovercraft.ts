@@ -23,7 +23,6 @@ export class Hovercraft {
   private groundHoverDistance = 7;
   private groundEffectDistance = 7;
   private scale = new Vector3(2.5, 1.2, 2.5);
-  private lastSoundTime;
   private sidewaysFriction = 0.75; // 0-1, low to high friction
   private bounceFactor = 0.2;
 
@@ -41,8 +40,6 @@ export class Hovercraft {
     this.rotationalAcceleration = new Vector3(0, 0, 0);
 
     this.lastPhysicsUpdate = performance.now() / 1000;
-    this.lastSoundTime = performance.now() / 1000;
-
     this.mesh = mesh;
   }
 
@@ -53,6 +50,9 @@ export class Hovercraft {
   updatePhysics(terrainMeshes: TerrainMesh[], barrierMesh?: Mesh) {
     const now = performance.now() / 1000;
     const elapsedSeconds = now - this.lastPhysicsUpdate;
+
+    // Don't let the update size get to large, else the hovercraft will likely clip through the ground
+    const updateSize = Math.min(0.25, elapsedSeconds);
 
     // Find the height and the terrain type
     let terrainSpeed = 0;
@@ -85,8 +85,8 @@ export class Hovercraft {
 
         break;
       } else {
-        this.rotation.x = this.rotation.x * (1 - 0.6 * elapsedSeconds);
-        this.rotation.z = this.rotation.z * (1 - 0.6 * elapsedSeconds);
+        this.rotation.x = this.rotation.x * (1 - 0.6 * updateSize);
+        this.rotation.z = this.rotation.z * (1 - 0.6 * updateSize);
       }
     }
 
@@ -98,7 +98,7 @@ export class Hovercraft {
       this.linearVelocity.scalarMultiply(-this.airResistance),
     );
     this.rotationalVelocity = this.rotationalVelocity.scalarMultiply(
-      1 - elapsedSeconds * 0.75,
+      1 - updateSize * 0.75,
     );
 
     // Sideways friction - converts sideways drift into forward momentum
@@ -108,7 +108,7 @@ export class Hovercraft {
       const sidewaysVelocity = this.linearVelocity.subtract(forwardVelocity);
 
       // Calculate how much sideways velocity is lost to friction
-      const frictionAmount = this.sidewaysFriction * elapsedSeconds;
+      const frictionAmount = this.sidewaysFriction * updateSize;
       const sidewaysLoss = sidewaysVelocity.scalarMultiply(frictionAmount);
       const sidewaysLossMagnitude = sidewaysLoss.magnitude;
 
@@ -125,10 +125,10 @@ export class Hovercraft {
 
     // Velocity
     this.linearVelocity = this.linearVelocity.add(
-      this.linearAcceleration.scalarMultiply(elapsedSeconds),
+      this.linearAcceleration.scalarMultiply(updateSize),
     );
     this.rotationalVelocity.y +=
-      this.rotationalAcceleration.y * elapsedSeconds * 100;
+      this.rotationalAcceleration.y * updateSize * 100;
 
     // Apply collisions
 
@@ -142,7 +142,7 @@ export class Hovercraft {
       const damping = c * this.linearVelocity.y;
       const force = Math.max(0, spring - damping);
 
-      this.linearVelocity.y += force * elapsedSeconds;
+      this.linearVelocity.y += force * updateSize;
     }
 
     // Hard ground collision limit
@@ -161,7 +161,7 @@ export class Hovercraft {
         0,
         this.linearVelocity.z,
       );
-      const terrainDrag = 1 - (1 - terrainSpeed) * elapsedSeconds * 2;
+      const terrainDrag = 1 - (1 - terrainSpeed) * updateSize * 2;
       const modifiedHorizontal = horizontalVelocity.scalarMultiply(terrainDrag);
       this.linearVelocity.x = modifiedHorizontal.x;
       this.linearVelocity.z = modifiedHorizontal.z;
@@ -169,7 +169,7 @@ export class Hovercraft {
 
     // Apply the movements
     this.position = this.position.add(
-      this.linearVelocity.scalarMultiply(elapsedSeconds),
+      this.linearVelocity.scalarMultiply(updateSize),
     );
 
     // Barrier collision detection
@@ -178,7 +178,7 @@ export class Hovercraft {
     }
 
     // Rotational movement
-    const rotation = this.rotationalVelocity.y * elapsedSeconds * 10;
+    const rotation = this.rotationalVelocity.y * updateSize * 10;
     this.direction = Matrix4.rotateY(rotation)
       .multiplyVector3(this.direction)
       .normalize();
@@ -268,13 +268,6 @@ export class Hovercraft {
 
     // If we found a collision, push back and adjust velocity
     if (closestNormal && closestPenetration > 0) {
-      if (performance.now() / 1000 - this.lastSoundTime > 1) {
-        this.lastSoundTime = performance.now() / 1000;
-        const audio = new Audio("sound.mp3");
-        audio.volume = 0.5;
-        audio.play();
-      }
-
       // Transform normal to world space
       const worldNormal = M.multiplyVector3(closestNormal).normalize();
 

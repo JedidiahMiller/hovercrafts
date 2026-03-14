@@ -11,7 +11,6 @@ import skyboxFragmentSource from "@/shaders/skybox-fragment.glsl?raw";
 import tallgrassVertexSource from "@/shaders/tallgrass-vertex.glsl?raw";
 import tallgrassFragmentSource from "@/shaders/tallgrass-fragment.glsl?raw";
 import { ShaderProgram } from "./lib/shader-program.js";
-import { loadCubemap, fetchImage } from "./lib/web-utilities.js";
 import { Prefab } from "./lib/prefab.js";
 
 export class Scene {
@@ -41,14 +40,6 @@ export class Scene {
       this.skybox = Prefab.skybox();
       console.log("Skybox geometry created");
 
-      try {
-        await loadCubemap("textures/cubemap", "png", gl.TEXTURE3);
-        // console.log("Cubemap loaded successfully");
-      } catch (cubemapError) {
-        console.error("Cubemap loading error:", cubemapError);
-        throw cubemapError;
-      }
-
       const attributes = new VertexAttributes();
       attributes.addAttribute(
         "position",
@@ -73,22 +64,6 @@ export class Scene {
 
   async initializeTallGrass() {
     try {
-      // Load tall grass texture
-      const grassImage = await fetchImage("textures/tallGrass.png");
-
-      gl.activeTexture(gl.TEXTURE4);
-      this.tallGrassTexture = gl.createTexture();
-      gl.bindTexture(gl.TEXTURE_2D, this.tallGrassTexture);
-      gl.texImage2D(
-        gl.TEXTURE_2D,
-        0,
-        gl.RGBA,
-        gl.RGBA,
-        gl.UNSIGNED_BYTE,
-        grassImage,
-      );
-      gl.generateMipmap(gl.TEXTURE_2D);
-
       this.tallGrassShader = new ShaderProgram(
         tallgrassVertexSource,
         tallgrassFragmentSource,

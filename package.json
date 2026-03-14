@@ -7,8 +7,9 @@
     "sandbox": "tsc && node build/sandbox.js",
     "format": "prettier --write ."
   },
-  "dependencies": {},
   "devDependencies": {
+    "@types/compression": "^1.8.1",
+    "compression": "^1.8.1",
     "prettier": "^3.6.2",
     "typescript": "^5.9.2",
     "vite": "^7.1.3",

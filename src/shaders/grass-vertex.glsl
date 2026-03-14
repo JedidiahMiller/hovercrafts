@@ -1,21 +1,15 @@
 uniform mat4 clipFromEye;
 uniform mat4 eyeFromWorld;
 uniform mat4 worldFromModel;
+uniform vec3 cameraRight;
+uniform vec3 cameraUp;
+uniform float grassScale;
 
 in vec3 position;
-in vec3 normal;
 in vec2 texPosition;
 
-out vec3 mixNormal;
-out vec3 mixEyePosition;
-out vec2 mixTexPosition;
-out float height;
-
 void main() {
-  gl_Position = clipFromEye * eyeFromWorld * worldFromModel * vec4(position, 1.0);
-  height = (worldFromModel * vec4(position, 1.0)).y;
-  mixNormal = normalize((eyeFromWorld * worldFromModel * vec4(normal, 0.0)).xyz);
-
-  mixEyePosition = (eyeFromWorld * worldFromModel * vec4(position, 1.0)).xyz;
-  mixTexPosition = texPosition;
+  vec2 factors = vec2(texPosition.x * 2.0 - 1.0, texPosition.y * 2.0 - 1.0);
+  vec3 outerPosition = position + factors.x * cameraRight * grassScale + factors.y * cameraUp * grassScale;
+  gl_Position = clipFromEye * eyeFromWorld * worldFromModel * vec4(outerPosition, 1.0);
 }

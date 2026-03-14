@@ -13,8 +13,6 @@ import { loadTextures } from "./textures.js";
 import { HovercraftAudioEngine } from "./engine.js";
 import terrainFragmentSource from "@/shaders/terrain-fragment.glsl?raw";
 import terrainVertexSource from "@/shaders/terrain-vertex.glsl?raw";
-import alienVertexSource from "@/shaders/alien-vertex.glsl?raw";
-import alienFragmentSource from "@/shaders/alien-fragment.glsl?raw";
 
 let canvas: HTMLCanvasElement;
 let clipFromEye1: Matrix4;
@@ -40,7 +38,7 @@ let player2Speed: HTMLElement | null;
 let player1LapsDisplay: HTMLElement | null;
 let player2LapsDisplay: HTMLElement | null;
 
-const countdownTimerAudio = new Audio("audio/Start.mp3");
+let countdownTimerAudio: HTMLAudioElement;
 const engineAudio1 = new HovercraftAudioEngine();
 const engineAudio2 = new HovercraftAudioEngine();
 
@@ -64,6 +62,31 @@ const startButton = document.getElementById("start");
 const restartButton = document.getElementById("restart");
 const continueButton = document.getElementById("continue");
 
+function preloadAudio(src: string): Promise<HTMLAudioElement> {
+  return new Promise((resolve, reject) => {
+    const audio = new Audio(src);
+    audio.addEventListener("canplaythrough", () => resolve(audio), { once: true });
+    audio.addEventListener("error", reject, { once: true });
+  });
+}
+
+async function loadAssets() {
+  console.time("loadAssets");
+  console.time("loadAssets:textures+meshes+audio");
+  const [, trackMeshes, hovercraftMeshes, , , startAudio] = await Promise.all([
+    loadTextures(),
+    Mesh.load("models/track.gltf"),
+    Mesh.load("models/hovercraft.gltf"),
+    engineAudio1.loadAudio("audio/Engine.mp3"),
+    engineAudio2.loadAudio("audio/Engine2.mp3"),
+    preloadAudio("audio/Start.mp3"),
+  ]);
+  countdownTimerAudio = startAudio;
+  console.timeEnd("loadAssets:textures+meshes+audio");
+  console.timeEnd("loadAssets");
+  return { trackMeshes, hovercraftMeshes };
+}
+
 async function initialize() {
   canvas = document.getElementById("canvas") as HTMLCanvasElement;
   window.gl = canvas.getContext("webgl2") as WebGL2RenderingContext;
@@ -85,11 +108,14 @@ async function initialize() {
   // Start building the scene
   scene = new Scene(clipFromEye1, new Vector3(200, 500, 200));
 
-  // Load textures
-  await loadTextures();
+  // Clear audio cache before loading to ensure clean playback on restart
+  if (engineAudio1) engineAudio1.stop();
+  if (engineAudio2) engineAudio2.stop();
 
-  // Load track meshes
-  let trackMeshes = await Mesh.load("models/track.gltf");
+  console.time("initialize");
+  const { trackMeshes, hovercraftMeshes } = await loadAssets();
+
+  console.time("initialize:setupMeshes");
   const trackTransform = Matrix4.scale(800, 800, 800);
   trackMeshes["track"].worldFromModel = trackTransform;
   trackMeshes["track"].shader = new ShaderProgram(
@@ -111,7 +137,11 @@ async function initialize() {
   trackMeshes["grass"].textureScale = [500, 500];
   scene.groundMeshes.push(new TerrainMesh(trackMeshes["grass"], 0));
 
+  console.timeEnd("initialize:setupMeshes");
+
+  console.time("initialize:tallGrass");
   await scene.initializeTallGrass();
+  console.timeEnd("initialize:tallGrass");
 
   trackMeshes["decor"].worldFromModel = trackTransform;
   trackMeshes["decor"].shader = new ShaderProgram(
@@ -130,9 +160,6 @@ async function initialize() {
   barrierMesh = trackMeshes["barrier"];
   barrierMesh.worldFromModel = trackTransform;
 
-  // Load hovercraft meshes
-  const hovercraftMeshes = await Mesh.load("models/hovercraft.gltf");
-
   let hovercraftMesh1 = hovercraftMeshes["hovercraft1"];
   hovercraftMesh1.shader = new ShaderProgram(
     simpleVertexSource,
@@ -146,25 +173,6 @@ async function initialize() {
     simpleFragmentSource,
   );
   scene.meshes.push(hovercraftMesh2);
-
-  // Load waving men (animated character)
-  for (let i = 0; i < 5; i++) {
-    const wavingManMeshes = await Mesh.load("models/waving_man.gltf");
-    console.log("Meshs:", wavingManMeshes);
-    const alienMesh = wavingManMeshes["Plane"];
-    alienMesh.shader = new ShaderProgram(
-      alienVertexSource,
-      alienFragmentSource,
-    );
-    // Position 5 units ahead of hovercraft1 (in the positive X direction)
-    alienMesh.worldFromModel = Matrix4.translate(1230 + i * 10, 50, -170)
-      .multiplyMatrix(Matrix4.scale(0.08, 0.08, 0.08))
-      .multiplyMatrix(Matrix4.rotateY(200));
-    alienMesh.animationSpeed = 2.0;
-    scene.meshes.push(alienMesh);
-
-    alienMesh.playAnimation(alienMesh.getAvailableAnimations()[0]); // Play first animation
-  }
 
   // Create the hovercraft
   hovercraft1 = new Hovercraft(
@@ -195,24 +203,14 @@ async function initialize() {
     new Vector3(-15, 0, 0),
   );
 
-  // This essentially clears the audio cache to ensure the audio plays after reloading the game.
-  if (engineAudio1) {
-    engineAudio1.stop();
-  }
-  if (engineAudio2) {
-    engineAudio2.stop();
-  }
-
   countdownTimerAudio.volume = 0.3;
   countdownTimerAudio.play();
-  // Initialize and load audio
-  await engineAudio1.loadAudio("audio/Engine.mp3");
   engineAudio1.setVolume(0.8);
   engineAudio1.start();
-
-  await engineAudio2.loadAudio("audio/Engine2.mp3");
   engineAudio2.setVolume(1);
   engineAudio2.start();
+
+  console.timeEnd("initialize");
 
   requestAnimationFrame(animate);
 }

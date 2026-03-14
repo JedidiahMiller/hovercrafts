@@ -1,9 +1,13 @@
-import { fetchImage } from "./lib/web-utilities.js";
+import { fetchImage, loadCubemap } from "./lib/web-utilities.js";
 
-export async function loadTextures() {
-  await createRgbaTexture2d("textures/dirt.png", gl, gl.TEXTURE0);
-  await createRgbaTexture2d("textures/grass.png", gl, gl.TEXTURE1);
-  await createRgbaTexture2d("textures/road.png", gl, gl.TEXTURE2);
+export function loadTextures() {
+  return Promise.all([
+    createRgbaTexture2d("textures/dirt.webp", gl, gl.TEXTURE0),
+    createRgbaTexture2d("textures/grass.webp", gl, gl.TEXTURE1),
+    createRgbaTexture2d("textures/road.webp", gl, gl.TEXTURE2),
+    loadCubemap("textures/cubemap", "webp", gl.TEXTURE3),
+    createRgbaTexture2d("textures/tallGrass.webp", gl, gl.TEXTURE4),
+  ]);
 }
 
 async function createRgbaTexture2d(
